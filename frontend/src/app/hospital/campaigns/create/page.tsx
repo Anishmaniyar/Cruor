@@ -4,7 +4,7 @@ import Link from "next/link";
 import { PageHeader, BackLink } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { Input, Select, Textarea } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
+import { Panel } from "@/components/ui/card";
 import { bloodGroups } from "@/lib/mock-data";
 
 export default function CreateCampaignPage() {
@@ -12,7 +12,7 @@ export default function CreateCampaignPage() {
     <>
       <BackLink href="/hospital/campaigns" />
       <PageHeader label="New Campaign" title="Create Campaign" description="Launch a new blood donation drive." />
-      <Card className="max-w-xl">
+      <Panel className="max-w-xl">
         <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
           <Input label="Campaign Title" placeholder="Summer Blood Drive 2026" required />
           <Input label="Location" placeholder="Metro General Hospital — Main Lobby" required />
@@ -31,7 +31,7 @@ export default function CreateCampaignPage() {
             <Link href="/hospital/campaigns"><Button variant="secondary">Cancel</Button></Link>
           </div>
         </form>
-      </Card>
+      </Panel>
     </>
   );
 }

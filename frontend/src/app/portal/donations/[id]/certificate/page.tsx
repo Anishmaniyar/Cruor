@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
+import { Certificate } from "@phosphor-icons/react/dist/ssr";
 import { PageHeader, BackLink } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Panel } from "@/components/ui/card";
 import { getById, donations, donorUser } from "@/lib/mock-data";
 import { formatDate } from "@/lib/utils";
-import { Award } from "lucide-react";
 
 export default async function CertificatePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -14,31 +14,31 @@ export default async function CertificatePage({ params }: { params: Promise<{ id
   return (
     <>
       <BackLink href={`/portal/donations/${id}`} />
-      <PageHeader label="Certificate" title="Donation Certificate" />
+      <PageHeader label="Certificate" title="Donation certificate" />
 
-      <Card className="max-w-2xl mx-auto border-2 border-accent p-12 text-center newsprint-texture">
-        <Award className="mx-auto h-12 w-12 text-accent mb-6" strokeWidth={1.5} />
-        <p className="font-mono text-xs uppercase tracking-widest text-accent mb-4">Certificate of Appreciation</p>
-        <h2 className="font-serif text-3xl font-black mb-2">VitalDrops</h2>
-        <p className="font-body text-sm text-muted-foreground mb-8">This certifies that</p>
-        <p className="font-serif text-4xl font-black text-accent mb-2">{donorUser.name}</p>
-        <p className="font-body text-sm text-muted-foreground mb-8">
-          has generously donated {donation.volume} of {donation.type} on {formatDate(donation.date)} at {donation.location}.
+      <Panel className="mx-auto max-w-2xl border-2 border-accent/40 p-12 text-center">
+        <Certificate size={48} className="mx-auto mb-6 text-accent" aria-hidden />
+        <p className="mb-4 font-mono text-xs uppercase tracking-widest text-accent">Certificate of donation</p>
+        <h2 className="mb-2 text-2xl font-semibold tracking-tight">VitalDrops</h2>
+        <p className="mb-8 text-sm text-muted-foreground">This certifies that</p>
+        <p className="mb-2 text-3xl font-semibold tracking-tight text-accent">{donorUser.name}</p>
+        <p className="mb-8 text-sm text-muted-foreground">
+          donated {donation.volume} of {donation.type} on {formatDate(donation.date)} at {donation.location}.
         </p>
         <div className="flex justify-center gap-12 border-t border-border pt-8">
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Blood Group</p>
-            <p className="font-serif text-xl font-bold text-accent">{donation.bloodGroup}</p>
+            <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Blood group</p>
+            <p className="mt-1 font-mono text-lg text-accent">{donation.bloodGroup}</p>
           </div>
           <div>
             <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Reference</p>
-            <p className="font-mono text-sm">{donation.id.toUpperCase()}</p>
+            <p className="mt-1 font-mono text-sm">{donation.id.toUpperCase()}</p>
           </div>
         </div>
         <div className="mt-8">
           <Button>Download PDF</Button>
         </div>
-      </Card>
+      </Panel>
     </>
   );
 }

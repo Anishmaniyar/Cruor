@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { PageHeader, DataTable } from "@/components/ui/page-header";
-import { StatusBadge, BloodGroupBadge, Badge } from "@/components/ui/badge";
+import { StatusBadge, BloodGroupBadge } from "@/components/ui/badge";
 import { bloodUnits } from "@/lib/mock-data";
 import { formatDate } from "@/lib/utils";
 
@@ -11,17 +11,16 @@ export default function BloodUnitsPage() {
     u.component,
     u.volume,
     formatDate(u.expiryDate),
-    u.verified ? <Badge key={u.id + "-v"} variant="success">Verified</Badge> : <Badge key={u.id + "-v"} variant="warning">Pending</Badge>,
-    <StatusBadge key={u.id + "-s"} status={u.status} />,
-    <Link key={u.id + "-link"} href={`/hospital/blood-units/${u.id}`} className="font-mono text-xs uppercase tracking-widest text-accent hover:underline">
+    <StatusBadge key={u.id + "-s"} status={u.lifecycle} />,
+    <Link key={u.id + "-link"} href={`/hospital/blood-units/${u.id}`} className="text-xs font-medium uppercase tracking-wider text-accent hover:underline">
       View
     </Link>,
   ]);
 
   return (
     <>
-      <PageHeader label="Blood Units" title="Blood Unit Management" description="Track individual blood units from collection to storage." />
-      <DataTable headers={["Unit ID", "Group", "Component", "Volume", "Expiry", "Verified", "Status", "Action"]} rows={rows} />
+      <PageHeader label="Blood Units" title="Blood unit registry" description="Track lifecycle state for every collected unit." />
+      <DataTable headers={["Unit ID", "Group", "Component", "Volume", "Expiry", "Lifecycle", "Action"]} rows={rows} />
     </>
   );
 }

@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import { PageHeader, BackLink, DetailRow } from "@/components/ui/page-header";
-import { BloodGroupBadge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import { BloodGroupBadge, StatusBadge } from "@/components/ui/badge";
+import { Panel } from "@/components/ui/card";
+import { MapPin } from "@phosphor-icons/react/dist/ssr";
 import { getById, bloodUnits, trackingEvents } from "@/lib/mock-data";
 import { formatDateTime } from "@/lib/utils";
-import { MapPin } from "lucide-react";
 
 export default async function TrackingPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -14,32 +14,33 @@ export default async function TrackingPage({ params }: { params: Promise<{ id: s
   return (
     <>
       <BackLink href={`/hospital/blood-units/${id}`} />
-      <PageHeader label="Tracking" title={`Journey — ${unit.unitId}`} description="End-to-end tracking from collection to storage." />
-      <Card className="mb-6">
-        <dl className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <PageHeader label="Tracking" title={`Journey — ${unit.unitId}`} description="Audit trail from collection through storage." />
+      <Panel className="mb-6">
+        <dl>
           <DetailRow label="Unit ID" value={<span className="font-mono">{unit.unitId}</span>} />
-          <DetailRow label="Blood Group" value={<BloodGroupBadge group={unit.bloodGroup} />} />
-          <DetailRow label="Current Location" value={unit.location} />
+          <DetailRow label="Blood group" value={<BloodGroupBadge group={unit.bloodGroup} />} />
+          <DetailRow label="Current location" value={unit.location} />
+          <DetailRow label="Lifecycle" value={<StatusBadge status={unit.lifecycle} />} />
         </dl>
-      </Card>
+      </Panel>
 
-      <div className="border border-border">
+      <ol className="border border-border">
         {trackingEvents.map((event, i) => (
-          <div key={event.id} className={`flex gap-6 p-6 ${i < trackingEvents.length - 1 ? "border-b border-border" : ""}`}>
+          <li key={event.id} className={`flex gap-6 p-6 ${i < trackingEvents.length - 1 ? "border-b border-border" : ""}`}>
             <div className="flex flex-col items-center">
               <div className={`flex h-10 w-10 items-center justify-center border ${i === trackingEvents.length - 1 ? "border-accent bg-accent/10 text-accent" : "border-border"}`}>
-                <MapPin className="h-4 w-4" strokeWidth={1.5} />
+                <MapPin size={16} aria-hidden />
               </div>
-              {i < trackingEvents.length - 1 && <div className="w-px flex-1 bg-border mt-2" />}
+              {i < trackingEvents.length - 1 && <div className="mt-2 w-px flex-1 bg-border" />}
             </div>
-            <div className="flex-1 pb-4">
-              <p className="font-serif text-lg font-bold">{event.event}</p>
-              <p className="font-sans text-sm text-muted-foreground mt-1">{event.location}</p>
-              <p className="font-mono text-xs text-muted-foreground mt-1">{formatDateTime(event.timestamp)} · {event.actor}</p>
+            <div className="flex-1">
+              <p className="text-sm font-semibold"><StatusBadge status={event.event as "COLLECTED"} /></p>
+              <p className="mt-1 text-sm text-muted-foreground">{event.location}</p>
+              <p className="mt-1 font-mono text-xs text-muted-foreground">{formatDateTime(event.timestamp)} · {event.actor}</p>
             </div>
-          </div>
+          </li>
         ))}
-      </div>
+      </ol>
     </>
   );
 }

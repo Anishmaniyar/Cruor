@@ -3,7 +3,7 @@ import Link from "next/link";
 import { PageHeader, BackLink, DetailRow, ActionBar } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { StatusBadge, BloodGroupBadge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import { Panel } from "@/components/ui/card";
 import { getById, campaigns } from "@/lib/mock-data";
 import { formatDate } from "@/lib/utils";
 
@@ -16,7 +16,7 @@ export default async function HospitalCampaignDetailPage({ params }: { params: P
     <>
       <BackLink href="/hospital/campaigns" />
       <PageHeader label="Campaign" title={campaign.title} action={<StatusBadge status={campaign.status} />} />
-      <Card>
+      <Panel>
         <dl>
           <DetailRow label="Location" value={campaign.location} />
           <DetailRow label="Duration" value={`${formatDate(campaign.startDate)} — ${formatDate(campaign.endDate)}`} />
@@ -31,7 +31,7 @@ export default async function HospitalCampaignDetailPage({ params }: { params: P
           {campaign.status === "active" && <Button variant="danger">Cancel Campaign</Button>}
           {campaign.status === "active" && <Button variant="secondary">Mark Complete</Button>}
         </ActionBar>
-      </Card>
+      </Panel>
     </>
   );
 }

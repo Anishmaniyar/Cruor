@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import { PageHeader, BackLink, DetailRow, ActionBar } from "@/components/ui/page-header";
-import { Button } from "@/components/ui/button";
 import { StatusBadge, BloodGroupBadge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { getById, bloodRequests } from "@/lib/mock-data";
+import { AuditTrail } from "@/components/shared/audit-trail";
+import { RequestActions } from "@/components/shared/status-actions";
+import { getById, bloodRequests, getAuditLog } from "@/lib/mock-data";
 import { formatDateTime } from "@/lib/utils";
 
 export default async function RequestDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -15,7 +15,7 @@ export default async function RequestDetailPage({ params }: { params: Promise<{ 
     <>
       <BackLink href="/hospital/requests" />
       <PageHeader label="Blood Request" title={`Request from ${request.hospital}`} action={<StatusBadge status={request.status} />} />
-      <Card>
+      <div className="border border-border">
         <dl>
           <DetailRow label="Hospital" value={request.hospital} />
           <DetailRow label="Blood Group" value={<BloodGroupBadge group={request.bloodGroup} />} />
@@ -25,15 +25,12 @@ export default async function RequestDetailPage({ params }: { params: Promise<{ 
           <DetailRow label="Created" value={formatDateTime(request.createdAt)} />
         </dl>
         <ActionBar>
-          {request.status === "open" && (
-            <>
-              <Button>Accept Request</Button>
-              <Button variant="danger">Reject</Button>
-            </>
-          )}
-          {request.status === "accepted" && <Button variant="danger">Cancel Request</Button>}
+          <RequestActions status={request.status} />
         </ActionBar>
-      </Card>
+        <div className="px-4 pb-4">
+          <AuditTrail entries={getAuditLog(id)} />
+        </div>
+      </div>
     </>
   );
 }

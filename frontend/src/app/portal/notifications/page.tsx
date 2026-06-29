@@ -10,26 +10,24 @@ export default function NotificationsPage() {
   return (
     <>
       <PageHeader
-        label="Alerts"
-        title="Notifications"
-        description="Stay updated on appointments, campaigns, and donation activity."
-        action={<Button variant="secondary" size="sm">Mark All Read</Button>}
+        label="Notifications"
+        title="Alerts and updates"
+        description="Appointment, campaign, and inventory notifications."
+        action={<Button variant="secondary" size="sm">Mark all read</Button>}
       />
-      <div className="border border-border divide-y divide-border">
+      <div className="divide-y divide-border border border-border">
         {notifications.map((n) => (
-          <div key={n.id} className={`flex items-start gap-4 p-6 ${!n.read ? "bg-accent/5 border-l-2 border-l-accent" : ""}`}>
-            <div className={`mt-1.5 h-2 w-2 flex-shrink-0 ${n.read ? "bg-muted-foreground" : "bg-accent"}`} />
+          <div key={n.id} className={`flex items-start gap-4 p-6 ${!n.read ? "border-l-2 border-l-accent bg-accent/5" : ""}`}>
+            <div className={`mt-1.5 h-2 w-2 shrink-0 ${n.read ? "bg-muted-foreground" : "bg-accent"}`} aria-hidden />
             <div className="flex-1">
               <div className="flex items-start justify-between gap-4">
-                <p className="font-sans text-sm font-medium">{n.title}</p>
+                <p className="text-sm font-medium">{n.title}</p>
                 <Badge variant={n.read ? "default" : "accent"}>{n.read ? "Read" : "New"}</Badge>
               </div>
-              <p className="font-body text-sm text-muted-foreground mt-1">{n.message}</p>
-              <p className="font-mono text-[10px] text-muted-foreground mt-2">{formatDateTime(n.date)}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{n.message}</p>
+              <p className="mt-2 font-mono text-[10px] text-muted-foreground">{formatDateTime(n.date)}</p>
             </div>
-            {!n.read && (
-              <Button variant="ghost" size="sm">Mark Read</Button>
-            )}
+            {!n.read && <Button variant="ghost" size="sm">Mark read</Button>}
           </div>
         ))}
       </div>

@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import { PageHeader, BackLink, DetailRow, ActionBar } from "@/components/ui/page-header";
-import { Button } from "@/components/ui/button";
 import { StatusBadge, BloodGroupBadge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { getById, transfers } from "@/lib/mock-data";
+import { AuditTrail } from "@/components/shared/audit-trail";
+import { TransferActions } from "@/components/shared/status-actions";
+import { getById, transfers, getAuditLog } from "@/lib/mock-data";
 import { formatDateTime } from "@/lib/utils";
 
 export default async function TransferDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -15,7 +15,7 @@ export default async function TransferDetailPage({ params }: { params: Promise<{
     <>
       <BackLink href="/hospital/transfers" />
       <PageHeader label="Transfer" title={`Transfer ${transfer.id.toUpperCase()}`} action={<StatusBadge status={transfer.status} />} />
-      <Card>
+      <div className="border border-border">
         <dl>
           <DetailRow label="From" value={transfer.from} />
           <DetailRow label="To" value={transfer.to} />
@@ -25,11 +25,12 @@ export default async function TransferDetailPage({ params }: { params: Promise<{
           <DetailRow label="Date" value={formatDateTime(transfer.date)} />
         </dl>
         <ActionBar>
-          {transfer.status === "pending" && <Button>Approve Transfer</Button>}
-          {transfer.status === "accepted" && <Button>Mark In Transit</Button>}
-          {transfer.status === "in-transit" && <Button>Mark Delivered</Button>}
+          <TransferActions status={transfer.status} />
         </ActionBar>
-      </Card>
+        <div className="px-4 pb-4">
+          <AuditTrail entries={getAuditLog(id)} />
+        </div>
+      </div>
     </>
   );
 }

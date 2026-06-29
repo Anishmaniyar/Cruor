@@ -13,22 +13,18 @@ export function PageHeader({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="border-b border-border pb-8 mb-8">
+    <div className="mb-10 border-b border-border pb-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
+        <div className="max-w-2xl">
           {label && (
-            <p className="mb-2 font-mono text-xs uppercase tracking-widest text-accent">
-              {label}
-            </p>
+            <p className="mb-2 text-xs font-medium uppercase tracking-widest text-accent">{label}</p>
           )}
-          <h1 className="font-serif text-4xl font-black lg:text-5xl">{title}</h1>
+          <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">{title}</h1>
           {description && (
-            <p className="mt-3 max-w-2xl font-body text-sm leading-relaxed text-muted-foreground">
-              {description}
-            </p>
+            <p className="mt-3 max-w-[65ch] text-sm leading-relaxed text-muted-foreground">{description}</p>
           )}
         </div>
-        {action && <div className="flex-shrink-0">{action}</div>}
+        {action && <div className="shrink-0">{action}</div>}
       </div>
     </div>
   );
@@ -45,22 +41,19 @@ export function DataTable({
 }) {
   if (rows.length === 0) {
     return (
-      <div className="border border-border bg-card p-12 text-center">
-        <p className="font-mono text-sm text-muted-foreground">{emptyMessage}</p>
+      <div className="border border-dashed border-border px-6 py-16 text-center">
+        <p className="text-sm text-muted-foreground">{emptyMessage}</p>
       </div>
     );
   }
 
   return (
-    <div className="border border-border overflow-x-auto">
+    <div className="overflow-x-auto border border-border">
       <table className="w-full text-left">
         <thead>
-          <tr className="border-b border-border bg-muted">
+          <tr className="border-b border-border bg-muted/50">
             {headers.map((h) => (
-              <th
-                key={h}
-                className="px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-muted-foreground"
-              >
+              <th key={h} className="px-4 py-3 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                 {h}
               </th>
             ))}
@@ -68,11 +61,9 @@ export function DataTable({
         </thead>
         <tbody>
           {rows.map((row, i) => (
-            <tr key={i} className="border-b border-border last:border-b-0 hover:bg-muted/50 transition-colors">
+            <tr key={i} className="border-b border-border last:border-b-0 hover:bg-muted/30 transition-colors">
               {row.map((cell, j) => (
-                <td key={j} className="px-4 py-3 font-sans text-sm">
-                  {cell}
-                </td>
+                <td key={j} className="px-4 py-3 text-sm">{cell}</td>
               ))}
             </tr>
           ))}
@@ -84,9 +75,9 @@ export function DataTable({
 
 export function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-1 border-b border-border py-4 sm:grid-cols-3">
-      <dt className="font-mono text-xs uppercase tracking-widest text-muted-foreground">{label}</dt>
-      <dd className="sm:col-span-2 font-sans text-sm">{value}</dd>
+    <div className="grid grid-cols-1 gap-1 border-b border-border py-4 sm:grid-cols-3 sm:gap-4">
+      <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</dt>
+      <dd className="sm:col-span-2 text-sm">{value}</dd>
     </div>
   );
 }
@@ -95,34 +86,16 @@ export function BackLink({ href, label = "Back" }: { href: string; label?: strin
   return (
     <Link
       href={href}
-      className="mb-6 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-accent transition-colors"
+      className="mb-6 inline-flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground transition-colors hover:text-accent"
     >
-      ← {label}
+      <span aria-hidden>←</span> {label}
     </Link>
-  );
-}
-
-export function EmptyState({ title, description, action }: { title: string; description?: string; action?: React.ReactNode }) {
-  return (
-    <div className="border border-dashed border-border bg-muted/30 p-12 text-center">
-      <h3 className="font-serif text-2xl font-bold">{title}</h3>
-      {description && <p className="mt-2 font-body text-sm text-muted-foreground">{description}</p>}
-      {action && <div className="mt-6">{action}</div>}
-    </div>
-  );
-}
-
-export function SectionDivider() {
-  return (
-    <div className="py-8 text-center font-serif text-2xl text-muted-foreground tracking-[1em]">
-      &#x2727; &#x2727; &#x2727;
-    </div>
   );
 }
 
 export function ActionBar({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={cn("flex flex-wrap gap-3 border-t border-border pt-6 mt-6", className)}>
+    <div className={cn("mt-6 flex flex-wrap gap-3 border-t border-border pt-6", className)}>
       {children}
     </div>
   );

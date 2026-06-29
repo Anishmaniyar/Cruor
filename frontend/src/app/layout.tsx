@@ -1,9 +1,20 @@
 import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: "VitalDrops — Blood Donation & Hospital Inventory Management",
-  description: "Connect donors and hospitals. Manage appointments, campaigns, donations, blood inventory, requests, and transfers.",
+  description: "Healthcare logistics platform connecting donors and hospitals for appointments, inventory, requests, and transfers.",
 };
 
 export default function RootLayout({
@@ -12,8 +23,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full dark">
-      <body className="min-h-full flex flex-col antialiased">{children}</body>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full dark`}>
+      <body className="min-h-full flex flex-col antialiased font-sans">{children}</body>
     </html>
   );
 }

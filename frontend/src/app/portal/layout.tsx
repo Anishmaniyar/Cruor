@@ -1,12 +1,15 @@
 import { PortalSidebar } from "@/components/layout/portal-sidebar";
+import { PortalPageShell } from "@/components/layout/portal-shell";
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-[100dvh] bg-background">
       <PortalSidebar />
       <div className="lg:pl-64">
-        <main className="min-h-screen p-4 pt-16 lg:p-8 lg:pt-8">
-          <div className="mx-auto max-w-screen-xl">{children}</div>
+        <main className="min-h-[100dvh] p-4 pt-16 lg:p-8 lg:pt-8">
+          <div className="mx-auto max-w-[1400px]">
+            <PortalPageShell>{children}</PortalPageShell>
+          </div>
         </main>
       </div>
     </div>

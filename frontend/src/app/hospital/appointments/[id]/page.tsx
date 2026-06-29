@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import { PageHeader, BackLink, DetailRow, ActionBar } from "@/components/ui/page-header";
-import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { getById, appointments } from "@/lib/mock-data";
+import { AuditTrail } from "@/components/shared/audit-trail";
+import { AppointmentActions } from "@/components/shared/status-actions";
+import { getById, appointments, getAuditLog } from "@/lib/mock-data";
 import { formatDateTime } from "@/lib/utils";
 
 export default async function HospitalAppointmentDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -15,26 +15,20 @@ export default async function HospitalAppointmentDetailPage({ params }: { params
     <>
       <BackLink href="/hospital/appointments" />
       <PageHeader label="Appointment" title={`Appointment ${apt.id.toUpperCase()}`} action={<StatusBadge status={apt.status} />} />
-      <Card>
+      <div className="border border-border">
         <dl>
           <DetailRow label="Date & Time" value={formatDateTime(apt.date)} />
           <DetailRow label="Type" value={apt.type} />
           <DetailRow label="Location" value={apt.location} />
           <DetailRow label="Status" value={<StatusBadge status={apt.status} />} />
         </dl>
-        {apt.status === "pending" && (
-          <ActionBar>
-            <Button>Confirm</Button>
-            <Button variant="danger">Reject</Button>
-          </ActionBar>
-        )}
-        {apt.status === "confirmed" && (
-          <ActionBar>
-            <Button>Mark Complete</Button>
-            <Button variant="danger">Reject</Button>
-          </ActionBar>
-        )}
-      </Card>
+        <ActionBar>
+          <AppointmentActions status={apt.status} />
+        </ActionBar>
+        <div className="px-4 pb-4">
+          <AuditTrail entries={getAuditLog(id)} />
+        </div>
+      </div>
     </>
   );
 }

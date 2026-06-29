@@ -4,14 +4,14 @@ import Link from "next/link";
 import { PageHeader, BackLink } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
+import { Panel } from "@/components/ui/card";
 
 export default function BookAppointmentPage() {
   return (
     <>
       <BackLink href="/portal/appointments" />
       <PageHeader label="Schedule" title="Book Appointment" description="Select a date, location, and donation type for your next visit." />
-      <Card className="max-w-xl">
+      <Panel className="max-w-xl">
         <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
           <Select label="Location" defaultValue="metro">
             <option value="metro">Metro General — Blood Bank Wing</option>
@@ -35,7 +35,7 @@ export default function BookAppointmentPage() {
             <Link href="/portal/appointments"><Button variant="secondary">Cancel</Button></Link>
           </div>
         </form>
-      </Card>
+      </Panel>
     </>
   );
 }

@@ -4,36 +4,34 @@ import Link from "next/link";
 import { PublicHeader, PublicFooter } from "@/components/layout/public-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
 
 export default function LoginPage() {
   return (
     <>
       <PublicHeader />
-      <main className="flex-1 flex items-center justify-center py-16 px-4">
+      <main className="flex flex-1 items-center justify-center px-4 py-16">
         <div className="w-full max-w-md">
-          <div className="mb-8 text-center">
-            <p className="font-mono text-xs uppercase tracking-widest text-accent mb-2">Authentication</p>
-            <h1 className="font-serif text-4xl font-black">Sign In</h1>
-            <p className="mt-2 font-body text-sm text-muted-foreground">Access your donor or hospital portal</p>
+          <div className="mb-8">
+            <p className="mb-2 text-xs font-medium uppercase tracking-widest text-accent">Authentication</p>
+            <h1 className="text-3xl font-semibold tracking-tight">Sign in</h1>
+            <p className="mt-2 text-sm text-muted-foreground">Access donor or hospital workflows.</p>
           </div>
-          <Card>
+          <div className="border border-border p-6">
             <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-              <Input label="Email Address" type="email" placeholder="you@example.com" required />
-              <Input label="Password" type="password" placeholder="••••••••" required />
-              <Button type="submit" className="w-full">Sign In</Button>
+              <Input label="Email address" type="email" id="email" placeholder="you@example.com" required />
+              <Input label="Password" type="password" id="password" placeholder="Enter password" required helperText="Minimum 8 characters" />
+              <Button type="submit" className="w-full">Sign in</Button>
             </form>
             <div className="mt-6 border-t border-border pt-6">
-              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-3">Quick Access (Demo)</p>
+              <p className="mb-3 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Demo access</p>
               <div className="grid grid-cols-2 gap-2">
-                <Link href="/portal/dashboard"><Button variant="secondary" size="sm" className="w-full">Donor Portal</Button></Link>
-                <Link href="/hospital/dashboard"><Button variant="secondary" size="sm" className="w-full">Hospital Portal</Button></Link>
+                <Link href="/portal/dashboard"><Button variant="secondary" size="sm" className="w-full">Donor portal</Button></Link>
+                <Link href="/hospital/dashboard"><Button variant="secondary" size="sm" className="w-full">Hospital portal</Button></Link>
               </div>
             </div>
-          </Card>
-          <p className="mt-6 text-center font-sans text-sm text-muted-foreground">
-            Don&apos;t have an account?{" "}
-            <Link href="/auth/register" className="text-accent hover:underline">Register</Link>
+          </div>
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            No account? <Link href="/auth/register" className="text-accent hover:underline">Register</Link>
           </p>
         </div>
       </main>

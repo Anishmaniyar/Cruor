@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import { PageHeader, BackLink, DetailRow, ActionBar } from "@/components/ui/page-header";
-import { Button } from "@/components/ui/button";
 import { StatusBadge, BloodGroupBadge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { getById, hospitalDonations } from "@/lib/mock-data";
+import { AuditTrail } from "@/components/shared/audit-trail";
+import { DonationReviewActions } from "@/components/shared/status-actions";
+import { getById, hospitalDonations, getAuditLog } from "@/lib/mock-data";
 import { formatDate } from "@/lib/utils";
 
 export default async function HospitalDonationDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -15,7 +15,7 @@ export default async function HospitalDonationDetailPage({ params }: { params: P
     <>
       <BackLink href="/hospital/donations" />
       <PageHeader label="Donation Review" title={`Donation by ${donation.donor}`} action={<StatusBadge status={donation.status} />} />
-      <Card>
+      <div className="border border-border">
         <dl>
           <DetailRow label="Donor" value={donation.donor} />
           <DetailRow label="Date" value={formatDate(donation.date)} />
@@ -23,13 +23,13 @@ export default async function HospitalDonationDetailPage({ params }: { params: P
           <DetailRow label="Blood Group" value={<BloodGroupBadge group={donation.bloodGroup} />} />
           <DetailRow label="Status" value={<StatusBadge status={donation.status} />} />
         </dl>
-        {donation.status === "pending" && (
-          <ActionBar>
-            <Button>Mark Complete</Button>
-            <Button variant="danger">Reject</Button>
-          </ActionBar>
-        )}
-      </Card>
+        <ActionBar>
+          <DonationReviewActions status={donation.status} />
+        </ActionBar>
+        <div className="px-4 pb-4">
+          <AuditTrail entries={getAuditLog(id)} />
+        </div>
+      </div>
     </>
   );
 }

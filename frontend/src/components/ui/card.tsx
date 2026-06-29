@@ -1,54 +1,56 @@
 import { cn } from "@/lib/utils";
 
-export function Card({
+export function Section({
   children,
   className,
-  hover = false,
+  title,
+  action,
 }: {
   children: React.ReactNode;
   className?: string;
-  hover?: boolean;
+  title?: string;
+  action?: React.ReactNode;
 }) {
   return (
-    <div
-      className={cn(
-        "border border-border bg-card p-6",
-        hover && "hard-shadow-hover cursor-pointer hover:bg-card-hover",
-        className
+    <section className={cn("border-t border-border pt-8", className)}>
+      {(title || action) && (
+        <div className="mb-4 flex items-end justify-between gap-4">
+          {title && <h2 className="text-sm font-semibold tracking-tight">{title}</h2>}
+          {action}
+        </div>
       )}
-    >
+      {children}
+    </section>
+  );
+}
+
+export function Panel({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("border border-border bg-card/50 p-6", className)}>
       {children}
     </div>
   );
 }
 
-export function StatCard({
+export function MetricInline({
   label,
   value,
-  sub,
-  alert = false,
-  icon,
+  alert,
 }: {
   label: string;
   value: string | number;
-  sub?: string;
   alert?: boolean;
-  icon?: React.ReactNode;
 }) {
   return (
-    <Card className={cn("flex flex-col gap-3", alert && "border-accent")}>
-      <div className="flex items-start justify-between">
-        <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-          {label}
-        </span>
-        {icon && (
-          <div className="flex h-10 w-10 items-center justify-center border border-border text-accent">
-            {icon}
-          </div>
-        )}
-      </div>
-      <p className={cn("font-serif text-4xl font-black", alert && "text-accent")}>{value}</p>
-      {sub && <p className="font-mono text-xs text-muted-foreground">{sub}</p>}
-    </Card>
+    <div className="border-l-2 border-border pl-4">
+      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className={cn("mt-1 font-mono text-2xl font-semibold tracking-tight", alert && "text-accent")}>{value}</p>
+    </div>
   );
 }

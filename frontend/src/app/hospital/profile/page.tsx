@@ -3,44 +3,44 @@
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
+import { Panel } from "@/components/ui/card";
 import { hospitalUser } from "@/lib/mock-data";
 
 export default function HospitalProfilePage() {
   return (
     <>
-      <PageHeader label="Institution" title="Hospital Profile" description="Manage hospital information and account settings." />
+      <PageHeader label="Settings" title="Hospital settings" description="Manage institution profile and credentials." />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <Card className="lg:col-span-1">
+        <Panel className="lg:col-span-1">
           <div className="flex flex-col items-center text-center">
-            <div className="flex h-20 w-20 items-center justify-center border-2 border-accent bg-accent/10 font-serif text-2xl font-black text-accent">
-              MG
+            <div className="flex h-20 w-20 items-center justify-center border-2 border-accent/40 bg-accent/10 text-lg font-semibold text-accent" role="img" aria-label="Hospital avatar">
+              NH
             </div>
-            <h2 className="mt-4 font-serif text-xl font-bold">{hospitalUser.name}</h2>
-            <p className="font-mono text-xs text-muted-foreground mt-1">{hospitalUser.license}</p>
+            <h2 className="mt-4 text-lg font-semibold tracking-tight">{hospitalUser.name}</h2>
+            <p className="mt-2 font-mono text-xs text-muted-foreground">{hospitalUser.license}</p>
           </div>
-        </Card>
-        <div className="lg:col-span-2 space-y-8">
-          <Card>
-            <h3 className="font-serif text-lg font-bold mb-6 border-b border-border pb-4">Hospital Information</h3>
+        </Panel>
+        <div className="space-y-8 lg:col-span-2">
+          <Panel>
+            <h3 className="mb-6 border-b border-border pb-4 text-sm font-semibold">Hospital information</h3>
             <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-              <Input label="Hospital Name" defaultValue={hospitalUser.name} />
+              <Input label="Hospital name" defaultValue={hospitalUser.name} />
               <Input label="Email" type="email" defaultValue={hospitalUser.email} />
               <Input label="Phone" defaultValue={hospitalUser.phone} />
               <Input label="Address" defaultValue={hospitalUser.address} />
-              <Input label="License Number" defaultValue={hospitalUser.license} readOnly />
-              <Button type="submit">Save Changes</Button>
+              <Input label="License number" defaultValue={hospitalUser.license} readOnly />
+              <Button type="submit">Save changes</Button>
             </form>
-          </Card>
-          <Card>
-            <h3 className="font-serif text-lg font-bold mb-6 border-b border-border pb-4">Change Password</h3>
+          </Panel>
+          <Panel>
+            <h3 className="mb-6 border-b border-border pb-4 text-sm font-semibold">Change password</h3>
             <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-              <Input label="Current Password" type="password" />
-              <Input label="New Password" type="password" />
-              <Input label="Confirm New Password" type="password" />
-              <Button type="submit" variant="secondary">Update Password</Button>
+              <Input label="Current password" type="password" />
+              <Input label="New password" type="password" />
+              <Input label="Confirm new password" type="password" />
+              <Button type="submit" variant="secondary">Update password</Button>
             </form>
-          </Card>
+          </Panel>
         </div>
       </div>
     </>

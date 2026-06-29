@@ -4,7 +4,7 @@ import Link from "next/link";
 import { PageHeader, BackLink } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
+import { Panel } from "@/components/ui/card";
 import { bloodGroups } from "@/lib/mock-data";
 
 export default function CreateRequestPage() {
@@ -12,7 +12,7 @@ export default function CreateRequestPage() {
     <>
       <BackLink href="/hospital/requests" />
       <PageHeader label="New Request" title="Create Blood Request" description="Submit an urgent or routine blood request to the network." />
-      <Card className="max-w-xl">
+      <Panel className="max-w-xl">
         <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
           <Select label="Blood Group" defaultValue="O-">
             {bloodGroups.map((g) => <option key={g} value={g}>{g}</option>)}
@@ -30,7 +30,7 @@ export default function CreateRequestPage() {
             <Link href="/hospital/requests"><Button variant="secondary">Cancel</Button></Link>
           </div>
         </form>
-      </Card>
+      </Panel>
     </>
   );
 }

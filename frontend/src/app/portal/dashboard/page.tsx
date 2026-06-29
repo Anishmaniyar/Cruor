@@ -1,114 +1,139 @@
 import Link from "next/link";
-import { Bell, Calendar, Heart, Megaphone } from "lucide-react";
+import { CalendarBlank, Certificate, Megaphone, WarningCircle } from "@phosphor-icons/react/dist/ssr";
+import { StaggerItem } from "@/components/shared/motion-wrapper";
 import { PageHeader } from "@/components/ui/page-header";
-import { StatCard, Card } from "@/components/ui/card";
+import { Section } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { donorUser, appointments, campaigns, notifications, donations } from "@/lib/mock-data";
 import { formatDate, formatDateTime } from "@/lib/utils";
 
 export default function DonorDashboard() {
-  const upcomingApt = appointments.find((a) => a.status === "confirmed" || a.status === "pending");
-  const upcomingCampaign = campaigns.find((c) => c.status === "active");
-  const unreadNotifications = notifications.filter((n) => !n.read);
+  const pendingApt = appointments.find((a) => a.status === "pending");
+  const confirmedApt = appointments.find((a) => a.status === "confirmed");
+  const nextApt = confirmedApt ?? pendingApt;
+  const activeCampaign = campaigns.find((c) => c.status === "active");
+  const unread = notifications.filter((n) => !n.read);
+  const certReady = donations.filter((d) => d.certificateAvailable);
 
   return (
     <>
-      <PageHeader
-        label="Donor Portal"
-        title={`Welcome, ${donorUser.name.split(" ")[0]}`}
-        description="Your blood donation activity at a glance."
-        action={
-          <Link href="/portal/appointments/book">
-            <Button>Book Appointment</Button>
-          </Link>
-        }
-      />
+      <StaggerItem>
+        <PageHeader
+          label="Donor Portal"
+          title={`Action queue for ${donorUser.name.split(" ")[0]}`}
+          description="Tasks that need your attention before your next donation."
+          action={
+            <Link href="/portal/appointments/book">
+              <Button>Book appointment</Button>
+            </Link>
+          }
+        />
+      </StaggerItem>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-        <StatCard label="Total Donations" value={donorUser.totalDonations} icon={<Heart className="h-5 w-5" strokeWidth={1.5} />} />
-        <StatCard label="Last Donation" value={formatDate(donorUser.lastDonation)} sub="Whole Blood — Metro General" />
-        <StatCard label="Blood Group" value={donorUser.bloodGroup} alert sub="Universal donor type" icon={<Heart className="h-5 w-5" strokeWidth={1.5} />} />
-        <StatCard label="Notifications" value={unreadNotifications.length} sub="Unread messages" icon={<Bell className="h-5 w-5" strokeWidth={1.5} />} />
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-serif text-xl font-bold flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-accent" strokeWidth={1.5} />
-              Upcoming Appointment
-            </h2>
-            <Link href="/portal/appointments" className="font-mono text-[10px] uppercase tracking-widest text-accent hover:underline">View All</Link>
-          </div>
-          {upcomingApt ? (
-            <div>
-              <p className="font-serif text-2xl font-bold">{formatDateTime(upcomingApt.date)}</p>
-              <p className="mt-1 font-sans text-sm text-muted-foreground">{upcomingApt.location}</p>
-              <p className="mt-1 font-mono text-xs text-muted-foreground">{upcomingApt.type}</p>
-              <div className="mt-3"><StatusBadge status={upcomingApt.status} /></div>
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">No upcoming appointments.</p>
-          )}
-        </Card>
-
-        <Card>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-serif text-xl font-bold flex items-center gap-2">
-              <Megaphone className="h-5 w-5 text-accent" strokeWidth={1.5} />
-              Upcoming Campaign
-            </h2>
-            <Link href="/portal/campaigns" className="font-mono text-[10px] uppercase tracking-widest text-accent hover:underline">View All</Link>
-          </div>
-          {upcomingCampaign ? (
-            <div>
-              <p className="font-serif text-xl font-bold">{upcomingCampaign.title}</p>
-              <p className="mt-1 font-sans text-sm text-muted-foreground">{upcomingCampaign.location}</p>
-              <p className="mt-1 font-mono text-xs text-muted-foreground">
-                {formatDate(upcomingCampaign.startDate)} — {formatDate(upcomingCampaign.endDate)}
-              </p>
-              <div className="mt-3"><StatusBadge status={upcomingCampaign.status} /></div>
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">No active campaigns.</p>
-          )}
-        </Card>
-      </div>
-
-      <div className="mt-8">
-        <h2 className="font-serif text-xl font-bold mb-4 flex items-center gap-2">
-          <Bell className="h-5 w-5 text-accent" strokeWidth={1.5} />
-          Recent Notifications
-        </h2>
-        <div className="border border-border divide-y divide-border">
-          {notifications.slice(0, 3).map((n) => (
-            <Link key={n.id} href="/portal/notifications" className="flex items-start gap-4 p-4 hover:bg-muted/50 transition-colors">
-              <div className={`mt-1 h-2 w-2 flex-shrink-0 ${n.read ? "bg-muted-foreground" : "bg-accent"}`} />
-              <div>
-                <p className="font-sans text-sm font-medium">{n.title}</p>
-                <p className="font-body text-xs text-muted-foreground mt-0.5">{n.message}</p>
-                <p className="font-mono text-[10px] text-muted-foreground mt-1">{formatDateTime(n.date)}</p>
+      <StaggerItem>
+        <Section title="Requires action">
+          <div className="divide-y divide-border border border-border">
+            {unread.slice(0, 2).map((n) => (
+              <Link key={n.id} href="/portal/notifications" className="flex items-start gap-4 p-4 transition-colors hover:bg-muted/30">
+                <WarningCircle size={18} weight="fill" className="mt-0.5 shrink-0 text-accent" aria-hidden />
+                <div>
+                  <p className="text-sm font-medium">{n.title}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{n.message}</p>
+                </div>
+              </Link>
+            ))}
+            {pendingApt && (
+              <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-medium">Confirm appointment slot</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{formatDateTime(pendingApt.date)} · {pendingApt.location}</p>
+                </div>
+                <Link href={`/portal/appointments/${pendingApt.id}`}><Button size="sm">Review</Button></Link>
               </div>
-            </Link>
-          ))}
-        </div>
-      </div>
+            )}
+            {certReady.length > 0 && (
+              <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-start gap-3">
+                  <Certificate size={18} className="mt-0.5 text-accent" aria-hidden />
+                  <div>
+                    <p className="text-sm font-medium">Certificate ready to download</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{certReady.length} donation record(s)</p>
+                  </div>
+                </div>
+                <Link href="/portal/certificates"><Button size="sm" variant="secondary">Open certificates</Button></Link>
+              </div>
+            )}
+          </div>
+        </Section>
+      </StaggerItem>
 
-      <div className="mt-8">
-        <h2 className="font-serif text-xl font-bold mb-4">Recent Donations</h2>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          {donations.slice(0, 3).map((d) => (
-            <Link key={d.id} href={`/portal/donations/${d.id}`}>
-              <Card hover>
-                <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">{formatDate(d.date)}</p>
-                <p className="font-serif text-lg font-bold mt-1">{d.type}</p>
-                <p className="font-sans text-sm text-muted-foreground">{d.volume} · {d.location}</p>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      </div>
+      <StaggerItem>
+        <Section
+          title="Next scheduled items"
+          action={<Link href="/portal/appointments" className="text-xs font-medium uppercase tracking-wider text-accent hover:underline">All appointments</Link>}
+        >
+          <div className="grid grid-cols-1 gap-px border border-border bg-border md:grid-cols-2">
+            <div className="bg-background p-5">
+              <div className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <CalendarBlank size={14} aria-hidden /> Appointment
+              </div>
+              {nextApt ? (
+                <>
+                  <p className="text-lg font-semibold tracking-tight">{formatDateTime(nextApt.date)}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{nextApt.location}</p>
+                  <div className="mt-3"><StatusBadge status={nextApt.status} /></div>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">No appointment scheduled.</p>
+              )}
+            </div>
+            <div className="bg-background p-5">
+              <div className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <Megaphone size={14} aria-hidden /> Campaign
+              </div>
+              {activeCampaign ? (
+                <>
+                  <p className="text-lg font-semibold tracking-tight">{activeCampaign.title}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{formatDate(activeCampaign.startDate)} to {formatDate(activeCampaign.endDate)}</p>
+                  <Link href={`/portal/campaigns/${activeCampaign.id}`} className="mt-3 inline-block text-xs font-medium uppercase tracking-wider text-accent hover:underline">
+                    Register
+                  </Link>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">No active campaigns.</p>
+              )}
+            </div>
+          </div>
+        </Section>
+      </StaggerItem>
+
+      <StaggerItem>
+        <Section title="Recent activity">
+          <div className="overflow-x-auto border border-border">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-border bg-muted/40">
+                  <th className="px-4 py-3 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Type</th>
+                  <th className="px-4 py-3 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Date</th>
+                  <th className="px-4 py-3 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {donations.slice(0, 3).map((d) => (
+                  <tr key={d.id} className="border-b border-border last:border-b-0">
+                    <td className="px-4 py-3">
+                      <Link href={`/portal/donations/${d.id}`} className="font-medium hover:text-accent">{d.type}</Link>
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground">{formatDate(d.date)}</td>
+                    <td className="px-4 py-3"><StatusBadge status={d.status} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Section>
+      </StaggerItem>
     </>
   );
 }
