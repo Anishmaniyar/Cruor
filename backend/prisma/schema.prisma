@@ -23,3 +23,17 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Hospital {
+  id String @id @default(uuid())
+  name String
+  email String @unique
+  passwordHash String
+  phoneNo String
+
+  address String?
+  isVerified boolean
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
