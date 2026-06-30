@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    // 1. File Layout (Crucial for building your project)
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    // 2. Environment Settings
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2022" /* Changed from esnext to prevent deployment version bugs */,
+    "types": ["node"] /* Added 'node' so TS understands process.env, etc. */,
+
+    // 3. Compatibility (Crucial for Express, CORS, and bcrypt imports)
+    "esModuleInterop": true /* Allows 'import express' instead of 'import * as express' */,
+    "forceConsistentCasingInFileNames": true,
+
+    // 4. Other Outputs
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    // 5. Stricter Typechecking Options
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+
+    // 6. Recommended Options
+    "strict": true,
+    "verbatimModuleSyntax": false /* Set to false because true often breaks Prisma's generated client imports */,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true
+  },
+  // 7. Explicitly tell TypeScript where your code lives
+  "include": ["src/**/*"]
+}
