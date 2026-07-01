@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "hospitals" ADD COLUMN     "role" VARCHAR(20) NOT NULL DEFAULT 'HOSPITAL';
+
+-- AlterTable
+ALTER TABLE "users" ADD COLUMN     "role" VARCHAR(20) NOT NULL DEFAULT 'USER';

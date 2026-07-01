@@ -18,7 +18,8 @@ model User {
   gender String? @db.VarChar(20)
   bloodGroup String? @db.VarChar(10)
   address String? @db.Text
-  
+
+  role         String   @default("USER") @db.VarChar(20)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -41,6 +42,8 @@ model Hospital {
 
   address String? @db.Text
   isVerified Boolean
+
+  role         String   @default("HOSPITAL") @db.VarChar(20)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
