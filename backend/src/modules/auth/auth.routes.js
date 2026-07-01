@@ -8,6 +8,9 @@ import {
   resetPassword,
   registerHospital,
   loginHospital,
+  getCurrentHospital,
+  changeHospitalPassword,
+  forgotHospitalPassword,
 } from "./auth.controller.js";
 import {
   registerUserSchema,
@@ -51,5 +54,8 @@ router.post(
   validateRequest(loginHospitalSchema),
   loginHospital,
 );
+
+router.post("/hospitals/forgot-password", forgotHospitalPassword);
+router.post("/hospirals/change-password", changeHospitalPassword);
 
 export default router;

@@ -78,12 +78,6 @@ export const registerHospitalSchema = z.object({
 
 export const loginHospitalSchema = z.object({
   body: z.object({
-    name: z
-      .string()
-      .trim()
-      .min(10, "Name must be minimum of 10 characters")
-      .max(50, "Name must be maximum of 50 characters"),
-
     email: z
       .string()
       .trim()

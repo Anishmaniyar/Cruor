@@ -3,11 +3,11 @@ import appError from "../../utils/appError.js";
 import bcrypt from "bcryptjs";
 
 export const registerUser = asyncHandler(async (req, res, next) => {
-  const { name, email, password, phone } = req.body;
+  const { name, email, password, phoneNo } = req.body;
 
-  const existingUser = await prisma.user.findfirst({
+  const existingUser = await prisma.user.findFirst({
     where: {
-      OR: [{ email }, { phone }],
+      OR: [{ email }, { phoneNo }],
     },
   });
 
@@ -20,10 +20,15 @@ export const registerUser = asyncHandler(async (req, res, next) => {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const newUser = await prisma.user.create({
-    data: { email, name, password: hashedPassword, phone },
+    data: {
+      email,
+      name,
+      passwordHash: hashedPassword,
+      phoneNo,
+    },
   });
 
-  res.status(201).json({
+  return res.status(201).json({
     status: "success",
     message: "User registered successfully",
     data: {
@@ -31,7 +36,7 @@ export const registerUser = asyncHandler(async (req, res, next) => {
         id: newUser.id,
         name: newUser.name,
         email: newUser.email,
-        phone: newUser.phone,
+        phoneNo: newUser.phoneNo,
       },
     },
   });
@@ -48,9 +53,9 @@ export const loginUser = asyncHandler(async (req, res, next) => {
     return next(new appError("Invalid email or password", 401));
   }
 
-  const isPasswordVallid = await bcrypt.compare(password, user.password);
+  const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
 
-  if (!isPasswordVallid) {
+  if (!isPasswordValid) {
     return next(new appError("Invalid email or password", 401));
   }
 
@@ -99,10 +104,10 @@ export const getCurrentUser = asyncHandler(async (req, res, next) => {
     id: user.id,
     name: user.name,
     email: user.email,
-    phone: user.phone,
+    phoneNo: user.phoneNo,
   };
 
-  res.status(200).json({
+  return res.status(200).json({
     status: "success",
     data: {
       user: safeUser,
@@ -114,7 +119,7 @@ export const changePassword = asyncHandler(async (req, res, next) => {
   const user = req.user;
   const { currentPassword, newPassword } = req.body;
 
-  const isMatch = await bcrypt.compare(currentPassword, user.password);
+  const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
 
   if (!isMatch) {
     return next(new appError("Current password does not match", 403));
@@ -124,7 +129,7 @@ export const changePassword = asyncHandler(async (req, res, next) => {
 
   await prisma.user.update({
     where: { id: user.id },
-    data: { password: newHashedPassword },
+    data: { passwordHash: newHashedPassword },
   });
 
   return res.status(200).json({
@@ -143,17 +148,142 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
   if (!existingUser) {
     return next(new appError("Invalid email", 401));
   }
-
-  //need to continue forward
 });
 
-// continue later
 export const resetPassword = asyncHandler(async (req, res, next) => {});
-
-// google auth is not done for now will implement later
 
 export const registerHospital = asyncHandler(async (req, res, next) => {
   const { name, email, password, phoneNo } = req.body;
+
+  const existingHospital = await prisma.hospital.findFirst({
+    where: {
+      OR: [{ email }, { phoneNo }],
+    },
+  });
+
+  if (existingHospital) {
+    return next(
+      new appError("Hospital with this email or phone already exists", 400),
+    );
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const newHospital = await prisma.hospital.create({
+    data: {
+      name,
+      email,
+      passwordHash: hashedPassword,
+      phoneNo,
+      isVerified: false,
+    },
+  });
+
+  return res.status(201).json({
+    status: "success",
+    message: "Hospital registered successfully",
+    data: {
+      newHospital,
+    },
+  });
 });
 
-export const loginHospital = asyncHandler(async (req, res, next) => {});
+export const loginHospital = asyncHandler(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  const hospitalExists = await prisma.hospital.findUnique({
+    where: { email },
+  });
+
+  if (!hospitalExists) {
+    return next(new appError("Invalid email or password", 401));
+  }
+
+  const isPasswordValid = await bcrypt.compare(
+    password,
+    hospitalExists.passwordHash,
+  );
+
+  if (!isPasswordValid) {
+    return next(new appError("Invalid email or password", 401));
+  }
+
+  const accessToken = generateAccessToken(hospitalExists);
+  const refreshToken = generateRefreshToken(hospitalExists);
+
+  if (!accessToken || !refreshToken) {
+    return next(new appError("Failed to generate tokens", 500));
+  }
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  return res.status(200).json({
+    status: "success",
+    data: {
+      message: "Hospital logged in successfully",
+      accessToken,
+      hospital: {
+        id: hospitalExists.id,
+        name: hospitalExists.name,
+      },
+    },
+  });
+});
+
+export const getCurrentHospital = asyncHandler(async (req, res, next) => {
+  const hospital = req.hospital;
+
+  const safeHospital = {
+    id: hospital.id,
+    name: hospital.name,
+    email: hospital.email,
+    phoneNo: hospital.phoneNo,
+    isVerified: hospital.isVerified,
+  };
+
+  return res.status(200).json({
+    status: "success",
+    data: {
+      hospital: safeHospital,
+    },
+  });
+});
+
+export const changeHospitalPassword = asyncHandler(async (req, res, next) => {
+  const hospital = req.hospital;
+  const { currentPassword, newPassword } = req.body;
+
+  const isMatch = await bcrypt.compare(currentPassword, hospital.passwordHash);
+
+  if (!isMatch) {
+    return next(new appError("Current password does not match", 403));
+  }
+
+  const newHashedPassword = await bcrypt.hash(newPassword, 10);
+
+  await prisma.hospital.update({
+    where: { id: hospital.id },
+    data: { passwordHash: newHashedPassword },
+  });
+
+  return res.status(200).json({
+    status: "success",
+    message: "Hospital password changed successfully",
+  });
+});
+
+export const forgotHospitalPassword = asyncHandler(async (req, res, next) => {
+  const { email } = req.body;
+
+  const existingHospital = await prisma.hospital.findUnique({
+    where: { email },
+  });
+
+  if (!existingHospital) {
+    return next(new appError("Invalid email", 401));
+  }
+});
