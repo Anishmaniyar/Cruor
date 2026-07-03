@@ -15,6 +15,9 @@ export const findCampaignId = async (campaignId) => {
       id: campaignId,
       status: "ACTIVE",
     },
+    include: {
+      campaignRegistration: true,
+    },
   });
 };
 
