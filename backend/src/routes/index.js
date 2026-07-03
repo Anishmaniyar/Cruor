@@ -5,6 +5,7 @@ import hospitalRoutes from "../modules/hospital/hospital.routes.js";
 import appointmentRoutes from "../modules/appointments/appointment.routes.js";
 import campaignRoutes from "../modules/campaign/campaign.routes.js";
 import donationRoutes from "../modules/donations/donation.routes.js";
+import bloodUnitRoutes from "../modules/blood-units/bloodUnit.routes.js";
 
 const rootRouter = Router();
 
@@ -13,5 +14,6 @@ rootRouter.use("/hospitals", hospitalRoutes);
 rootRouter.use("/appointments", appointmentRoutes);
 rootRouter.use("/campaigns", campaignRoutes);
 rootRouter.use("/donations", donationRoutes);
+rootRouter.use("/blood-units", bloodUnitRoutes);
 
 export default rootRouter;
