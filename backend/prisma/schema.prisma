@@ -8,72 +8,70 @@ generator client {
 }
 
 model User {
-  id    String @id @default(uuid())
-  name  String
-  email String @unique
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
   passwordHash String
-  phoneNo String @unique
-  dateOfBirth DateTime @db.Date
+  phoneNo      String   @unique
+  dateOfBirth  DateTime @db.Date
 
-  gender String? @db.VarChar(20)
+  gender     String? @db.VarChar(20)
   bloodGroup String? @db.VarChar(10)
-  address String? @db.Text
+  address    String? @db.Text
 
-  role         String   @default("USER") @db.VarChar(20)
+  role String @default("USER") @db.VarChar(20)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  appointments Appointment[]
+  appointments          Appointment[]
   campaignRegistrations CampaignRegistration[]
-  donations Donation[]
-  notifications Notification[]
-  bloodUnits BloodUnit[]
+  donations             Donation[]
+  notifications         Notification[]
+  bloodUnits            BloodUnit[]
 
   @@map("users")
 }
 
 model Hospital {
-  id String @id @default(uuid())
-  name String
-  email String @unique
+  id           String  @id @default(uuid())
+  name         String
+  email        String  @unique
   passwordHash String
-  phoneNo String @db.VarChar(20)
+  phoneNo      String  @db.VarChar(20)
+  address      String? @db.Text
+  isVerified   Boolean
 
-  address String? @db.Text
-  isVerified Boolean
-
-  role         String   @default("HOSPITAL") @db.VarChar(20)
+  role String @default("HOSPITAL") @db.VarChar(20)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  appointments Appointment[]
-  campaigns Campaign[]
-  donations Donation[]
-  notifications Notification[]
-  bloodUnits BloodUnit[]
-  bloodRequests BloodRequest[]
-  sourceTransfers BloodTransfer[] @relation("SourceHospital")
-  destinationTransfers BloodTransfer[] @relation("DestinationHospital")
+  appointments      Appointment[]
+  campaigns         Campaign[]
+  donations         Donation[]
+  notifications     Notification[]
+  bloodUnits        BloodUnit[]
+  bloodRequests     BloodRequest[]
+  sentTransfers     BloodTransfer[] @relation("SourceHospital")
+  receivedTransfers BloodTransfer[] @relation("DestinationHospital")
 
   @@map("hospitals")
 }
 
 model Appointment {
-  id String @id @default(uuid())
-  userId String @map("user_id")
+  id         String @id @default(uuid())
+  userId     String @map("user_id")
   hospitalId String @map("hospital_id")
 
   appointmentDate DateTime @db.Date
   appointmentTime DateTime @db.Time
-
-  status String @db.VarChar(30)
+  status          String   @db.VarChar(30)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   hospital Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
 
   donations Donation[]
@@ -84,19 +82,19 @@ model Appointment {
 }
 
 model Campaign {
-  id String @id @default(uuid())
+  id         String @id @default(uuid())
   hospitalId String @map("hospital_id")
 
-  campName String
-  description String @db.Text
-  address String @db.Text
+  campName     String
+  description  String   @db.Text
+  address      String   @db.Text
   campaignDate DateTime @db.Date
 
   startTime DateTime @db.Time
-  endTime DateTime @db.Time
+  endTime   DateTime @db.Time
 
   targetDonors Int
-  status String @db.VarChar(30)
+  status       String @db.VarChar(30)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -110,17 +108,17 @@ model Campaign {
 }
 
 model CampaignRegistration {
-  id String @id @default(uuid())
-  userId String @map("user_id")
+  id         String @id @default(uuid())
+  userId     String @map("user_id")
   campaignId String @map("campaign_id")
 
-  status String @db.VarChar(30)
+  status       String   @db.VarChar(30)
   registeredAt DateTime
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 
   donations Donation[]
@@ -132,24 +130,23 @@ model CampaignRegistration {
 }
 
 model Donation {
-  id String @id @default(uuid())
-  userId String @map("user_id")
-  hospitalId String @map("hospital_id")
-  appointmentId String? @unique @map("appointment_id")
+  id                     String  @id @default(uuid())
+  userId                 String  @map("user_id")
+  hospitalId             String  @map("hospital_id")
+  appointmentId          String? @unique @map("appointment_id")
   campaignRegistrationId String? @unique @map("campaign_registration_id")
 
   donationDate DateTime @db.Date
-
-  bloodGroup String @db.VarChar(10)
-  volume Int
-  status String @db.VarChar(30)
+  bloodGroup   String   @db.VarChar(10)
+  volume       Int
+  status       String   @db.VarChar(30)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  hospital Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
-  appointment Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  user                 User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hospital             Hospital              @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  appointment          Appointment?          @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
   campaignRegistration CampaignRegistration? @relation(fields: [campaignRegistrationId], references: [id], onDelete: SetNull)
 
   bloodUnits BloodUnit[]
@@ -160,19 +157,19 @@ model Donation {
 }
 
 model Notification {
-  id String @id @default(uuid())
-  userId String? @map("user_id")
+  id         String  @id @default(uuid())
+  userId     String? @map("user_id")
   hospitalId String? @map("hospital_id")
 
-  title String
+  title   String
   message String @db.Text
 
-  type String @db.VarChar(50)
+  type   String  @db.VarChar(50)
   isRead Boolean
 
-  createdAt DateTime @default(now()) 
+  createdAt DateTime @default(now())
 
-  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
   hospital Hospital? @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
 
   @@index([userId])
@@ -181,31 +178,31 @@ model Notification {
 }
 
 model BloodUnit {
-  id String @id @default(uuid())
+  id         String @id @default(uuid())
   donationId String @map("donation_id")
-  donorId String @map("donor_id")
+  donorId    String @map("donor_id")
   hospitalId String @map("hospital_id")
 
-  bloodGroup String @db.VarChar(10)
+  bloodGroup    String @db.VarChar(10)
   componentType String @db.VarChar(30)
-  
+
   collectionDate DateTime @db.Date
   expirationDate DateTime @db.Date
 
-  volume Int
+  volume          Int
   storageLocation String
-
-  currentStatus String @db.VarChar(30)
+  currentStatus   String @db.VarChar(30)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  donor User @relation(fields: [donorId], references: [id], onDelete: Restrict)
+  donor    User     @relation(fields: [donorId], references: [id], onDelete: Restrict)
   hospital Hospital @relation(fields: [hospitalId], references: [id], onDelete: Restrict)
   donation Donation @relation(fields: [donationId], references: [id], onDelete: Cascade)
 
   bloodTrackingEvents BloodTrackingEvent[]
-  verificationLogs VerificationLog[]
+  verificationLogs    VerificationLog[]
+  transfers           TransferBloodUnit[]
 
   @@index([donationId])
   @@index([donorId])
@@ -214,14 +211,13 @@ model BloodUnit {
 }
 
 model BloodTrackingEvent {
-  id String @id @default(uuid())
+  id          String @id @default(uuid())
   bloodUnitId String @map("blood_unit_id")
 
-  status String @db.VarChar(30)
-
-  notes String @db.Text
+  status      String   @db.VarChar(30)
+  notes       String   @db.Text
   performedBy String
-  timestamp DateTime
+  timestamp   DateTime
 
   bloodUnit BloodUnit @relation(fields: [bloodUnitId], references: [id], onDelete: Cascade)
 
@@ -230,15 +226,14 @@ model BloodTrackingEvent {
 }
 
 model VerificationLog {
-  id String @id @default(uuid())
+  id          String @id @default(uuid())
   bloodUnitId String @map("blood_unit_id")
 
-  verifiedBy String
-  previousStatus String @db.VarChar(30)
-  newStatus String @db.VarChar(30)
-  notes String @db.Text
-
-  verifiedAt DateTime
+  verifiedBy     String
+  previousStatus String   @db.VarChar(30)
+  newStatus      String   @db.VarChar(30)
+  notes          String   @db.Text
+  verifiedAt     DateTime
 
   bloodUnit BloodUnit @relation(fields: [bloodUnitId], references: [id], onDelete: Cascade)
 
@@ -247,46 +242,66 @@ model VerificationLog {
 }
 
 model BloodRequest {
-  id String @id @default(uuid())
+  id                   String @id @default(uuid())
   requestingHospitalId String @map("requesting_hospital_id")
 
-  bloodGroup String @db.VarChar(10)
+  bloodGroup    String @db.VarChar(10)
   unitsRequired Int
-  priority String @db.VarChar(20)
-  reason String @db.Text
-  status String @db.VarChar(30)
+  priority      String @db.VarChar(20)
+  reason        String @db.Text
+  status        String @db.VarChar(30)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  requestingHospital Hospital @relation(fields: [requestingHospitalId], references: [id], onDelete: Cascade)
-
-  bloodTransfers BloodTransfer[]
+  requestingHospital Hospital        @relation(fields: [requestingHospitalId], references: [id], onDelete: Cascade)
+  transfers          BloodTransfer[]
 
   @@index([requestingHospitalId])
   @@map("blood_requests")
 }
 
 model BloodTransfer {
-  id String @id @default(uuid())
-  requestId String @map("request_id")
-  sourceHospitalId String @map("source_hospital_id")
-  destinationHospitalId String @map("destination_hospital_id")
+  id                    String         @id @default(uuid())
+  requestId             String         @map("request_id")
+  sourceHospitalId      String         @map("source_hospital_id")
+  destinationHospitalId String         @map("destination_hospital_id")
+  unitsTransferred      Int
+  status                TransferStatus
+  dispatchedAt          DateTime?
+  receivedAt            DateTime?
+  completedAt           DateTime?
+  notes                 String?        @db.Text
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
 
-  unitsTransferred Int
-  status String @db.VarChar(30)
-  transferDate DateTime
-  notes String @db.Text
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  bloodRequest BloodRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
-  sourceHospital Hospital @relation("SourceHospital", fields: [sourceHospitalId], references: [id], onDelete: Restrict)
-  destinationHospital Hospital @relation("DestinationHospital", fields: [destinationHospitalId], references: [id], onDelete: Restrict)
+  bloodRequest        BloodRequest        @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  sourceHospital      Hospital            @relation("SourceHospital", fields: [sourceHospitalId], references: [id], onDelete: Restrict)
+  destinationHospital Hospital            @relation("DestinationHospital", fields: [destinationHospitalId], references: [id], onDelete: Restrict)
+  bloodUnits          TransferBloodUnit[]
 
   @@index([requestId])
   @@index([sourceHospitalId])
   @@index([destinationHospitalId])
   @@map("blood_transfers")
+}
+
+model TransferBloodUnit {
+  id          String @id @default(uuid())
+  transferId  String @map("transfer_id")
+  bloodUnitId String @map("blood_unit_id")
+
+  transfer  BloodTransfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
+  bloodUnit BloodUnit     @relation(fields: [bloodUnitId], references: [id], onDelete: Cascade)
+
+  @@unique([transferId, bloodUnitId])
+  @@map("transfer_blood_units")
+}
+
+enum TransferStatus {
+  PENDING
+  DISPATCHED
+  RECEIVED
+  COMPLETED
+  CANCELLED
 }
