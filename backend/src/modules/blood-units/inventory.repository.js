@@ -15,3 +15,13 @@ export const getHospitalInventoryRepository = async (hospitalId) => {
     },
   });
 };
+
+export const getAvailableUnitsRepository = async (hospitalId, bloodGroup) => {
+  return await prisma.bloodUnit.count({
+    where: {
+      hospitalId,
+      bloodGroup,
+      status: "AVAILABLE",
+    },
+  });
+};
