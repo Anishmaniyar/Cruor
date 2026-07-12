@@ -3,6 +3,7 @@ import {
   registerUser,
   loginUser,
   logoutUser,
+  getCurrentUser,
   changePassword,
   forgotPassword,
   resetPassword,
@@ -19,8 +20,8 @@ import {
   forgotPasswordSchema,
   registerHospitalSchema,
   loginHospitalSchema,
-} from "./auth.validation.js";
-import { validateRequest } from "../../middlewares/validateRequest.js";
+} from "./auth.validator.js";
+import { validateRequest } from "../../middleware/validateRequest.js";
 import { verifyUser } from "./auth.middleware.js";
 
 const router = Router();
@@ -39,7 +40,11 @@ router.patch(
   changePassword,
 );
 
-router.post("/forgot-password", forgotPasswordSchema, forgotPassword);
+router.post(
+  "/forgot-password",
+  validateRequest(forgotPasswordSchema),
+  forgotPassword,
+);
 router.post("/reset-password", resetPassword);
 
 // HOSPITAL
@@ -54,6 +59,8 @@ router.post(
   validateRequest(loginHospitalSchema),
   loginHospital,
 );
+
+router.get("/hospital/me", verifyUser, getCurrentHospital);
 
 router.post("/hospitals/forgot-password", forgotHospitalPassword);
 router.post("/hospirals/change-password", changeHospitalPassword);

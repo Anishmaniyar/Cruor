@@ -1,4 +1,4 @@
-export const allowedTranistions = {
+export const allowedTransitions = {
   AVAILABLE: ["RESERVED", "EXPIRED"],
 
   RESERVED: ["AVAILABLE", "TRANSFERRED"],

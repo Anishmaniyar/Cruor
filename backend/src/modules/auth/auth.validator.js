@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const registerUserScema = z.object({
+export const registerUserSchema = z.object({
   body: z.object({
     name: z
       .string()
@@ -22,11 +22,10 @@ export const registerUserScema = z.object({
 
     gender: z.enum(["male", "female", "ohter"]).optional().default("other"),
 
-    phone: z
+    phoneNo: z
       .string()
-      .optional()
       .min(10, "Phone number must be 10 characters long")
-      .max(10, "Phone number must be 10 characters long"),
+      .optional(),
   }),
 });
 
@@ -89,8 +88,10 @@ export const loginHospitalSchema = z.object({
       .trim()
       .min(6, "Password must be at least 6 characters long")
       .max(20, "Password must be at most 20 characters long"),
-      
 
-    phoneNo: z.string().trim()..min(10, "Phone No should have only of 10 characters"),
+    phoneNo: z
+      .string()
+      .trim()
+      .min(10, "Phone No should have only of 10 characters"),
   }),
 });

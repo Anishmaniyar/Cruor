@@ -1,4 +1,4 @@
-import { prisma } from "../../../prisma/prisma.js";
+import prisma from "../../db.js";
 
 export const findAllHospitals = async () => {
   return await prisma.hospital.findMany();

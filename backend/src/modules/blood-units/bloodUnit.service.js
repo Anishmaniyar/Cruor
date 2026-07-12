@@ -1,6 +1,6 @@
 import * as bloodUnitRepository from "./bloodUnit.repository.js";
 import AppError from "../../utils/appError.js";
-import allowedTransition from "./bloodUnit.transitions.js";
+import { allowedTransitions } from "./bloodUnit.transitions.js";
 
 export const getbloodUnitofHospitalService = async (hospitalId) => {
   const bloodUnits =

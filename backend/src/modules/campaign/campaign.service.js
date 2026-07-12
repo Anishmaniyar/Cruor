@@ -1,4 +1,4 @@
-import { AppError } from "../../utils/appError.js";
+import AppError from "../../utils/appError.js";
 import * as CampaignRepository from "./campaign.repository.js";
 
 export const createCampaignService = async (hospitalId, campaignData) => {

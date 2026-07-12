@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
-import AppError from "../../utils/appError.js";
-import asyncHandler from "../../utils/asyncHandler.js";
-import prisma from "../../db.js";
+import AppError from "../utils/appError.js";
+import asyncHandler from "../utils/asyncHandler.js";
+import prisma from "../db.js";
 
 export const verifyHospital = async (req, res, next) => {
   const authHeader = req.headers.authorization;

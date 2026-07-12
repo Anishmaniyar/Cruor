@@ -1,4 +1,4 @@
-import prisma from "../../config/prisma.js";
+import prisma from "../../db.js";
 
 export const updateCampaignRepository = async (campaignId, data) => {
   return await prisma.campaign.update({

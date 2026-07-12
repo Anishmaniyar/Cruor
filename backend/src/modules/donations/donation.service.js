@@ -1,4 +1,4 @@
-import { AppError } from "../../utils/appError.js";
+import AppError from "../../utils/appError.js";
 import * as DonationRepository from "./donation.repository.js";
 import * as CampaginRepository from "../campaign/campaign.repository.js";
 

@@ -1,4 +1,4 @@
-import { asyncHandler } from "../../utils/asyncHandler.js";
+import asyncHandler from "../../utils/asyncHandler.js";
 import * as DonationService from "./donation.service.js";
 
 export const donationAppointment = asyncHandler(async (req, res, next) => {

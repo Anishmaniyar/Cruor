@@ -1,10 +1,7 @@
 import { Router } from "express";
 import { validateRequest } from "../../middleware/validateRequest.js";
 import { verifyUser } from "../auth/auth.middleware.js";
-import {
-  verifyHospital,
-  restrictTo,
-} from "../../middlewares/verifyHospital.js";
+import { verifyHospital, restrictTo } from "../../middleware/authorize.js";
 import {
   createAppointmentSchema,
   appointmentIdParamSchema,

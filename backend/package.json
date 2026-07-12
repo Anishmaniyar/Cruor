@@ -5,7 +5,10 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "test": "node server.js"
+    "dev": "node --watch src/server.js",
+    "start": "node server.js",
+    "db:push": "npx prisma db push",
+    "db:gen": "npx prisma generate"
   },
   "author": "",
   "license": "ISC",

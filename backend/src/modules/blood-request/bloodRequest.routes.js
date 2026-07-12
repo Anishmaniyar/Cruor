@@ -1,10 +1,19 @@
 import Router from "express";
 import { verifyHospital } from "../../middleware/authorize.js";
 import { validateRequest } from "../../middleware/validateRequest.js";
-import { bloodRequestBodySchema } from "./bloodRequest.validator.js";
 import {
-  createBloodRequest,
+  bloodRequestBodySchema,
+  cancelBloodRequestSchema,
+  approveBloodRequestSchema,
+  rejectBloodRequestSchema,
+} from "./bloodRequest.validator.js";
+import {
+  createBloodRequestData,
   getMyBloodRequests,
+  getBloodRequestById,
+  cancelBloodRequest,
+  approveBloodRequest,
+  rejectBloodRequest,
 } from "./bloodRequest.controller.js";
 
 const router = Router();

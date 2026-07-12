@@ -1,5 +1,5 @@
 import Router from "express";
-import { verifyHospital } from "../../middleware/authenticate.js";
+import { verifyHospital } from "../../middleware/authorize.js";
 import {
   bloodUnitInventory,
   blooodUnitofHospital,
@@ -9,9 +9,7 @@ import {
 import { updateBloodUnitStatusSchema } from "./bloodUnit.validator.js";
 import { validateRequest } from "../../middleware/validateRequest.js";
 
-const router = Router;
-
-// blood donation creation we are not adding the api for it we will add it in the donation module after the completeDonationService
+const router = Router();
 
 router.get("/hospital", verifyHospital, blooodUnitofHospital);
 

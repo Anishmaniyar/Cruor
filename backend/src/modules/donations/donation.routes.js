@@ -16,7 +16,7 @@ import {
   createCampaignDonationSchema,
 } from "./donation.validator.js";
 
-const router = Router;
+const router = Router();
 
 router.post(
   "/appointments/:appointmentId",

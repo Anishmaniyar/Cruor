@@ -1,6 +1,6 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import appError from "../../utils/appError.js";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 
 export const registerUser = asyncHandler(async (req, res, next) => {
   const { name, email, password, phoneNo } = req.body;

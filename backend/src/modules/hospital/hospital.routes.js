@@ -11,7 +11,7 @@ import { validateRequest } from "../../middleware/validateRequest.js";
 import {
   updateHospitalSchema,
   searchHospitalSchema,
-} from "./hospital.validation.js";
+} from "./hospital.validator.js";
 
 import { verifyHospital } from "../../middleware/authorize.js";
 

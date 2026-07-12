@@ -1,6 +1,6 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import * as bloodUnitService from "./bloodUnit.service.js";
-import * as inventoryService from "./inventory.service.js"
+import * as inventoryService from "./inventory.service.js";
 
 export const blooodUnitofHospital = asyncHandler(
   async (req, resizeBy, next) => {
@@ -10,73 +10,87 @@ export const blooodUnitofHospital = asyncHandler(
       await bloodUnitService.getBloodUnitofHospitalService(hospitalId);
 
     return res.status(200).json({
-        status: "success",
-        data: {
-            totalBloodUnits = bloodUnit.length,
-            bloodUnit
-        },
-        message: "Blood units fetched successfully"
-    })
+      status: "success",
+      totalBloodUnits: bloodUnit.length, // Fixed with ':'
+      data: {
+        bloodUnit,
+      },
+    });
   },
-
 );
 
 export const bloodUnitInventory = asyncHandler(async (req, res, next) => {
-    const hospitalId = req.hospital.id;
+  const hospitalId = req.hospital.id;
 
-    const inventoryData = await inventoryService.getHospitalInventoryService(hospitalId)
+  const inventoryData =
+    await inventoryService.getHospitalInventoryService(hospitalId);
 
-    return res.status(200).json({
-        status: "success",
-        data: {
-            inventoryData
-        },
-        message: "Blood units data fetched successfully"
-    })
-})
+  return res.status(200).json({
+    status: "success",
+    data: {
+      inventoryData,
+    },
+    message: "Blood units data fetched successfully",
+  });
+});
 
 export const bloodUnitInventorybyId = asyncHandler(async (req, res, next) => {
+  const hospitalId = req.hospital.id;
+
+  const bloodUnitId = req.params.id;
+
+  const bloodUnitData = await bloodUnitService.getbloodUnitByIdService(
+    bloodUnitId,
+    hospitalId,
+  );
+
+  return res.status(200).json({
+    status: "success",
+    data: {
+      bloodUnitData,
+    },
+    message: "Blood units data fetched successfully",
+  });
+});
+
+export const updateBloodUnitPacketStatus = asyncHandler(
+  async (req, res, next) => {
     const hospitalId = req.hospital.id;
 
     const bloodUnitId = req.params.id;
 
-    const bloodUnitData = await bloodUnitService.getbloodUnitByIdService(bloodUnitId, hospitalId)
+    const { newStatus } = req.body;
 
-    return res.status(200).json({
-        status: "success",
-        data: {
-            bloodUnitData
-        },
-        message: "Blood units data fetched successfully"
-    })
-})
-
-export const updateBloodUnitPacketStatus = asyncHandler(async (req, res, next) => {
-    const hospitalId = req.hospital.id;
-    
-    const bloodUnitId = req.params.id;
-
-    const {newStatus} = req.body
-
-    const updateStatus = await bloodUnitService.updateBloodUnitService(hospitalId, bloodUnitId, newStatus)
+    const updateStatus = await bloodUnitService.updateBloodUnitService(
+      hospitalId,
+      bloodUnitId,
+      newStatus,
+    );
 
     return res.status(204).json({
-        status: "success",
-        message: "Status updated successfully"
-    })
-})
+      status: "success",
+      message: "Status updated successfully",
+    });
+  },
+);
 
-export const expireBloodUnitPacketStatus = asyncHandler(async (req, res, next) => {
+export const expireBloodUnitPacketStatus = asyncHandler(
+  async (req, res, next) => {
     const hospitalId = req.hospital.id;
 
     const bloodUnitId = req.params.id;
 
-    const {status} = req.body;
+    const { status } = req.body;
 
-    const expireBloodUnit = await bloodUnitService.expireBloodUnitService(hospitalId, bloodUnitId, newStatus)
+    const expireBloodUnit = await bloodUnitService.expireBloodUnitService(
+      hospitalId,
+      bloodUnitId,
+      newStatus,
+    );
 
     return res.status(204).json({
-        status: "success",
-        message: "Status updated successfully"
-    })
-})
+      status: "success",
+      message: "Status updated successfully",
+    });
+  },
+);

@@ -1,5 +1,4 @@
-import appError from "../../../utils/appError.js";
-import asyncHandler from "../../../utils/asyncHandler.js";
+import asyncHandler from "../../utils/asyncHandler.js";
 import * as hospitalService from "./hospital.service.js";
 
 export const getHospitals = asyncHandler(async (req, res, next) => {

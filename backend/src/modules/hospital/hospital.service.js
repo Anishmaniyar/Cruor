@@ -1,5 +1,5 @@
-import * as hospitalRepository from "./hospital.repository";
-import { appError } from "../../../utils/appError.js";
+import * as hospitalRepository from "./hospital.repository.js";
+import appError from "../../utils/appError.js";
 
 export const getAllHopitalService = async () => {
   const hospitals = await hospitalRepository.findAllHospitals();
