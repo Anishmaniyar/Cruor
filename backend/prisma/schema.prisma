@@ -164,8 +164,14 @@ model Notification {
   title   String
   message String @db.Text
 
-  type   String  @db.VarChar(50)
-  isRead Boolean
+
+  type NotificationType
+
+  priority NotificationPriority
+
+  status NotificationStatus @default(PENDING)
+
+  isRead Boolean @default(false)
 
   createdAt DateTime @default(now())
 
@@ -304,4 +310,45 @@ enum TransferStatus {
   RECEIVED
   COMPLETED
   CANCELLED
+}
+
+enum NotificationPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum NotificationStatus {
+  PENDING
+  PROCESSING
+  SENT
+  FAILED
+}
+
+enum NotificationType {
+  APPOINTMENT_BOOKED
+  APPOINTMENT_CANCELLED
+  APPOINTMENT_REMINDER
+
+  CAMPAIGN_REGISTERED
+  CAMPAIGN_REMINDER
+
+  DONATION_COMPLETED
+  CERTIFICATE_READY
+
+  ELIGIBLE_AGAIN
+
+  ACHIEVEMENT_UNLOCKED
+
+  EMERGENCY_REQUEST
+
+  BLOOD_REQUEST_APPROVED
+  BLOOD_REQUEST_REJECTED
+
+  TRANSFER_DISPATCHED
+  TRANSFER_RECEIVED
+  TRANSFER_COMPLETED
+
+  SYSTEM
 }

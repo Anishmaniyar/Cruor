@@ -60,13 +60,16 @@ export const bookAppointmentService = async (data) => {
       status: "BOOKED",
     });
 
-  await appointmentRepository.createNotification({
-    hospitalId,
-    title: "New Appointment Request",
-    message: `A new appointment has been requested for ${appointmentDate.toISOString().split("T")[0]}.`,
-    type: "APPOINTMENT_REMINDER",
-    isRead: false,
-  });
+  await NotificationService.send(
+    NotificationType.APPOINTMENT_BOOKED,
+    {
+      hospitalId,
+    },
+    {
+      appointmentDate,
+      appointmentTime,
+    },
+  );
 
   return appointment;
 };
