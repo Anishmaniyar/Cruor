@@ -1,6 +1,8 @@
 import AppError from "../../utils/appError.js";
 import * as DonationRepository from "./donation.repository.js";
 import * as CampaginRepository from "../campaign/campaign.repository.js";
+import * as NotificationService from "../notifications/notification.service.js";
+import { NotificationType } from "../notifications/notification.constants.js";
 
 export const donationAppointmentService = async (
   appointmentId,
@@ -125,7 +127,7 @@ export const rejectDonationService = async (donationId, hospitalId) => {
     throw new AppError("Donation already exists", 404);
   }
 
-  if (donation.status === "REJECTED") {
+  if (donationExists.status === "REJECTED") {
     throw new AppError("This donation has already been rejected", 400);
   }
 
@@ -155,7 +157,7 @@ export const completeDonationService = async (donationId, hospitalId) => {
     throw new AppError("Donation already exists", 404);
   }
 
-  if (donation.status === "REJECTED") {
+  if (donationExists.status === "REJECTED") {
     throw new AppError("This donation has already been rejected", 400);
   }
 
@@ -173,6 +175,19 @@ export const completeDonationService = async (donationId, hospitalId) => {
     donationId,
     "COMPLETED",
   );
+
+  await NotificationService.send({
+    type: NotificationType.DONATION_COMPLETED,
+
+    recipient: {
+      userId: donationExists.userId,
+    },
+
+    payload: {
+      hospitalName: hospitalOwnsDonation.hospital.name,
+      donationDate: hospitalOwnsDonation.donationDate,
+    },
+  });
 
   return updatedDonation;
 };

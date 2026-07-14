@@ -2,6 +2,8 @@ import * as BloodRequestRepository from "./bloodTransfer.repository.js";
 import * as InventoryRepository from "../blood-units/inventory.repository.js";
 import { prisma } from "../../db.js";
 import allowedTransitions from "./bloodTransfer.transitions.js";
+import * as NotificationService from "../notifications/notification.service.js";
+import { NotificationType } from "../notifications/notification.constants.js";
 
 import AppError from "../../utils/appError.js";
 
@@ -38,6 +40,20 @@ export const createBloodTransferService = async (
   if (availableUnits < bloodRequest.unitsRequested) {
     throw new AppError("Insufficient blood units available", 400);
   }
+
+  await NotificationService.send({
+    type: NotificationType.BLOOD_TRANSFER_CREATED,
+
+    recipient: {
+      hospitalId: bloodRequest.requestingHospitalId,
+    },
+
+    payload: {
+      sourceHospitalName: bloodRequest.sourceHospital.name,
+      bloodGroup: bloodRequest.bloodGroup,
+      unitsTransferred: bloodRequest.unitsRequested,
+    },
+  });
 
   return await BloodTransferRepository.createBloodTransferRepository({
     senderHospitalId,
@@ -83,6 +99,20 @@ export const cancelTransferService = async (hospitalId, transferId) => {
   if (transfer.status !== "PENDING") {
     throw new AppError("Only pending transfers can be cancelled", 400);
   }
+
+  await NotificationService.send({
+    type: NotificationType.BLOOD_TRANSFER_CANCELLED,
+
+    recipient: {
+      hospitalId: hospitalId,
+    },
+
+    payload: {
+      sourceHospitalName: transfer.sourceHospital.name,
+      bloodGroup: transfer.bloodGroup,
+      unitsTransferred: transfer.bloodUnits,
+    },
+  });
 
   return await BloodTransferRepository.updateTransferStatusRepository(
     transferId,
@@ -186,8 +216,8 @@ export const updateTransferStatusService = async (
     );
   }
 
-  return await prisma.$transaction(async (tx) => {
-    const updatedTransfer =
+  const updatedTransfer = await prisma.$transaction(async (tx) => {
+    const updated =
       await BloodTransferRepository.updateTransferStatusRepository(
         tx,
         transferId,
@@ -217,6 +247,62 @@ export const updateTransferStatusService = async (
       );
     }
 
-    return updatedTransfer;
+    return updated;
   });
+
+  if (newStatus === "DISPATCHED") {
+    await NotificationService.send({
+      type: NotificationType.TRANSFER_DISPATCHED,
+      recipient: {
+        hospitalId: transfer.destinationHospitalId,
+      },
+      payload: {
+        sourceHospitalName: transfer.sourceHospital.name,
+        bloodGroup: transfer.bloodRequest.bloodGroup,
+        unitsTransferred: transfer.unitsTransferred,
+      },
+    });
+  }
+
+  if (newStatus === "RECEIVED") {
+    await NotificationService.send({
+      type: NotificationType.TRANSFER_RECEIVED,
+      recipient: {
+        hospitalId: transfer.sourceHospitalId,
+      },
+      payload: {
+        destinationHospitalName: transfer.destinationHospital.name,
+        bloodGroup: transfer.bloodRequest.bloodGroup,
+        unitsTransferred: transfer.unitsTransferred,
+      },
+    });
+  }
+
+  if (newStatus === "COMPLETED") {
+    await NotificationService.send({
+      type: NotificationType.TRANSFER_COMPLETED,
+      recipient: {
+        hospitalId: transfer.sourceHospitalId,
+      },
+      payload: {
+        destinationHospitalName: transfer.destinationHospital.name,
+        bloodGroup: transfer.bloodRequest.bloodGroup,
+        unitsTransferred: transfer.unitsTransferred,
+      },
+    });
+
+    await NotificationService.send({
+      type: NotificationType.TRANSFER_COMPLETED,
+      recipient: {
+        hospitalId: transfer.destinationHospitalId,
+      },
+      payload: {
+        sourceHospitalName: transfer.sourceHospital.name,
+        bloodGroup: transfer.bloodRequest.bloodGroup,
+        unitsTransferred: transfer.unitsTransferred,
+      },
+    });
+  }
+
+  return updatedTransfer;
 };

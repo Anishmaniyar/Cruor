@@ -1,8 +1,11 @@
 import AppError from "../../utils/appError.js";
 import * as CampaignRepository from "./campaign.repository.js";
+import * as NotificationService from "../notifications/notification.service.js";
+import { NotificationType } from "../notifications/notification.constants.js";
 
 export const createCampaignService = async (hospitalId, campaignData) => {
-  const { campaignDate, startTime, endTime, targetDonors } = campaignData;
+  const { campName, ampaignDate, startTime, endTime, targetDonors } =
+    campaignData;
 
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -28,17 +31,9 @@ export const createCampaignService = async (hospitalId, campaignData) => {
     throw new appError("Target donors are not valid entry", 400);
   }
 
-  const campaign = await CampaignRepository.createCampaginRepository({
+  const campaign = await CampaignRepository.createCampaignRepository({
     hospitalId,
     ...campaignData,
-  });
-
-  await CampaignRepository.createNotification({
-    hospitalId,
-    title: "New Campaign Notification",
-    message: `A new campaing has been created ${campaignDate.toISOString().split("T")[0]}.`,
-    type: "CAMPAIGN_REMINDER",
-    isRead: false,
   });
 
   return campaign;
@@ -59,10 +54,28 @@ export const updateCampaignService = async (
     throw new AppError("Unauthorized", 403);
   }
 
-  return await CampaignRepository.updateCampaignRepository(
+  const updateCampagin = await CampaignRepository.updateCampaignRepository(
     campaignId,
     campaignData,
   );
+
+  const recipients =
+    await CampaignRepository.allRegisteredUserstoCampaign(campaignId);
+
+  await NotificationService.sendBulk({
+    type: NotificationType.CAMPAIGN_UPDATED,
+
+    recipients,
+
+    payload: {
+      campaignName: updatedCampaign.campName,
+      campaignDate: updatedCampaign.campaignDate,
+      startTime: updatedCampaign.startTime,
+      endTime: updatedCampaign.endTime,
+    },
+  });
+
+  return updateCampagin;
 };
 
 export const cancelCampaignService = async () => {};
@@ -119,6 +132,20 @@ export const registerCampaignService = async (userId, campaignId) => {
     campaignId,
     status: "REGISTERED",
     registeredAt: new Date(),
+  });
+
+  await NotificationService.send({
+    type: NotificationType.CAMPAIGN_REGISTERED,
+
+    recipient: {
+      userId: userId,
+    },
+
+    payload: {
+      campName: campaign.campName,
+      description: campaign.description,
+      campaignDate: campaign.campaignDate,
+    },
   });
 
   return registration;

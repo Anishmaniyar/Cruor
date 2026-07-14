@@ -1,6 +1,29 @@
-import { appointmentTemplates } from "./templates/appointment.template.js";
+import { appointmentTemplates } from "./templates/appointmentBooked.js";
+import { authTemplates } from "./templates/authenticationModule.js";
+import { campaignTemplates } from "./templates/campaignModule.js";
+import { donationTemplates } from "./templates/donationModule.js";
+import { bloodRequestTemplates } from "./templates/bloodRequestModule.js";
+import { bloodTransferTemplates } from "./templates/bloodTransferModule.js";
 
 export const NotificationRegistry = {
+  REGISTER_USER: {
+    priority: "MEDIUM",
+    channels: ["IN_APP", "EMAIL", "PUSH"],
+    template: authTemplates.WELCOME,
+  },
+
+  PASSWORD_CHANGE: {
+    priority: "MEDIUM",
+    channels: ["IN_APP", "EMAIL", "PUSH"],
+    template: authTemplates.PASSWORD_CHANGE,
+  },
+
+  PASSWORD_RESET: {
+    priority: "MEDIUM",
+    channels: ["IN_APP", "EMAIL", "PUSH"],
+    template: authTemplates.PASSWORD_RESET,
+  },
+
   APPOINTMENT_BOOKED: {
     priority: "HIGH",
     channels: ["IN_APP", "EMAIL", "PUSH"],
@@ -41,5 +64,107 @@ export const NotificationRegistry = {
     priority: "MEDIUM",
     channels: ["IN_APP", "PUSH"],
     template: appointmentTemplates.APPOINTMENT_COMPLETED,
+  },
+
+  CAMPAIGN_CREATED: {
+    priority: "MEDIUM",
+    channels: ["IN_APP", "PUSH"],
+    template: campaignTemplates.CAMPAIGN_CREATED,
+  },
+
+  CAMPAIGN_REGISTERED: {
+    priority: "MEDIUM",
+    channels: ["IN_APP", "PUSH"],
+    template: campaignTemplates.CAMPAIGN_REGISTERED,
+  },
+
+  CAMPAIGN_CANCELLED: {
+    priority: "MEDIUM",
+    channels: ["IN_APP", "PUSH"],
+    template: campaignTemplates.CAMPAIGN_CANCELLED,
+  },
+
+  CAMPAIGN_UPDATE: {
+    priority: "MEDIUM",
+    channels: ["IN_APP", "PUSH"],
+    template: campaignTemplates.CAMPAIGN_UPDATE,
+  },
+
+  CAMPAIGN_REGISTRATION_CANCELLEDL: {
+    priority: "MEDIUM",
+    channels: ["IN_APP", "PUSH"],
+    template: campaignTemplates.CAMPAIGN_REGISTRATION_CANCELLED,
+  },
+
+  CAMPAIGN_REMINDER: {
+    priority: "MEDIUM",
+    channels: ["IN_APP", "PUSH"],
+    template: campaignTemplates.CAMPAIGN_REMINDER,
+  },
+
+  WAITLIST_APPROVAL: {
+    priority: "MEDIUM",
+    channels: ["IN_APP", "PUSH"],
+    template: campaignTemplates.WAITLIST_APPROVED,
+  },
+
+  DONATION_COMPLETED: {
+    priority: "MEDIUM",
+    channels: ["IN_APP", "PUSH"],
+    template: donationTemplates.DONATION_COMPLETED,
+  },
+
+  CERTIFICATE_READY: {
+    priority: "MEDIUM",
+    channels: ["IN_APP", "PUSH"],
+    template: donationTemplates.CERTIFICATE_READY,
+  },
+
+  BLOOD_TEST_FAILED: {
+    priority: "MEDIUM",
+    channels: ["IN_APP", "PUSH"],
+    template: donationTemplates.BLOOD_TEST_FAILED,
+  },
+
+  BLOOD_REQUEST_APPROVED: {
+    priority: "MEDIUM",
+    channels: ["IN_APP", "PUSH"],
+    template: bloodRequestTemplates.BLOOD_REQUEST_APPROVED,
+  },
+
+  BLOOD_REQUEST_REJECTED: {
+    priority: "MEDIUM",
+    channels: ["IN_APP", "PUSH"],
+    template: bloodRequestTemplates.BLOOD_REQUEST_REJECTED,
+  },
+
+  BLOOD_TRANSFER_CREATED: {
+    priority: "MEDIUM",
+    channels: ["IN_APP", "PUSH"],
+    template: bloodTransferTemplates.BLOOD_TRANSFER_CREATED,
+  },
+
+  BLOOD_TRANSFER_DISPATCHED: {
+    priority: "MEDIUM",
+    channels: ["IN_APP", "PUSH"],
+    template: bloodTransferTemplates.BLOOD_TRANSFER_DISPATCHED,
+  },
+
+  BLOOD_TRANSFER_RECEIVED: {
+    priority: "MEDIUM",
+    channels: ["IN_APP", "PUSH"],
+    template: bloodTransferTemplates.BLOOD_TRANSFER_RECEIVED,
+  },
+
+  BLOOD_TRANSFER_COMPLETED: {
+    priority: "MEDIUM",
+    channels: ["IN_APP", "PUSH"],
+    template: bloodTransferTemplates.BLOOD_TRANSFER_COMPLETED,
+  },
+
+  BLOOD_TRANSFER_CANCELLED: {
+    priority: "MEDIUM",
+    channels: ["IN_APP", "PUSH"],
+    template: bloodTransferTemplates.BLOOD_TRANSFER_CANCELLED,
   },
 };

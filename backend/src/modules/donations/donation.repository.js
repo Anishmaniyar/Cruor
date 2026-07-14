@@ -118,6 +118,13 @@ export const findHospitalDonationRepository = async (
       id: donationId,
       hospitalId,
     },
+    include: {
+      hospital: {
+        select: {
+          name: true,
+        },
+      },
+    },
   });
 };
 

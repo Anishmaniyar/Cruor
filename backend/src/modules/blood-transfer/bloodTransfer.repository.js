@@ -73,6 +73,21 @@ export const findBloodRequestByIdRepository = async (tx, requestId) => {
     where: {
       id: requestId,
     },
+    include: {
+      requestingHospital: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+
+      sourceHospital: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
   });
 };
 
@@ -234,7 +249,11 @@ export const findHospitalTransferRepository = async (
     },
     include: {
       bloodRequest: true,
-      sourceHospital: true,
+      sourceHospital: {
+        select: {
+          name: true,
+        },
+      },
       destinationHospital: true,
       bloodUnits: {
         include: {

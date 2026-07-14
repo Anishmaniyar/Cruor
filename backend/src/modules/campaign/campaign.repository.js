@@ -1,11 +1,26 @@
 import prisma from "../../db.js";
 
+export const createCampaignRepository = async (hospitalId, data) => {
+  return await prisma.campaign.create({
+    hospitalId,
+    data,
+  });
+};
+
 export const updateCampaignRepository = async (campaignId, data) => {
   return await prisma.campaign.update({
     where: {
       id: campaignId,
     },
     data,
+  });
+};
+
+export const campaignExists = async (camapignId) => {
+  return await prisma.campaign.findUnique({
+    where: {
+      id: camapignId,
+    },
   });
 };
 
@@ -127,9 +142,9 @@ export const allRegisteredUserstoCampaign = async (campaignId) => {
   return await prisma.campaignRegistration.findMany({
     where: {
       campaignId,
+      status: "REGISTERED",
     },
     select: {
-      status: true,
       registeredAt: true,
       user: {
         select: {

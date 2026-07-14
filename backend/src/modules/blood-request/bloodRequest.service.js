@@ -1,6 +1,8 @@
 import AppError from "../../utils/appError.js";
 import * as inventoryRepository from "../blood-units/inventory.repository.js";
 import * as BloodRequestRepository from "./bloodRequest.repository.js";
+import * as NotificationService from "../notifications/notification.service.js";
+import { NotificationType } from "../notifications/notification.constants.js";
 
 export const createBloodRequestService = async (hospitalId, requestData) => {
   const { bloodGroup, unitsRequested } = requestData;
@@ -98,6 +100,17 @@ export const approveBloodRequestService = async (hospitalId, requestId) => {
     throw new AppError("Insufficient blood units available", 400);
   }
 
+  await NotificationService.send({
+    type: NotificationType.BLOOD_REQUEST_APPROVED,
+    recipient: {
+      hospitalId: hospitalId,
+    },
+    payload: {
+      bloodGroup: bloodRequest.bloodGroup,
+      unitsRequired: bloodRequest.unitsRequired,
+      sourceHospitalName: bloodRequest.requestingHospitalId,
+    },
+  });
   return await BloodRequestRepository.updateBloodRequestStatusRepository(
     requestId,
     "APPROVED",
@@ -119,6 +132,18 @@ export const rejectBloodRequestService = async (hospitalId, requestId) => {
   if (bloodRequest.hospitalId === hospitalId) {
     throw new AppError("Hospital cannot reject its own blood request", 400);
   }
+
+  await NotificationService.send({
+    type: NotificationType.BLOOD_REQUEST_REJECTED,
+    recipient: {
+      hospitalId: hospitalId,
+    },
+    payload: {
+      bloodGroup: bloodRequest.bloodGroup,
+      unitsRequired: bloodRequest.unitsRequired,
+      reason: "Insufficient inventory",
+    },
+  });
 
   return await BloodRequestRepository.updateBloodRequestStatusRepository(
     requestId,

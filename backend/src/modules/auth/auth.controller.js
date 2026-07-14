@@ -1,6 +1,8 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import appError from "../../utils/appError.js";
 import bcrypt from "bcrypt";
+import * as NotificationService from "../notifications/notification.service.js";
+import { NotificationType } from "../notifications/notification.constants.js";
 
 export const registerUser = asyncHandler(async (req, res, next) => {
   const { name, email, password, phoneNo } = req.body;
@@ -25,6 +27,23 @@ export const registerUser = asyncHandler(async (req, res, next) => {
       name,
       passwordHash: hashedPassword,
       phoneNo,
+    },
+    include: {
+      select: {
+        id: true,
+      },
+    },
+  });
+
+  await NotificationService.send({
+    type: NotificationType.WELCOME,
+
+    recipient: {
+      userId: newUser.id,
+    },
+
+    payload: {
+      name: newUser.name,
     },
   });
 
@@ -130,6 +149,18 @@ export const changePassword = asyncHandler(async (req, res, next) => {
   await prisma.user.update({
     where: { id: user.id },
     data: { passwordHash: newHashedPassword },
+  });
+
+  await NotificationService.send({
+    type: NotificationType.PASSWORD_CHANGED,
+
+    recipient: {
+      userId: user.id,
+    },
+
+    payload: {
+      name: user.name,
+    },
   });
 
   return res.status(200).json({

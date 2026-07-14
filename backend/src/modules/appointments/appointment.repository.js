@@ -1,11 +1,42 @@
 import prisma from "../../db.js";
 
 export const createConstAppointmentRepository = async (data) => {
-  return await prisma.appointment.create({ data });
+  return await prisma.appointment.create({
+    data,
+    include: {
+      hospital: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  });
 };
 
 export const findAppointmentByIdRepository = async (id) => {
-  return await prisma.appointment.findUnique({ where: { id } });
+  return await prisma.appointment.findUnique({
+    where: { id },
+    include: {
+      userId: true,
+      hospitalId: true,
+      appointmentDate: true,
+      appointmentTime: true,
+      status: true,
+      hospital: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      user: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  });
 };
 
 export const findAppointments = async (userId) => {
