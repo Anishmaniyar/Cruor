@@ -7,6 +7,7 @@ import campaignRoutes from "../modules/campaign/campaign.routes.js";
 import donationRoutes from "../modules/donations/donation.routes.js";
 import bloodUnitRoutes from "../modules/blood-units/bloodUnit.routes.js";
 import bloodRequestRoutes from "../modules/blood-request/bloodRequest.routes.js";
+import notificationRoutes from "../modules/notifications/notification.routes.js";
 
 const rootRouter = Router();
 
@@ -17,5 +18,6 @@ rootRouter.use("/campaigns", campaignRoutes);
 rootRouter.use("/donations", donationRoutes);
 rootRouter.use("/blood-units", bloodUnitRoutes);
 rootRouter.use("/blood-request", bloodRequestRoutes);
+rootRouter.use("/notification", notificationRoutes);
 
 export default rootRouter;
