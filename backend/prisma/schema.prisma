@@ -29,6 +29,7 @@ model User {
   donations             Donation[]
   notifications         Notification[]
   bloodUnits            BloodUnit[]
+  healthScreenings      HealthScreening[]
 
   @@map("users")
 }
@@ -74,7 +75,8 @@ model Appointment {
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   hospital Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
 
-  donations Donation[]
+  donations        Donation[]
+  healthScreenings HealthScreening[]
 
   @@index([userId])
   @@index([hospitalId])
@@ -163,7 +165,6 @@ model Notification {
 
   title   String
   message String @db.Text
-
 
   type NotificationType
 
@@ -302,6 +303,30 @@ model TransferBloodUnit {
 
   @@unique([transferId, bloodUnitId])
   @@map("transfer_blood_units")
+}
+
+model HealthScreening {
+  id            String  @id @default(uuid())
+  userId        String  @map("user_id")
+  appointmentId String? @map("appointment_id")
+
+  hasFever         Boolean
+  takingMedication Boolean
+
+  recentTatto      Boolean
+  tattooDate       DateTime?
+
+  recentSurgery    Boolean
+  surgeryDate      DateTime? @db.Date
+  pregnant         Boolean
+
+  weight        Int
+  travelHistory Boolean
+  eligible      Boolean
+  screenedAt    DateTime @default(now())
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  appointment Appointment? @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
 }
 
 enum TransferStatus {

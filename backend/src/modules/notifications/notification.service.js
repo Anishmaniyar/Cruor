@@ -1,16 +1,21 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import { NotificationRegistry } from "./notification.registry.js";
 import * as NotificationRepository from "./notification.repository.js";
+import { notificationQueue } from "./notification.queue.js";
 import AppError from "../../utils/appError.js";
 
-export const send = asyncHandler(async (req, res, next) => {
+export const send = async (req, res, next) => {
   const { type, recipient, payload } = req.body;
 
   const config = NotificationRegistry[type];
 
+  if (!config) {
+    throw new AppError(`Notification type '${type}' is invalid.`, 400);
+  }
+
   const notification = config.template(payload);
 
-  await NotificationRepository.createNotification({
+  const createNotification = await NotificationRepository.createNotification({
     userId: recipient.userId,
 
     title: notification.title,
@@ -21,20 +26,60 @@ export const send = asyncHandler(async (req, res, next) => {
 
     type,
   });
-});
+
+  await notificationQueue.add("sendNotificationJob", {
+    notification: createNotification,
+    recipient,
+  });
+
+  res.status(201).json({
+    status: "success",
+    message: "Notification created and queued for delivery.",
+    data: createdNotification,
+  });
+};
 
 export const sendBulk = async (type, recipients, payload) => {
-  const notifications = [];
+  const config = NotificationRegistry[type];
+  if (!config)
+    throw new AppError(`Notification type '${type}' is invalid.`, 400);
 
-  for (const recipient of recipients) {
-    const notification = await send({
-      type,
-      recipient,
-      payload,
-    });
+  const notificationTemplate = config.template(payload);
 
-    notifications.push(notification);
-  }
+  const originalPromises = recipients.map(async (recipient) => {
+    const createdNotification = await NotificationRepository.createNotification(
+      {
+        userId: recipient.userId,
+        title: notificationTemplate.title,
+        message: notificationTemplate.message,
+        priority: config.priority,
+        type,
+      },
+    );
+
+    await notificationQueue.add(
+      "sendNotificationJob",
+      {
+        notification: createdNotification,
+        recipient,
+      },
+      {
+        attempts: 3,
+        backoff: {
+          type: "exponential",
+          delay: 5000,
+        },
+
+        removeOnComplete: 100,
+
+        removeOnFail: 50,
+      },
+    );
+
+    return createdNotification;
+  });
+
+  const notifications = await Promise.all(originalPromises);
 
   return notifications;
 };
