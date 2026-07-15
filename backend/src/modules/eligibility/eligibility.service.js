@@ -4,8 +4,10 @@ import {
   getDonationData,
   findUserById,
   createHealthScreeningRepository,
+  findUsersWithLatestDonationRepository,
 } from "./eligibility.repository.js";
 import { evaluateScreeningRules } from "./eligibility.rules.js";
+import * as NotificationService from "../notifications/notification.service.js";
 
 export const checkEligibilityService = async (userId) => {
   const userData = await getUserData(userId);
@@ -76,4 +78,48 @@ export const submitScreeningService = async (userId, screeningData) => {
   });
 
   return screeningResult;
+};
+
+export const sendEligibilityReminderService = async () => {
+  const donations =
+    await EligibilityRepository.findUsersWithLatestDonationRepository();
+
+  const processedUsers = new Set();
+
+  const today = new Date();
+
+  for (const donation of donations) {
+    if (processedUsers.has(donation.userId)) {
+      continue;
+    }
+
+    processedUsers.add(donation.userId);
+
+    const componentType =
+      donation.bloodUnits[0]?.componentType ?? "WHOLE_BLOOD";
+
+    const interval = DONATION_INTERVALS[componentType] ?? 90;
+
+    const nextEligibleDate = new Date(donation.donationDate);
+
+    nextEligibleDate.setDate(nextEligibleDate.getDate() + interval);
+
+    if (
+      nextEligibleDate.getFullYear() === today.getFullYear() &&
+      nextEligibleDate.getMonth() === today.getMonth() &&
+      nextEligibleDate.getDate() === today.getDate()
+    ) {
+      await NotificationService.send({
+        type: NotificationType.REMINDER,
+
+        recipient: {
+          userId: donation.userId,
+        },
+
+        payload: {
+          nextEligibleDate,
+        },
+      });
+    }
+  }
 };

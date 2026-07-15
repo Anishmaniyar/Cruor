@@ -1,67 +1,65 @@
 import { Worker } from "bullmq";
-import redisClient from "../../config/redis.js";
-import { success } from "zod";
-
-const redisConnection = redisClient.options;
+import { redisConnection } from "../../config/redis.js";
 
 const sendEmail = async (recipient, title, message) => {
-  console.log(
-    `📧 [Email Provider] Sending email to ${recipient.email || "User"}...`,
-  );
+  console.log(`📧 Sending email to ${recipient.email ?? "Unknown User"}`);
 };
 
 const sendPushNotification = async (recipient, title, message) => {
   console.log(
-    `📱 [Push Provider] Sending mobile push to device token of user ${recipient.userId}...`,
+    `📱 Sending push notification to ${recipient.userId ?? "Unknown User"}`,
   );
 };
 
 const sendSMS = async (recipient, message) => {
-  console.log(
-    `💬 [SMS Provider] Sending text message to ${recipient.phone || "User"}...`,
-  );
+  console.log(`💬 Sending SMS to ${recipient.phone ?? "Unknown User"}`);
 };
 
 const notificationWorker = new Worker(
   "notificationQueue",
 
   async (job) => {
-    if (job.name === "sendNotificationJob") {
-      const { notification, recipient } = job.data;
+    switch (job.name) {
+      case "sendNotificationJob": {
+        const { notification, recipient } = job.data;
 
-      console.log(
-        `📥 [Worker] Processing Delivery for Notification ID: ${notification.id}`,
-      );
+        console.log(`📥 Processing Notification ${notification.id}`);
 
-      await Promise.all([
-        sendEmail(recipient, notification.title, notification.message),
-        sendPushNotification(
-          recipient,
-          notification.title,
-          notification.message,
-        ),
-        sendSMS(recipient, notification.message),
-      ]);
+        await Promise.all([
+          sendEmail(recipient, notification.title, notification.message),
 
-      console.log(
-        `🏁 [Worker] All delivery channels triggered for Notification: ${notification.id}`,
-      );
+          sendPushNotification(
+            recipient,
+            notification.title,
+            notification.message,
+          ),
+
+          sendSMS(recipient, notification.message),
+        ]);
+
+        break;
+      }
+
+      default:
+        console.log(`Unknown Job: ${job.name}`);
     }
   },
+
   {
     connection: redisConnection,
+
     concurrency: 5,
   },
 );
 
 notificationWorker.on("completed", (job) => {
-  console.log(`✅ [Worker] Job ${job.id} completed successfully!`);
+  console.log(`✅ Job ${job.id} completed`);
 });
 
 notificationWorker.on("failed", (job, err) => {
-  console.error(`❌ [Worker] Job ${job?.id} failed with error:`, err.message);
+  console.error(`❌ Job ${job?.id} failed`, err.message);
 });
 
-console.log("👷 BullMQ Notification Worker is live and listening for jobs...");
+console.log("👷 Notification Worker started");
 
 export default notificationWorker;

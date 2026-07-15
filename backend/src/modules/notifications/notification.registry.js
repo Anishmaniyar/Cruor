@@ -4,6 +4,8 @@ import { campaignTemplates } from "./templates/campaignModule.js";
 import { donationTemplates } from "./templates/donationModule.js";
 import { bloodRequestTemplates } from "./templates/bloodRequestModule.js";
 import { bloodTransferTemplates } from "./templates/bloodTransferModule.js";
+import { channel } from "node:diagnostics_channel";
+import { eligiblityTemplates } from "./templates/eligibleAgain.js";
 
 export const NotificationRegistry = {
   REGISTER_USER: {
@@ -166,5 +168,11 @@ export const NotificationRegistry = {
     priority: "MEDIUM",
     channels: ["IN_APP", "PUSH"],
     template: bloodTransferTemplates.BLOOD_TRANSFER_CANCELLED,
+  },
+
+  ELIGIBLITY_REMINDER: {
+    priority: "HIGH",
+    channels: ["IN_APP", "PUSH"],
+    template: eligiblityTemplates.ELIGIBLITY_REMINDER,
   },
 };

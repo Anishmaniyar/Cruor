@@ -4,6 +4,8 @@ import prisma from "./db.js";
 import redisClient from "./config/redis.js";
 
 import "./modules/notifications/notification.worker.js";
+import "./modules/notifications/jobs/scheduler.js";
+import "./modules/notifications/scheduler.worker.js";
 
 dotenv.config();
 

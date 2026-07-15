@@ -135,3 +135,42 @@ export const completeAppointmentRepository = async (id) => {
 export const createNotification = async (data) => {
   return await prisma.notification.create({ data });
 };
+
+export const findUpcomingAppointments = async (startTime, endTime) => {
+  return await prisma.appointment.findMany({
+    where: {
+      status: "CONFIRMED",
+      appointmentReminderSent: false,
+      appointmentDate: {
+        gte: startTime,
+        lte: endTime,
+      },
+    },
+    orderBy: {
+      appointmentDate: "asc",
+    },
+    select: {
+      id: true,
+      userId: true,
+      appointmentDate: true,
+      appointmentTime: true,
+
+      hospital: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+};
+
+export const markAppointmentReminderSent = async (appointmentId) => {
+  return await prisma.appointment.update({
+    where: {
+      id: appointmentId,
+    },
+    data: {
+      appointmentReminderSent: true,
+    },
+  });
+};

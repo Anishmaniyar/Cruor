@@ -3,13 +3,16 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Connects to the Docker container port we mapped earlier
-const redisClient = new Redis(
-  process.env.REDIS_URL || "redis://localhost:6379",
-);
+export const redisConnection = {
+  host: process.env.REDIS_HOST || "127.0.0.1",
+  port: Number(process.env.REDIS_PORT) || 6379,
+  maxRetriesPerRequest: null,
+};
+
+const redisClient = new Redis(redisConnection);
 
 redisClient.on("connect", () => {
-  console.log("🚀 Redis connected successfully via Docker");
+  console.log("🚀 Redis connected successfully");
 });
 
 redisClient.on("error", (err) => {

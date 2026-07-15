@@ -263,3 +263,31 @@ export const completeAppointmentService = async (appointmentId, hospitalId) => {
     appointmentId,
   );
 };
+
+export const sendAppointmentReminderService = async () => {
+  const now = new Date();
+
+  const next24Hours = new Date(now);
+  next24Hours.setHours(next24Hours.getHours() + 24);
+
+  const upcomingAppointments =
+    await appointmentRepository.findUpcomingAppointments(now, next24Hours);
+
+  for (const appointment of upcomingAppointments) {
+    await NotificationService.send({
+      type: NotificationType.REMINDER,
+
+      recipient: {
+        userId: appointment.userId,
+      },
+
+      payload: {
+        hospitalName: appointment.hospital.name,
+        appointmentDate: appointment.appointmentDate,
+        appointmentTime: appointment.appointmentTime,
+      },
+    });
+
+    await appointmentRepository.markAppointmentReminderSent(appointment.id);
+  }
+};

@@ -1,10 +1,8 @@
 import { Queue } from "bullmq";
-import redisClient from "../../config/redis.js";
-
-const redisConnection = redisClient.options;
+import { redisConnection } from "../../config/redis.js";
 
 export const notificationQueue = new Queue("notificationQueue", {
   connection: redisConnection,
 });
 
-console.log("BullMQ Notification Queue initialized");
+console.log("📬 Bull MQ - Notification Queue initialized");

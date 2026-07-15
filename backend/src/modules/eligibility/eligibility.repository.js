@@ -1,4 +1,4 @@
-import { prisma } from "../../db.js";
+import prisma from "../../db.js";
 
 export const getUserData = async (userId) => {
   return await prisma.user.findFirst({
@@ -35,7 +35,7 @@ export const getDonationData = async (userId) => {
 };
 
 export const findUserById = async (userId) => {
-  return await prisma.use.findFirst({
+  return await prisma.user.findFirst({
     where: {
       id: userId,
     },
@@ -45,5 +45,24 @@ export const findUserById = async (userId) => {
 export const createHealthScreeningRepository = async (data) => {
   return await prisma.healthScreening.create({
     data,
+  });
+};
+
+export const findUsersWithLatestDonationRepository = async () => {
+  return await prisma.donation.findMany({
+    where: {
+      status: "COMPLETED",
+    },
+    orderBy: {
+      donationDate: "desc",
+    },
+    include: {
+      user: true,
+      bloodUnits: {
+        select: {
+          componentType: true,
+        },
+      },
+    },
   });
 };
