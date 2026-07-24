@@ -29,3 +29,19 @@ export const signUpSchema = z.object({
 });
 
 export type SignUpSchemaType = z.infer<typeof signUpSchema>;
+
+export const LogInSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email("Please provide a valid email address"),
+
+  password: z
+    .string()
+    .trim()
+    .min(6, "Password must be at least 6 characters long")
+    .max(20, "Password must be at most 20 characters long"),
+});
+
+export type LogInSchemaType = z.infer<typeof LogInSchema>;

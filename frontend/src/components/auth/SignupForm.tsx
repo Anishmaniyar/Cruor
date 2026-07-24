@@ -1,24 +1,20 @@
 "use client";
 
 import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useForm, Controller } from "react-hook-form";
 import PasswordInput from "./PasswordInput";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { signUpSchema, SignUpSchemaType } from "@/lib/validations/auth";
-import { registerUser } from "@/services/auth.services";
-import { useRouter } from "next/navigation";
 
-export default function SignUpForm() {
+import { signUpSchema, SignUpSchemaType } from "@/lib/validations/auth";
+
+import { registerUser } from "@/services/auth.services";
+
+export default function SignupForm() {
   const router = useRouter();
 
   const form = useForm<SignUpSchemaType>({
@@ -26,8 +22,8 @@ export default function SignUpForm() {
     defaultValues: {
       name: "",
       email: "",
-      password: "",
       phoneNo: "",
+      password: "",
       gender: "male",
     },
   });
@@ -35,13 +31,12 @@ export default function SignUpForm() {
   const onSubmit = async (data: SignUpSchemaType) => {
     try {
       const response = await registerUser(data);
+
       toast.success(response.message);
 
       form.reset();
 
-      setTimeout(() => {
-        router.push("/login");
-      }, 1500);
+      router.push("/login");
     } catch (error) {
       if (axios.isAxiosError(error)) {
         toast.error(error.response?.data.message);
@@ -52,54 +47,120 @@ export default function SignUpForm() {
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)}>
-      <Input type="text" placeholder="Full Name" {...form.register("name")} />
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="flex flex-col gap-6"
+    >
+      {/* Heading */}
 
-      <p className="text-sm text-red-500">
-        {form.formState.errors.name?.message}
-      </p>
+      <div className="space-y-2 text-center">
+        <h1 className="text-3xl font-bold text-white">Create Account</h1>
 
-      <Input placeholder="Email" {...form.register("email")} />
-      <p className="text-sm text-red-500">
-        {form.formState.errors.email?.message}
-      </p>
+        <p className="text-sm text-neutral-400">
+          Join VitalDrops and save lives.
+        </p>
+      </div>
 
-      <Input type="tel" placeholder="Phone No." {...form.register("phoneNo")} />
+      {/* Full Name */}
 
-      <p className="text-sm text-red-500">
-        {form.formState.errors.phoneNo?.message}
-      </p>
+      <div className="space-y-2">
+        <Input
+          placeholder="Full Name"
+          autoComplete="name"
+          {...form.register("name")}
+        />
 
-      <PasswordInput placeholder="Password" {...form.register("password")} />
-
-      <p className="text-sm text-red-500">
-        {form.formState.errors.password?.message}
-      </p>
-
-      <Controller
-        name="gender"
-        control={form.control}
-        render={({ field }) => (
-          <Select onValueChange={field.onChange} value={field.value ?? "male"}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select Gender" />
-            </SelectTrigger>
-
-            <SelectContent>
-              <SelectItem value="male">Male</SelectItem>
-              <SelectItem value="female">Female</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
-            </SelectContent>
-          </Select>
+        {form.formState.errors.name && (
+          <p className="text-sm text-red-500">
+            {form.formState.errors.name.message}
+          </p>
         )}
-      />
+      </div>
 
-      <p className="text-sm text-red-500">
-        {form.formState.errors.gender?.message}
-      </p>
+      {/* Email */}
 
-      <Button type="submit" disabled={form.formState.isSubmitting}>
-        {form.formState.isSubmitting ? "Creating Account..." : "Register"}
+      <div className="space-y-2">
+        <Input
+          type="email"
+          placeholder="Email"
+          autoComplete="email"
+          {...form.register("email")}
+        />
+
+        {form.formState.errors.email && (
+          <p className="text-sm text-red-500">
+            {form.formState.errors.email.message}
+          </p>
+        )}
+      </div>
+
+      {/* Phone */}
+
+      <div className="space-y-2">
+        <Input
+          placeholder="Phone Number"
+          autoComplete="tel"
+          {...form.register("phoneNo")}
+        />
+
+        {form.formState.errors.phoneNo && (
+          <p className="text-sm text-red-500">
+            {form.formState.errors.phoneNo.message}
+          </p>
+        )}
+      </div>
+
+      {/* Password */}
+
+      <div className="space-y-2">
+        <PasswordInput
+          placeholder="Password"
+          autoComplete="new-password"
+          {...form.register("password")}
+        />
+
+        {form.formState.errors.password && (
+          <p className="text-sm text-red-500">
+            {form.formState.errors.password.message}
+          </p>
+        )}
+      </div>
+
+      {/* Gender */}
+
+      <div className="space-y-2">
+        <select
+          {...form.register("gender")}
+          className="h-12 w-full rounded-xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none transition-all focus:border-white/20 focus:ring-2 focus:ring-white/10"
+        >
+          <option value="male" className="bg-neutral-900">
+            Male
+          </option>
+
+          <option value="female" className="bg-neutral-900">
+            Female
+          </option>
+
+          <option value="other" className="bg-neutral-900">
+            Other
+          </option>
+        </select>
+
+        {form.formState.errors.gender && (
+          <p className="text-sm text-red-500">
+            {form.formState.errors.gender.message}
+          </p>
+        )}
+      </div>
+
+      {/* Button */}
+
+      <Button
+        type="submit"
+        className="w-full"
+        disabled={form.formState.isSubmitting}
+      >
+        {form.formState.isSubmitting ? "Creating Account..." : "Create Account"}
       </Button>
     </form>
   );

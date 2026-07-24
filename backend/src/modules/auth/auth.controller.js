@@ -77,10 +77,16 @@ export const loginUser = asyncHandler(async (req, res, next) => {
     return next(new appError("Failed to generate tokens", 500));
   }
 
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    sameSite: "strict",
+    maxAge: 15 * 60 * 1000, // 15 min
+  });
+
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     sameSite: "strict",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
   return res.status(200).json({
@@ -91,21 +97,56 @@ export const loginUser = asyncHandler(async (req, res, next) => {
         id: user.id,
         name: user.name,
       },
-      accessToken,
-      refreshToken,
     },
   });
 });
 
 export const logoutUser = asyncHandler(async (req, res, next) => {
-  res.clearCookie("refreshToken", {
+  res.clearCookie("accessToken", {
     httpOnly: true,
     sameSite: "strict",
   });
 
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    sameSite: "strict",
+  });
   return res.status(200).json({
     status: "success",
     message: "User logged out successfully",
+  });
+});
+
+export const refreshAccessToken = asyncHandler(async (req, res, next) => {
+  const refreshToken = req.cookies.refreshToken;
+
+  if (!refreshToken) {
+    return next(new AppError("Unauthorized", 401));
+  }
+
+  const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: decoded.id,
+    },
+  });
+
+  if (!user) {
+    return next(new AppError("User not found", 401));
+  }
+
+  const accessToken = generateAccessToken(user);
+
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    sameSite: "strict",
+    maxAge: 15 * 60 * 1000,
+  });
+
+  return res.status(200).json({
+    status: "success",
+    message: "Access token refreshed",
   });
 });
 

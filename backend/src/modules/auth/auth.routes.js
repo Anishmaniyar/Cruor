@@ -3,6 +3,7 @@ import {
   registerUser,
   loginUser,
   logoutUser,
+  refreshAccessToken,
   getCurrentUser,
   changePassword,
   forgotPassword,
@@ -28,8 +29,12 @@ const router = Router();
 
 // USER
 router.post("/register", validateRequest(registerUserSchema), registerUser);
+
 router.post("/login", validateRequest(loginUserSchema), loginUser);
+
 router.post("/logout", logoutUser);
+
+router.post("/refresh", refreshAccessToken);
 
 router.get("/me", verifyUser, getCurrentUser);
 

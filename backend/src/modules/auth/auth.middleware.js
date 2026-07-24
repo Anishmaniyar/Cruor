@@ -4,13 +4,8 @@ import asyncHandler from "../../utils/asyncHandler.js";
 import prisma from "../../db.js";
 
 export const verifyUser = asyncHandler(async (req, res, next) => {
-  const authHeader = req.headers.authorization;
+  const token = req.cookies.accessToken;
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
-  const token = authHeader.split(" ")[1];
   if (!token) {
     return res.status(401).json({ message: "Unauthorized" });
   }
