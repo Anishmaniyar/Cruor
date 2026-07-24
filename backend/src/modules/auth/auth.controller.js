@@ -1,65 +1,57 @@
 import asyncHandler from "../../utils/asyncHandler.js";
-import appError from "../../utils/appError.js";
+import AppError from "../../utils/appError.js";
 import bcrypt from "bcrypt";
 import * as NotificationService from "../notifications/notification.service.js";
 import { NotificationType } from "../notifications/notification.constants.js";
+import prisma from "../../db.js";
+import { generateAccessToken, generateRefreshToken } from "../../utils/jwt.js";
 
-export const registerUser = asyncHandler(async (req, res, next) => {
-  const { name, email, password, phoneNo } = req.body;
+export const registerUser = async (req, res, next) => {
+  try {
+    const { name, email, password, phoneNo, gender, dateOfBirth } = req.body;
 
-  const existingUser = await prisma.user.findFirst({
-    where: {
-      OR: [{ email }, { phoneNo }],
-    },
-  });
+    // Check if user already exists
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [{ email }, ...(phoneNo ? [{ phoneNo }] : [])],
+      },
+    });
 
-  if (existingUser) {
-    return next(
-      new appError("User with this email or phone already exists", 400),
-    );
+    if (existingUser) {
+      return next(
+        new AppError(
+          existingUser.email === email
+            ? "Email is already registered."
+            : "Phone number is already registered.",
+          409,
+        ),
+      );
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create user
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        passwordHash: hashedPassword,
+        phoneNo,
+        dateOfBirth,
+        gender,
+      },
+    });
+
+    return res.status(201).json({
+      status: "success",
+      message: "User registered successfully.",
+      data: user,
+    });
+  } catch (error) {
+    next(error);
   }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  const newUser = await prisma.user.create({
-    data: {
-      email,
-      name,
-      passwordHash: hashedPassword,
-      phoneNo,
-    },
-    include: {
-      select: {
-        id: true,
-      },
-    },
-  });
-
-  await NotificationService.send({
-    type: NotificationType.WELCOME,
-
-    recipient: {
-      userId: newUser.id,
-    },
-
-    payload: {
-      name: newUser.name,
-    },
-  });
-
-  return res.status(201).json({
-    status: "success",
-    message: "User registered successfully",
-    data: {
-      user: {
-        id: newUser.id,
-        name: newUser.name,
-        email: newUser.email,
-        phoneNo: newUser.phoneNo,
-      },
-    },
-  });
-});
+};
 
 export const loginUser = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
@@ -100,6 +92,7 @@ export const loginUser = asyncHandler(async (req, res, next) => {
         name: user.name,
       },
       accessToken,
+      refreshToken,
     },
   });
 });

@@ -14,8 +14,15 @@ export const validateRequest = (schema) => {
       req.body = parsed.body;
       next();
     } catch (error) {
-      const errorMessage = error.errors.map((err) => err.message).join(", ");
-      next(new AppError(errorMessage, 400));
+      if (error.issues) {
+        const errorMessage = error.issues
+          .map((issue) => issue.message)
+          .join(", ");
+
+        return next(new AppError(errorMessage, 400));
+      }
+
+      return next(error);
     }
   };
 };

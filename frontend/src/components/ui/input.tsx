@@ -1,90 +1,20 @@
-import { cn } from "@/lib/utils";
+import * as React from "react"
+import { Input as InputPrimitive } from "@base-ui/react/input"
 
-export function Input({
-  className,
-  label,
-  helperText,
-  error,
-  ...props
-}: React.InputHTMLAttributes<HTMLInputElement> & {
-  label?: string;
-  helperText?: string;
-  error?: string;
-}) {
+import { cn } from "@/lib/utils"
+
+function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (
-    <div className="flex flex-col gap-2">
-      {label && (
-        <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          {label}
-        </label>
+    <InputPrimitive
+      type={type}
+      data-slot="input"
+      className={cn(
+        "h-8 w-full min-w-0 rounded-2xl border border-transparent bg-input/50 px-2.5 py-1 text-base transition-[color,box-shadow] duration-200 outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
+        className
       )}
-      <input
-        className={cn(
-          "border border-border bg-muted/40 px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/30 transition-colors",
-          error && "border-accent",
-          className
-        )}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? `${props.id}-error` : helperText ? `${props.id}-helper` : undefined}
-        {...props}
-      />
-      {helperText && !error && (
-        <p id={`${props.id}-helper`} className="text-xs text-muted-foreground">{helperText}</p>
-      )}
-      {error && (
-        <p id={`${props.id}-error`} className="text-xs text-accent" role="alert">{error}</p>
-      )}
-    </div>
-  );
+      {...props}
+    />
+  )
 }
 
-export function Textarea({
-  className,
-  label,
-  helperText,
-  ...props
-}: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label?: string; helperText?: string }) {
-  return (
-    <div className="flex flex-col gap-2">
-      {label && (
-        <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          {label}
-        </label>
-      )}
-      <textarea
-        className={cn(
-          "border border-border bg-muted/40 px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-accent focus-visible:outline-none min-h-[100px]",
-          className
-        )}
-        {...props}
-      />
-      {helperText && <p className="text-xs text-muted-foreground">{helperText}</p>}
-    </div>
-  );
-}
-
-export function Select({
-  className,
-  label,
-  children,
-  ...props
-}: React.SelectHTMLAttributes<HTMLSelectElement> & { label?: string }) {
-  return (
-    <div className="flex flex-col gap-2">
-      {label && (
-        <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          {label}
-        </label>
-      )}
-      <select
-        className={cn(
-          "border border-border bg-muted/40 px-3 py-2.5 text-sm text-foreground focus-visible:border-accent focus-visible:outline-none",
-          className
-        )}
-        {...props}
-      >
-        {children}
-      </select>
-    </div>
-  );
-}
+export { Input }

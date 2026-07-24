@@ -20,7 +20,7 @@ export const registerUserSchema = z.object({
       .min(6, "Password must be at least 6 characters long")
       .max(20, "Password must be at most 20 characters long"),
 
-    gender: z.enum(["male", "female", "ohter"]).optional().default("other"),
+    gender: z.enum(["male", "female", "other"]).optional().default("other"),
 
     phoneNo: z
       .string()

@@ -13,7 +13,7 @@ model User {
   email        String   @unique
   passwordHash String
   phoneNo      String   @unique
-  dateOfBirth  DateTime @db.Date
+  dateOfBirth  DateTime? @db.Date
 
   gender     String? @db.VarChar(20)
   bloodGroup String? @db.VarChar(10)
