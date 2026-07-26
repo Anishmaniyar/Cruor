@@ -1,3 +1,4 @@
+import AppointmentJourney from "@/components/appointments/AppoinmentJourney";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import KPICard from "@/components/dashboard/KPICard";
 import NearbyCampaigns from "@/components/dashboard/NearbyCampaigns";
@@ -11,6 +12,7 @@ export default function DashboardPage() {
       <KPICard />
       <UpcomingAppointment />
       <NearbyCampaigns />
+      <AppointmentJourney />
     </div>
   );
 }
