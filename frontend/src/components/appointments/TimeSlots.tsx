@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Clock } from "lucide-react";
 
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 const slots = [
@@ -25,28 +25,28 @@ export default function TimeSlots() {
   const [selectedSlot, setSelectedSlot] = useState<string>("10:30 AM");
 
   return (
-    <Card className="mt-6 p-6">
-      <div className="mb-5">
-        <h2 className="text-lg font-semibold">Available Time Slots</h2>
-
-        <p className="mt-1 text-sm text-muted-foreground">
+    <Card className="mt-6">
+      <CardHeader>
+        <CardTitle>Available Time Slots</CardTitle>
+        <CardDescription>
           Select a convenient time for your appointment.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        {slots.map((slot) => (
-          <Button
-            key={slot}
-            variant={selectedSlot === slot ? "default" : "outline"}
-            onClick={() => setSelectedSlot(slot)}
-            className="justify-center"
-          >
-            <Clock className="mr-2 h-4 w-4" />
-            {slot}
-          </Button>
-        ))}
-      </div>
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 gap-3">
+          {slots.map((slot) => (
+            <Button
+              key={slot}
+              variant={selectedSlot === slot ? "primary" : "secondary"}
+              onClick={() => setSelectedSlot(slot)}
+              className="justify-center"
+            >
+              <Clock className="mr-2 h-4 w-4" />
+              {slot}
+            </Button>
+          ))}
+        </div>
+      </CardContent>
     </Card>
   );
 }

@@ -1,58 +1,65 @@
-import { Calendar, CalendarDays, DropletIcon, SparkleIcon } from "lucide-react";
+import {
+  DropletIcon,
+  SparkleIcon,
+  Calendar,
+  CalendarDays,
+  TrendingUp,
+} from "lucide-react";
 
-const kpiData = [
-  {
-    title: "Total Donation",
-    value: "12",
-    icon: DropletIcon,
-  },
+interface KPICardProps {
+  title: string;
+  value: string;
+  icon: "droplet" | "sparkle" | "calendar" | "calendarDays";
+  trend?: string;
+  subtitle?: string;
+}
 
-  {
-    title: "Lives Impacted",
-    value: 30,
-    icon: SparkleIcon,
-  },
+const iconMap = {
+  droplet: DropletIcon,
+  sparkle: SparkleIcon,
+  calendar: Calendar,
+  calendarDays: CalendarDays,
+};
 
-  {
-    title: "Next Appointment",
-    value: "20 August, 2026",
-    icon: Calendar,
-  },
+const colorMap: Record<string, string> = {
+  droplet: "text-blue-400 bg-blue-500/10",
+  sparkle: "text-amber-400 bg-amber-500/10",
+  calendar: "text-success bg-success/10",
+  calendarDays: "text-violet-400 bg-violet-500/10",
+};
 
-  {
-    title: "Next Eligibity Date",
-    value: "10 August, 2026",
-    icon: CalendarDays,
-  },
-];
+export default function KPICard({
+  title,
+  value,
+  icon,
+  trend,
+  subtitle,
+}: KPICardProps) {
+  const IconComponent = iconMap[icon];
+  const colorClasses = colorMap[icon] || "";
 
-export default function KPICard() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
-      {kpiData.map((card) => {
-        const IconComponent = card.icon;
+    <div className="kpi-card">
+      <div className="flex items-start justify-between">
+        <span className="kpi-label">{title}</span>
+        <div className={`kpi-icon-box ${colorClasses}`}>
+          <IconComponent size={16} />
+        </div>
+      </div>
 
-        return (
-          <div
-            key={card.title}
-            className="flex flex-col gap-3 rounded-xl border border-white/10 bg-neutral-950 p-5 shadow-sm"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-neutral-400 uppercase tracking-wider">
-                {card.title}
-              </span>
+      <div className="mt-4">
+        <h2 className="kpi-value">{value}</h2>
+        {subtitle && (
+          <p className="mt-1 text-sm text-text-secondary">{subtitle}</p>
+        )}
+      </div>
 
-              <IconComponent size={16} />
-            </div>
-
-            <div>
-              <h2 className="text-2xl font-bold text-neutral-100 tracking-tight">
-                {card.value}
-              </h2>
-            </div>
-          </div>
-        );
-      })}
+      {trend && (
+        <div className="mt-3 flex items-center gap-1.5 text-xs text-success">
+          <TrendingUp size={12} />
+          <span>{trend}</span>
+        </div>
+      )}
     </div>
   );
 }

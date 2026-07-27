@@ -6,6 +6,7 @@ import {
   Star,
   ArrowRight,
   Droplets,
+  CalendarCheck,
 } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
@@ -26,69 +27,60 @@ interface HospitalCardProps {
 
 export default function HospitalCard({ hospital }: HospitalCardProps) {
   return (
-    <Card className="overflow-hidden rounded-2xl border-zinc-800 bg-zinc-950 text-white transition-all duration-300 hover:-translate-y-1 hover:border-red-500/50 hover:shadow-2xl hover:shadow-red-500/10">
-      <div className="p-6">
-        {/* Top */}
-        <div className="flex items-start justify-between">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-red-600">
-            <Building2 className="h-8 w-8 text-white" />
-          </div>
-
-          <Badge className="border-0 bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/20">
-            <Star className="mr-1 h-3 w-3 fill-yellow-400" />
-            {hospital.rating}
-          </Badge>
+    <Card className="group !p-0 transition-all duration-200 hover:border-border-light hover:shadow-[0_1px_4px_rgba(0,0,0,0.15)]">
+      {/* Header: Icon & Rating */}
+      <div className="flex items-start justify-between p-6 pb-0">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-surface-hover transition-colors group-hover:bg-surface-hover">
+          <Building2 className="h-6 w-6 text-text-secondary transition-colors group-hover:text-text-primary" />
         </div>
+        <Badge variant="secondary" className="gap-1">
+          <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+          {hospital.rating}
+        </Badge>
+      </div>
 
-        {/* Hospital */}
-        <div className="mt-8">
-          <h2 className="text-2xl font-bold tracking-tight">{hospital.name}</h2>
-
-          <div className="mt-2 flex items-center gap-2 text-zinc-400">
-            <MapPin className="h-4 w-4" />
-            <span className="text-sm">{hospital.location}</span>
-          </div>
+      {/* Hospital Info */}
+      <div className="px-5 pt-4">
+        <h3 className="card-title !text-base">{hospital.name}</h3>
+        <div className="info-row mt-1.5">
+          <MapPin className="info-icon h-3.5 w-3.5" />
+          <span className="truncate text-sm text-text-secondary">{hospital.location}</span>
         </div>
+      </div>
 
-        {/* Info */}
-        <div className="mt-8 space-y-4 rounded-xl bg-zinc-900 p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-zinc-400">
-              <Droplets className="h-4 w-4" />
-              <span>Donation</span>
-            </div>
-
-            <Badge variant="secondary">{hospital.donationType}</Badge>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-zinc-400">
-              <Clock3 className="h-4 w-4" />
-              <span>Working Hours</span>
-            </div>
-
-            <span className="text-sm font-medium">{hospital.workingHours}</span>
-          </div>
-        </div>
-
-        {/* Availability */}
-        <div className="mt-6 flex items-center justify-between rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4">
+      {/* Info Grid */}
+      <div className="mx-6 mt-4 grid grid-cols-2 gap-3">
+        <div className="info-row rounded-lg bg-surface-secondary px-3 py-3">
+          <Droplets className="info-icon" />
           <div>
-            <p className="text-sm text-zinc-400">Available Today</p>
-
-            <p className="font-semibold text-emerald-400">
-              {hospital.availableSlots} Slots Left
-            </p>
+            <p className="meta-label">Donation</p>
+            <p className="text-xs font-medium text-text-secondary">{hospital.donationType}</p>
           </div>
-
-          <div className="h-3 w-3 rounded-full bg-emerald-500" />
         </div>
+        <div className="info-row rounded-lg bg-surface-secondary px-3 py-3">
+          <Clock3 className="info-icon" />
+          <div>
+            <p className="meta-label">Hours</p>
+            <p className="text-xs font-medium text-text-secondary">{hospital.workingHours}</p>
+          </div>
+        </div>
+      </div>
 
-        {/* CTA */}
-        <Link href={`/appointments/book/${hospital.id}`}>
-          <Button className="mt-6 w-full gap-2 rounded-xl bg-red-600 hover:bg-red-700">
+      {/* Availability */}
+      <div className="mx-6 mt-4 flex items-center justify-between rounded-lg border border-success/20 bg-success/5 px-3 py-3">
+        <div className="info-row">
+          <CalendarCheck className="h-4 w-4 text-success" />
+          <span className="text-xs text-text-secondary">Available Today</span>
+        </div>
+        <span className="text-xs font-medium text-success">{hospital.availableSlots} slots</span>
+      </div>
+
+      {/* CTA */}
+      <div className="p-6 pt-4">
+        <Link href={`/appointment/book/${hospital.id}`}>
+          <Button variant="primary" className="w-full gap-2">
             Book Appointment
-            <ArrowRight className="h-4 w-4" />
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Button>
         </Link>
       </div>

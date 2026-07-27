@@ -2,93 +2,76 @@ import {
   MapPin,
   Clock,
   Calendar,
-  CalendarRangeIcon,
   CheckCircle2,
+  ArrowRight,
 } from "lucide-react";
+
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export default function UpcomingAppointment() {
   return (
-    <div className="w-full max-w-xl rounded-xl border border-white/10 bg-neutral-950 text-neutral-200 overflow-hidden shadow-xl">
-      {/* 1. Header Block: Appointment Booked Status */}
-      <div className="p-5 border-b border-white/10 bg-emerald-950/20 flex gap-3 items-start">
-        <CheckCircle2 className="w-5 h-5 text-emerald-400 mt-0.5 shrink-0" />
-        <div>
-          <h2 className="text-sm font-semibold text-emerald-400 uppercase tracking-wide">
-            Appointment Booked
-          </h2>
-          <p className="text-xs text-neutral-400 mt-1">
-            Your donation appointment is confirmed.
-          </p>
-        </div>
+    <Card className="flex h-full flex-col overflow-hidden !p-0">
+      {/* Status Banner */}
+      <div className="status-banner status-banner-success">
+        <CheckCircle2 className="status-banner-icon h-4 w-4" />
+        <span className="status-banner-text text-sm font-medium">
+          Upcoming Appointment
+        </span>
       </div>
 
-      {/* 2. Hospital Details Block */}
-      <div className="p-5 border-b border-white/10 flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-base font-bold text-neutral-100 flex items-center gap-2">
-            🏥 City Blood Bank
-          </h1>
-          <p className="text-xs text-neutral-400 mt-1 pl-6">
-            123 MG Road, 45 Colony, ABC, Pune
-          </p>
+      {/* Content */}
+      <div className="flex flex-1 flex-col p-6">
+        <div className="mb-4">
+          <h3 className="card-title !text-base">City Blood Bank</h3>
+          <div className="info-row mt-1.5">
+            <MapPin className="info-icon h-3.5 w-3.5" />
+            <span className="text-sm text-text-secondary">
+              123 MG Road, 45 Colony, ABC, Pune
+            </span>
+          </div>
         </div>
 
-        <button className="flex items-center gap-2 rounded-lg border border-white/10 bg-neutral-900/50 px-3 py-1.5 text-xs text-neutral-300 hover:bg-neutral-900 hover:text-white transition-all shrink-0">
-          <span>View Location</span>
-          <MapPin size={14} className="text-emerald-400" />
-        </button>
+        <div className="mb-4 flex flex-wrap gap-4">
+          <div className="info-row">
+            <Calendar className="info-icon" />
+            <div>
+              <p className="meta-label">Date</p>
+              <p className="text-sm font-medium text-text-primary">Sat, 20 Aug 2026</p>
+            </div>
+          </div>
+          <div className="info-row">
+            <Clock className="info-icon" />
+            <div>
+              <p className="meta-label">Time</p>
+              <p className="text-sm font-medium text-text-primary">10:30 AM</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mb-4 flex gap-6">
+          <div>
+            <p className="meta-label">Donor ID</p>
+            <p className="meta-value">VD-1024</p>
+          </div>
+          <div>
+            <p className="meta-label">Appointment ID</p>
+            <p className="meta-value">API-98765</p>
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <Badge variant="success">Confirmed</Badge>
+        </div>
+
+        <div className="flex-1" />
+
+        <Button variant="secondary" className="w-full gap-2">
+          View Appointment Details
+          <ArrowRight className="h-4 w-4" />
+        </Button>
       </div>
-
-      {/* 3. Donor ID & Appointment ID Meta Grid Block */}
-      <div className="p-5 border-b border-white/10 grid grid-cols-2 gap-4">
-        <div>
-          <h3 className="text-xs font-medium text-neutral-500 uppercase tracking-wider">
-            Donor ID
-          </h3>
-          <p className="text-sm font-mono font-semibold text-neutral-200 mt-1">
-            VD-1024
-          </p>
-        </div>
-
-        <div>
-          <h3 className="text-xs font-medium text-neutral-500 uppercase tracking-wider">
-            Appointment ID
-          </h3>
-          <p className="text-sm font-mono font-semibold text-neutral-200 mt-1">
-            API-98765
-          </p>
-        </div>
-      </div>
-
-      {/* 4. Live Date & Time Schedules Block */}
-      <div className="p-5 border-b border-white/10 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
-        <div className="flex items-center gap-2.5 text-sm text-neutral-300">
-          <Calendar size={16} className="text-neutral-500" />
-          <span className="font-medium">Saturday, 20 August 2026</span>
-        </div>
-        <div className="flex items-center gap-2.5 text-sm text-neutral-300">
-          <Clock size={16} className="text-neutral-500" />
-          <span>
-            Time:{" "}
-            <strong className="font-semibold text-neutral-100">10:30 AM</strong>
-          </span>
-        </div>
-      </div>
-
-      {/* 5. Footer Interaction Panel Block */}
-      <div className="p-5 bg-neutral-900/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-2 text-sm">
-          <span className="text-neutral-400">Status:</span>
-          <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-400 border border-emerald-500/20">
-            Confirmed
-          </span>
-        </div>
-
-        <button className="flex items-center justify-center gap-2 rounded-lg bg-neutral-900 border border-white/10 px-4 py-2 text-xs font-medium text-neutral-300 hover:bg-neutral-800 hover:border-white/20 transition-all">
-          <span>Reschedule Appointment</span>
-          <CalendarRangeIcon size={14} />
-        </button>
-      </div>
-    </div>
+    </Card>
   );
 }

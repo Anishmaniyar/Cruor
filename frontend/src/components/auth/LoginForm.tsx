@@ -48,9 +48,12 @@ export default function LogInForm() {
       className="flex flex-col gap-6"
     >
       <div className="space-y-2 text-center">
-        <h1 className="text-3xl font-bold text-white">Welcome Back</h1>
-
-        <p className="text-sm text-neutral-400">Sign in to your account</p>
+        <h1 className="text-3xl font-bold tracking-tight text-text-primary">
+          Welcome Back
+        </h1>
+        <p className="text-sm text-text-secondary">
+          Sign in to your account
+        </p>
       </div>
 
       <div className="space-y-2">
@@ -62,7 +65,7 @@ export default function LogInForm() {
         />
 
         {form.formState.errors.email && (
-          <p className="text-sm text-red-500">
+          <p className="text-sm text-danger">
             {form.formState.errors.email.message}
           </p>
         )}
@@ -76,7 +79,7 @@ export default function LogInForm() {
         />
 
         {form.formState.errors.password && (
-          <p className="text-sm text-red-500">
+          <p className="text-sm text-danger">
             {form.formState.errors.password.message}
           </p>
         )}
@@ -84,6 +87,7 @@ export default function LogInForm() {
 
       <Button
         type="submit"
+        variant="primary"
         className="w-full"
         disabled={form.formState.isSubmitting}
       >

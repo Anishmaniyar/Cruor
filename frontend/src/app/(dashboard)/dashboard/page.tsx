@@ -6,13 +6,54 @@ import UpcomingAppointment from "@/components/dashboard/UpcomingAppointment";
 
 export default function DashboardPage() {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-white">Dashboard </h1>
+    <main className="min-h-screen space-y-6 p-6 lg:p-8">
       <DashboardHeader />
-      <KPICard />
-      <UpcomingAppointment />
-      <NearbyCampaigns />
-      <AppointmentJourney />
-    </div>
+
+      {/* Bento Grid Layout */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        {/* Left Column: KPI Cards */}
+        <div className="grid grid-cols-2 gap-4 lg:col-span-2 lg:grid-cols-2">
+          <KPICard
+            title="Total Donations"
+            value="12"
+            icon="droplet"
+            trend="+2 this month"
+          />
+          <KPICard
+            title="Lives Impacted"
+            value="30"
+            icon="sparkle"
+            trend="+5 this month"
+          />
+          <KPICard
+            title="Next Appointment"
+            value="Aug 20"
+            icon="calendar"
+            subtitle="Saturday, 10:30 AM"
+          />
+          <KPICard
+            title="Eligibility Date"
+            value="Aug 10"
+            icon="calendarDays"
+            subtitle="Can donate again"
+          />
+        </div>
+
+        {/* Right Column: Upcoming Appointment */}
+        <div className="lg:row-span-2">
+          <UpcomingAppointment />
+        </div>
+      </div>
+
+      {/* Bottom Row */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <NearbyCampaigns />
+        </div>
+        <div>
+          <AppointmentJourney />
+        </div>
+      </div>
+    </main>
   );
 }

@@ -36,52 +36,48 @@ const navItems = [
     icon: HeartHandshake,
   },
   {
-    name: "Account",
-    href: "/dashboard/account",
+    name: "Profile",
+    href: "/profile",
     icon: User,
   },
 ];
 
 export default function Sidebar() {
   const today = new Date();
-
   const weekday = today.toLocaleDateString("en-US", { weekday: "long" });
-
   const dateAndMonth = today.toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",
   });
 
   const [isDark, setIsDark] = useState(false);
-
   const pathname = usePathname();
 
   return (
-    <aside className="flex min-h-screen w-72 flex-col border-r border-white/10 bg-neutral-950 p-5">
+    <aside className="flex min-h-screen w-72 flex-col border-r border-border bg-surface p-6">
       {/* Logo */}
       <div className="mb-8">
-        <h1 className="text-lg font-semibold">Vital Drops</h1>
+        <h1 className="text-lg font-semibold text-text-primary">Vital Drops</h1>
       </div>
 
       {/* Welcome Card */}
-      <div className="mb-8 rounded-2xl border border-white/10 bg-neutral-900 p-4">
+      <div className="mb-8 rounded-2xl border border-border bg-surface-secondary p-4">
         <div className="mb-4 flex items-center justify-between">
-          <div className="h-10 w-10 rounded-full bg-neutral-700" />
-
+          <div className="h-10 w-10 rounded-full bg-surface-hover" />
           <button
             onClick={() => setIsDark(!isDark)}
-            className="rounded-full border border-white/10 p-2"
+            className="rounded-full border border-border p-2 text-text-secondary hover:text-text-primary transition-colors"
           >
             {isDark ? <Moon size={16} /> : <Sun size={16} />}
           </button>
         </div>
 
-        <div className="mb-3 text-xs text-neutral-400">
+        <div className="mb-3 text-xs text-text-muted">
           <p>{weekday}</p>
           <p>{dateAndMonth}</p>
         </div>
 
-        <h2 className="text-lg font-semibold">
+        <h2 className="text-lg font-semibold text-text-primary">
           Welcome back,
           <br />
           George!
@@ -98,23 +94,23 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-colors ${
+              className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all ${
                 isActive
-                  ? "bg-neutral-800 text-white"
-                  : "text-neutral-400 hover:bg-neutral-900 hover:text-white"
+                  ? "bg-surface-hover text-text-primary"
+                  : "text-text-secondary hover:bg-surface-hover hover:text-text-primary"
               }`}
             >
               <Icon size={18} />
-              <span>{item.name}</span>
+              <span className="text-sm font-medium">{item.name}</span>
             </Link>
           );
         })}
       </nav>
 
       {/* Logout */}
-      <button className="mt-6 flex items-center gap-3 rounded-xl border border-white/10 px-4 py-3 text-neutral-300 hover:bg-neutral-900">
+      <button className="mt-6 flex items-center gap-3 rounded-xl border border-border px-4 py-3 text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-all">
         <LogOut size={18} />
-        Logout
+        <span className="text-sm font-medium">Logout</span>
       </button>
     </aside>
   );

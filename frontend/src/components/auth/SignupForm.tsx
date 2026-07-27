@@ -51,17 +51,14 @@ export default function SignupForm() {
       onSubmit={form.handleSubmit(onSubmit)}
       className="flex flex-col gap-6"
     >
-      {/* Heading */}
-
       <div className="space-y-2 text-center">
-        <h1 className="text-3xl font-bold text-white">Create Account</h1>
-
-        <p className="text-sm text-neutral-400">
+        <h1 className="text-3xl font-bold tracking-tight text-text-primary">
+          Create Account
+        </h1>
+        <p className="text-sm text-text-secondary">
           Join VitalDrops and save lives.
         </p>
       </div>
-
-      {/* Full Name */}
 
       <div className="space-y-2">
         <Input
@@ -69,15 +66,12 @@ export default function SignupForm() {
           autoComplete="name"
           {...form.register("name")}
         />
-
         {form.formState.errors.name && (
-          <p className="text-sm text-red-500">
+          <p className="text-sm text-danger">
             {form.formState.errors.name.message}
           </p>
         )}
       </div>
-
-      {/* Email */}
 
       <div className="space-y-2">
         <Input
@@ -86,15 +80,12 @@ export default function SignupForm() {
           autoComplete="email"
           {...form.register("email")}
         />
-
         {form.formState.errors.email && (
-          <p className="text-sm text-red-500">
+          <p className="text-sm text-danger">
             {form.formState.errors.email.message}
           </p>
         )}
       </div>
-
-      {/* Phone */}
 
       <div className="space-y-2">
         <Input
@@ -102,15 +93,12 @@ export default function SignupForm() {
           autoComplete="tel"
           {...form.register("phoneNo")}
         />
-
         {form.formState.errors.phoneNo && (
-          <p className="text-sm text-red-500">
+          <p className="text-sm text-danger">
             {form.formState.errors.phoneNo.message}
           </p>
         )}
       </div>
-
-      {/* Password */}
 
       <div className="space-y-2">
         <PasswordInput
@@ -118,45 +106,38 @@ export default function SignupForm() {
           autoComplete="new-password"
           {...form.register("password")}
         />
-
         {form.formState.errors.password && (
-          <p className="text-sm text-red-500">
+          <p className="text-sm text-danger">
             {form.formState.errors.password.message}
           </p>
         )}
       </div>
 
-      {/* Gender */}
-
       <div className="space-y-2">
         <select
           {...form.register("gender")}
-          className="h-12 w-full rounded-xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none transition-all focus:border-white/20 focus:ring-2 focus:ring-white/10"
+          className="h-12 w-full rounded-xl border border-border bg-surface px-4 text-sm text-text-primary outline-none transition-all focus:border-border-light focus:ring-2 focus:ring-ring/40"
         >
-          <option value="male" className="bg-neutral-900">
+          <option value="male" className="bg-surface text-text-primary">
             Male
           </option>
-
-          <option value="female" className="bg-neutral-900">
+          <option value="female" className="bg-surface text-text-primary">
             Female
           </option>
-
-          <option value="other" className="bg-neutral-900">
+          <option value="other" className="bg-surface text-text-primary">
             Other
           </option>
         </select>
-
         {form.formState.errors.gender && (
-          <p className="text-sm text-red-500">
+          <p className="text-sm text-danger">
             {form.formState.errors.gender.message}
           </p>
         )}
       </div>
 
-      {/* Button */}
-
       <Button
         type="submit"
+        variant="primary"
         className="w-full"
         disabled={form.formState.isSubmitting}
       >
