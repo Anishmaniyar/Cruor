@@ -12,6 +12,8 @@ import PasswordInput from "./PasswordInput";
 import { LogInSchema, LogInSchemaType } from "@/lib/validations/auth";
 import { useAuth } from "@/lib/auth-context";
 
+import { loginUser } from "@/services/auth.services";
+
 export default function LogInForm() {
   const router = useRouter();
   const { login } = useAuth();
@@ -26,12 +28,15 @@ export default function LogInForm() {
 
   const onSubmit = async (data: LogInSchemaType) => {
     try {
-      // Mock login — replace with actual API call
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      const response = await loginUser(data);
 
       login(
-        { id: "USR-001", name: "George Anderson", email: data.email },
-        "donor"
+        {
+          id: response.data.user.id,
+          name: response.data.user.name,
+          email: response.data.user.email,
+        },
+        "donor",
       );
 
       toast.success("Login successful");
@@ -39,8 +44,9 @@ export default function LogInForm() {
       form.reset();
 
       router.push("/dashboard");
-    } catch {
-      toast.error("Something went wrong");
+    } catch (error: any) {
+      const message = error.response?.data?.message || "something went wrong";
+      toast.error(message);
     }
   };
 
@@ -53,9 +59,7 @@ export default function LogInForm() {
         <h1 className="text-3xl font-bold tracking-tight text-text-primary">
           Welcome Back
         </h1>
-        <p className="text-sm text-text-secondary">
-          Sign in to your account
-        </p>
+        <p className="text-sm text-text-secondary">Sign in to your account</p>
       </div>
 
       <div className="space-y-2">

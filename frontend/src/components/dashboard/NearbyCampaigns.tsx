@@ -4,25 +4,20 @@ import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-const campData = [
-  {
-    id: "camp-1",
-    name: "Mega Blood Donation Camp",
-    location: "Community Center, Pune",
-    date: "10th August, 2026",
-    type: "Government",
-  },
-  {
-    id: "camp-2",
-    name: "Red Cross Lifesavers Drive",
-    location: "Metro Station Plaza, Road 12",
-    date: "12th August, 2026",
-    type: "Private",
-  },
-];
+interface Campaign {
+  id: string;
+  campName: string;
+  address: string;
+  campaignDate: string;
+  hospital: { name: string; address: string | null };
+}
 
-export default function NearbyCampaigns() {
-  const hasNoCampaigns = campData.length === 0;
+interface NearbyCampaignsProps {
+  campaigns?: Campaign[];
+}
+
+export default function NearbyCampaigns({ campaigns = [] }: NearbyCampaignsProps) {
+  const hasNoCampaigns = campaigns.length === 0;
 
   return (
     <Card className="flex h-full flex-col overflow-hidden !p-0">
@@ -57,7 +52,7 @@ export default function NearbyCampaigns() {
           </div>
         ) : (
           <div className="space-y-3 pt-5">
-            {campData.map((camp) => (
+            {campaigns.map((camp) => (
               <Link
                 key={camp.id}
                 href={`/campaign/${camp.id}`}
@@ -66,20 +61,24 @@ export default function NearbyCampaigns() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <h3 className="text-sm font-semibold text-text-primary transition-colors group-hover:text-success">
-                      {camp.name}
+                      {camp.campName}
                     </h3>
                     <Badge variant="secondary" className="text-[10px]">
-                      {camp.type}
+                      {camp.hospital.name}
                     </Badge>
                   </div>
                   <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-text-secondary">
                     <span className="info-row">
                       <MapPin size={11} className="text-text-muted" />
-                      {camp.location}
+                      {camp.address || camp.hospital.address || "Location not specified"}
                     </span>
                     <span className="info-row">
                       <CalendarDays size={11} className="text-text-muted" />
-                      {camp.date}
+                      {new Date(camp.campaignDate).toLocaleDateString("en-US", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
                     </span>
                   </div>
                 </div>

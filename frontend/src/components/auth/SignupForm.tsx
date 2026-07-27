@@ -11,6 +11,7 @@ import PasswordInput from "./PasswordInput";
 
 import { signUpSchema, SignUpSchemaType } from "@/lib/validations/auth";
 import { useAuth } from "@/lib/auth-context";
+import { registerUser } from "@/services/auth.services";
 
 export default function SignupForm() {
   const router = useRouter();
@@ -29,12 +30,15 @@ export default function SignupForm() {
 
   const onSubmit = async (data: SignUpSchemaType) => {
     try {
-      // Mock signup — replace with actual API call
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      const response = await registerUser(data);
 
       signup(
-        { id: "USR-001", name: data.name, email: data.email },
-        "donor"
+        {
+          id: response.data.user.id,
+          name: response.data.user.name,
+          email: response.data.user.email,
+        },
+        "donor",
       );
 
       toast.success("Account created successfully");
@@ -42,8 +46,9 @@ export default function SignupForm() {
       form.reset();
 
       router.push("/dashboard");
-    } catch {
-      toast.error("Something went wrong");
+    } catch (error: any) {
+      const message = error.response?.data?.message || "something went wrong";
+      toast.error(message);
     }
   };
 

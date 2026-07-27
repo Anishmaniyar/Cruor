@@ -43,10 +43,38 @@ export const registerUser = async (req, res, next) => {
       },
     });
 
+    // Generate JWT tokens
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    if (!accessToken || !refreshToken) {
+      return next(new AppError("Failed to generate tokens", 500));
+    }
+
+    // Set httpOnly cookies
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      sameSite: "strict",
+      maxAge: 15 * 60 * 1000, // 15 minutes
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
     return res.status(201).json({
       status: "success",
       message: "User registered successfully.",
-      data: user,
+      data: {
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+        },
+        accessToken,
+      },
     });
   } catch (error) {
     next(error);
@@ -61,20 +89,20 @@ export const loginUser = asyncHandler(async (req, res, next) => {
   });
 
   if (!user) {
-    return next(new appError("Invalid email or password", 401));
+    return next(new AppError("Invalid email or password", 401));
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
 
   if (!isPasswordValid) {
-    return next(new appError("Invalid email or password", 401));
+    return next(new AppError("Invalid email or password", 401));
   }
 
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
 
   if (!accessToken || !refreshToken) {
-    return next(new appError("Failed to generate tokens", 500));
+    return next(new AppError("Failed to generate tokens", 500));
   }
 
   res.cookie("accessToken", accessToken, {
@@ -96,7 +124,9 @@ export const loginUser = asyncHandler(async (req, res, next) => {
       user: {
         id: user.id,
         name: user.name,
+        email: user.email,
       },
+      accessToken,
     },
   });
 });
@@ -175,7 +205,7 @@ export const changePassword = asyncHandler(async (req, res, next) => {
   const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
 
   if (!isMatch) {
-    return next(new appError("Current password does not match", 403));
+    return next(new AppError("Current password does not match", 403));
   }
 
   const newHashedPassword = await bcrypt.hash(newPassword, 10);
@@ -211,7 +241,7 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
   });
 
   if (!existingUser) {
-    return next(new appError("Invalid email", 401));
+    return next(new AppError("Invalid email", 401));
   }
 });
 
@@ -228,7 +258,7 @@ export const registerHospital = asyncHandler(async (req, res, next) => {
 
   if (existingHospital) {
     return next(
-      new appError("Hospital with this email or phone already exists", 400),
+      new AppError("Hospital with this email or phone already exists", 400),
     );
   }
 
@@ -261,7 +291,7 @@ export const loginHospital = asyncHandler(async (req, res, next) => {
   });
 
   if (!hospitalExists) {
-    return next(new appError("Invalid email or password", 401));
+    return next(new AppError("Invalid email or password", 401));
   }
 
   const isPasswordValid = await bcrypt.compare(
@@ -270,14 +300,14 @@ export const loginHospital = asyncHandler(async (req, res, next) => {
   );
 
   if (!isPasswordValid) {
-    return next(new appError("Invalid email or password", 401));
+    return next(new AppError("Invalid email or password", 401));
   }
 
   const accessToken = generateAccessToken(hospitalExists);
   const refreshToken = generateRefreshToken(hospitalExists);
 
   if (!accessToken || !refreshToken) {
-    return next(new appError("Failed to generate tokens", 500));
+    return next(new AppError("Failed to generate tokens", 500));
   }
 
   res.cookie("refreshToken", refreshToken, {
@@ -325,7 +355,7 @@ export const changeHospitalPassword = asyncHandler(async (req, res, next) => {
   const isMatch = await bcrypt.compare(currentPassword, hospital.passwordHash);
 
   if (!isMatch) {
-    return next(new appError("Current password does not match", 403));
+    return next(new AppError("Current password does not match", 403));
   }
 
   const newHashedPassword = await bcrypt.hash(newPassword, 10);
@@ -349,6 +379,6 @@ export const forgotHospitalPassword = asyncHandler(async (req, res, next) => {
   });
 
   if (!existingHospital) {
-    return next(new appError("Invalid email", 401));
+    return next(new AppError("Invalid email", 401));
   }
 });
