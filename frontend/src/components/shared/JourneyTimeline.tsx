@@ -2,25 +2,22 @@ import { CheckCircle2, Circle } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 
-const JOURNEY_STAGES = [
-  "Appointment Requested",
-  "Appointment Confirmed",
-  "Visited Hospital",
-  "Blood Collected",
-  "Completed",
-];
+interface JourneyTimelineProps {
+  stages: string[];
+  activeStage: string;
+  title?: string;
+}
 
-export default function AppointmentJourney() {
-  const appointmentStatus = "Appointment Confirmed";
-  const activeStageIndex = JOURNEY_STAGES.indexOf(appointmentStatus);
-  const totalStages = JOURNEY_STAGES.length - 1;
+export default function JourneyTimeline({ stages, activeStage, title = "Journey" }: JourneyTimelineProps) {
+  const activeStageIndex = stages.indexOf(activeStage);
+  const totalStages = stages.length - 1;
   const progressPercent =
     activeStageIndex >= 0 ? (activeStageIndex / totalStages) * 100 : 0;
 
   return (
     <Card className="overflow-hidden !p-6">
       <div className="mb-6">
-        <h2 className="card-title">Appointment Journey</h2>
+        <h2 className="card-title">{title}</h2>
       </div>
 
       <div className="relative flex justify-between items-start w-full px-2">
@@ -33,7 +30,7 @@ export default function AppointmentJourney() {
           style={{ width: `calc(${progressPercent}% - 12px)` }}
         />
 
-        {JOURNEY_STAGES.map((stageName, index) => {
+        {stages.map((stageName, index) => {
           const isStageReached = index <= activeStageIndex;
 
           return (

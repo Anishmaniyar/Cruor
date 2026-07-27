@@ -1,4 +1,4 @@
-import AppointmentJourney from "@/components/appointments/AppoinmentJourney";
+import JourneyTimeline from "@/components/shared/JourneyTimeline";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import KPICard from "@/components/dashboard/KPICard";
 import NearbyCampaigns from "@/components/dashboard/NearbyCampaigns";
@@ -51,7 +51,11 @@ export default function DashboardPage() {
           <NearbyCampaigns />
         </div>
         <div>
-          <AppointmentJourney />
+          <JourneyTimeline
+            stages={["Booked", "Confirmed", "Visited Hospital", "Blood Collected", "Completed"]}
+            activeStage="Confirmed"
+            title="Appointment Journey"
+          />
         </div>
       </div>
     </main>

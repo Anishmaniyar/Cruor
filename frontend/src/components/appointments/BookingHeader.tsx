@@ -5,7 +5,7 @@ export default function BookingHeader() {
   return (
     <section className="mb-8">
       <Link
-        href="/appointments"
+        href="/appointment"
         className="inline-flex items-center gap-2 text-sm text-text-secondary transition-colors hover:text-text-primary mb-3"
       >
         <ArrowLeft className="h-4 w-4" />

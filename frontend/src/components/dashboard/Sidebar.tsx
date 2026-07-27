@@ -22,17 +22,17 @@ const navItems = [
   },
   {
     name: "Appointments",
-    href: "/dashboard/appointments",
+    href: "/appointment",
     icon: CalendarDays,
   },
   {
     name: "Campaigns",
-    href: "/dashboard/campaigns",
+    href: "/campaign",
     icon: Megaphone,
   },
   {
-    name: "Donations",
-    href: "/dashboard/donations",
+    name: "My Donations",
+    href: "/donation",
     icon: HeartHandshake,
   },
   {
