@@ -5,6 +5,7 @@ import { Bell, Calendar, Megaphone } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth-context";
 
 const notifications = [
   { id: 1, text: "Appointment Confirmed", time: "2m ago", unread: true },
@@ -12,9 +13,17 @@ const notifications = [
   { id: 3, text: "Reminder", time: "1d ago", unread: false },
 ];
 
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good Morning";
+  if (hour < 17) return "Good Afternoon";
+  return "Good Evening";
+}
+
 export default function DashboardHeader() {
   const [showNotification, setShowNotification] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -32,12 +41,14 @@ export default function DashboardHeader() {
     };
   }, [showNotification]);
 
+  const firstName = user?.name?.split(" ")[0] ?? "Donor";
+
   return (
     <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex flex-col gap-1">
         <h1 className="page-title">Dashboard</h1>
         <p className="page-description">
-          Welcome back, George. Here&apos;s your overview.
+          {getGreeting()}, {firstName}. Here&apos;s your overview.
         </p>
       </div>
 

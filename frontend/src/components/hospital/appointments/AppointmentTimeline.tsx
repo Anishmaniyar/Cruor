@@ -1,4 +1,4 @@
-import { CheckCircle2, Circle, Dot } from "lucide-react";
+import { CheckCircle2, Circle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import type { AppointmentStatus } from "./AppointmentStatusBadge";
 

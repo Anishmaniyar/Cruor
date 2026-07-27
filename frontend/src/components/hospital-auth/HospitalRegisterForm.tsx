@@ -15,9 +15,11 @@ import {
   hospitalSignUpSchema,
   HospitalSignUpSchemaType,
 } from "@/lib/validations/hospital";
+import { useAuth } from "@/lib/auth-context";
 
 export default function HospitalRegisterForm() {
   const router = useRouter();
+  const { signup } = useAuth();
 
   const form = useForm<HospitalSignUpSchemaType>({
     resolver: zodResolver(hospitalSignUpSchema),
@@ -29,16 +31,21 @@ export default function HospitalRegisterForm() {
     },
   });
 
-  const onSubmit = async (_data: HospitalSignUpSchemaType) => {
+  const onSubmit = async (data: HospitalSignUpSchemaType) => {
     try {
       // Mock submission — replace with actual API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      signup(
+        { id: "H-1024", name: data.hospitalName, email: data.email },
+        "hospital"
+      );
 
       toast.success("Hospital account created successfully");
 
       form.reset();
 
-      router.push("/hospital/login");
+      router.push("/hospital/dashboard");
     } catch {
       toast.error("Something went wrong");
     }

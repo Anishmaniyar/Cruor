@@ -1,6 +1,5 @@
 "use client";
 
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,10 +10,11 @@ import { Button } from "@/components/ui/button";
 import PasswordInput from "./PasswordInput";
 
 import { LogInSchema, LogInSchemaType } from "@/lib/validations/auth";
-import { loginUser } from "@/services/auth.services";
+import { useAuth } from "@/lib/auth-context";
 
 export default function LogInForm() {
   const router = useRouter();
+  const { login } = useAuth();
 
   const form = useForm<LogInSchemaType>({
     resolver: zodResolver(LogInSchema),
@@ -26,19 +26,21 @@ export default function LogInForm() {
 
   const onSubmit = async (data: LogInSchemaType) => {
     try {
-      const response = await loginUser(data);
+      // Mock login — replace with actual API call
+      await new Promise((resolve) => setTimeout(resolve, 800));
 
-      toast.success(response.message);
+      login(
+        { id: "USR-001", name: "George Anderson", email: data.email },
+        "donor"
+      );
+
+      toast.success("Login successful");
 
       form.reset();
 
-      router.push("/me");
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data.message);
-      } else {
-        toast.error("Something went wrong");
-      }
+      router.push("/dashboard");
+    } catch {
+      toast.error("Something went wrong");
     }
   };
 

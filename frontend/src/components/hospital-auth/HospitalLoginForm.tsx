@@ -15,9 +15,11 @@ import {
   hospitalLogInSchema,
   HospitalLogInSchemaType,
 } from "@/lib/validations/hospital";
+import { useAuth } from "@/lib/auth-context";
 
 export default function HospitalLoginForm() {
   const router = useRouter();
+  const { login } = useAuth();
 
   const form = useForm<HospitalLogInSchemaType>({
     resolver: zodResolver(hospitalLogInSchema),
@@ -27,10 +29,15 @@ export default function HospitalLoginForm() {
     },
   });
 
-  const onSubmit = async (_data: HospitalLogInSchemaType) => {
+  const onSubmit = async (data: HospitalLogInSchemaType) => {
     try {
       // Mock submission — replace with actual API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      login(
+        { id: "H-1024", name: "City Hospital, Pune", email: data.email },
+        "hospital"
+      );
 
       toast.success("Hospital login successful");
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   CalendarDays,
@@ -13,6 +13,7 @@ import {
   Moon,
   Sun,
 } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
 
 const navItems = [
   {
@@ -52,6 +53,13 @@ export default function Sidebar() {
 
   const [isDark, setIsDark] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    router.push("/login");
+  };
 
   return (
     <aside className="flex min-h-screen w-72 flex-col border-r border-border bg-surface p-6">
@@ -63,7 +71,9 @@ export default function Sidebar() {
       {/* Welcome Card */}
       <div className="mb-8 rounded-2xl border border-border bg-surface-secondary p-4">
         <div className="mb-4 flex items-center justify-between">
-          <div className="h-10 w-10 rounded-full bg-surface-hover" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-sm font-semibold text-primary">
+            {user?.name?.charAt(0) ?? "U"}
+          </div>
           <button
             onClick={() => setIsDark(!isDark)}
             className="rounded-full border border-border p-2 text-text-secondary hover:text-text-primary transition-colors"
@@ -80,7 +90,7 @@ export default function Sidebar() {
         <h2 className="text-lg font-semibold text-text-primary">
           Welcome back,
           <br />
-          George!
+          {user?.name?.split(" ")[0] ?? "Donor"}!
         </h2>
       </div>
 
@@ -108,7 +118,10 @@ export default function Sidebar() {
       </nav>
 
       {/* Logout */}
-      <button className="mt-6 flex items-center gap-3 rounded-xl border border-border px-4 py-3 text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-all">
+      <button
+        onClick={handleLogout}
+        className="mt-6 flex items-center gap-3 rounded-xl border border-border px-4 py-3 text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-all"
+      >
         <LogOut size={18} />
         <span className="text-sm font-medium">Logout</span>
       </button>

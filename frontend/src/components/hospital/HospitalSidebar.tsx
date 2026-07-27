@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   CalendarDays,
@@ -14,10 +14,11 @@ import {
   Hospital,
   Menu,
   X,
+  LogOut,
 } from "lucide-react";
 import SidebarItem from "./SidebarItem";
-import SidebarFooter from "./SidebarFooter";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth-context";
 
 const navItems = [
   {
@@ -42,12 +43,12 @@ const navItems = [
   },
   {
     name: "Blood Requests",
-    href: "/hospital/requests",
+    href: "/hospital/blood-requests",
     icon: Droplets,
   },
   {
     name: "Blood Transfers",
-    href: "/hospital/transfers",
+    href: "/hospital/blood-transfers",
     icon: ArrowLeftRight,
   },
   {
@@ -59,7 +60,14 @@ const navItems = [
 
 export default function HospitalSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    router.push("/hospital/login");
+  };
 
   const sidebarContent = (
     <>
@@ -94,8 +102,34 @@ export default function HospitalSidebar() {
         })}
       </nav>
 
-      {/* Footer */}
-      <SidebarFooter />
+      {/* Hospital Info & Logout */}
+      <div className="mt-6 space-y-3">
+        {/* Hospital Profile Card */}
+        <div className="rounded-xl border border-border bg-surface-secondary p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/20 text-xs font-semibold text-primary">
+              {user?.name?.charAt(0) ?? "H"}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-text-primary">
+                {user?.name ?? "Hospital"}
+              </p>
+              <p className="truncate text-xs text-text-muted">
+                {user?.email ?? ""}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Logout */}
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 rounded-xl border border-border px-4 py-3 text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-all duration-200"
+        >
+          <LogOut size={18} className="shrink-0" />
+          <span className="text-sm font-medium">Logout</span>
+        </button>
+      </div>
     </>
   );
 
@@ -174,7 +208,35 @@ export default function HospitalSidebar() {
               })}
             </nav>
 
-            <SidebarFooter />
+            {/* Mobile Footer */}
+            <div className="mt-6 space-y-3">
+              <div className="rounded-xl border border-border bg-surface-secondary p-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/20 text-xs font-semibold text-primary">
+                    {user?.name?.charAt(0) ?? "H"}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-text-primary">
+                      {user?.name ?? "Hospital"}
+                    </p>
+                    <p className="truncate text-xs text-text-muted">
+                      {user?.email ?? ""}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setMobileOpen(false);
+                }}
+                className="flex w-full items-center gap-3 rounded-xl border border-border px-4 py-3 text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-all duration-200"
+              >
+                <LogOut size={18} className="shrink-0" />
+                <span className="text-sm font-medium">Logout</span>
+              </button>
+            </div>
           </aside>
         </div>
       )}
