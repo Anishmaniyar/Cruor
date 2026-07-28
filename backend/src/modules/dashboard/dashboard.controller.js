@@ -14,7 +14,7 @@ export const getDashboard = asyncHandler(async (req, res) => {
       prisma.appointment.findFirst({
         where: {
           userId,
-          status: "CONFIRMED",
+          status: { in: ["BOOKED", "CONFIRMED"] },
           appointmentDate: { gte: new Date() },
         },
         orderBy: { appointmentDate: "asc" },

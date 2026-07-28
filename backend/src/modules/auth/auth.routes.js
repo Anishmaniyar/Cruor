@@ -53,11 +53,7 @@ router.post(
 router.post("/reset-password", resetPassword);
 
 // HOSPITAL
-router.post(
-  "/register-hospital",
-  validateRequest(registerHospitalSchema),
-  registerHospital,
-);
+router.post("/register-hospital", registerHospital);
 
 router.post(
   "/login-hospital",

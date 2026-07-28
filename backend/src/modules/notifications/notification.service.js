@@ -4,8 +4,8 @@ import * as NotificationRepository from "./notification.repository.js";
 import { notificationQueue } from "./notification.queue.js";
 import AppError from "../../utils/appError.js";
 
-export const send = async (req, res, next) => {
-  const { type, recipient, payload } = req.body;
+export const send = async (data) => {
+  const { type, recipient, payload } = data;
 
   const config = NotificationRegistry[type];
 
@@ -32,11 +32,7 @@ export const send = async (req, res, next) => {
     recipient,
   });
 
-  res.status(201).json({
-    status: "success",
-    message: "Notification created and queued for delivery.",
-    data: createdNotification,
-  });
+  return createNotification;
 };
 
 export const sendBulk = async (type, recipients, payload) => {

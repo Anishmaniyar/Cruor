@@ -10,3 +10,9 @@ export const bookAppointment = async (data: appointmentSchemaType) => {
 
   return response.data;
 };
+
+export const getMyAppointments = async () => {
+  const response = await api.get("/appointments/my");
+
+  return response.data;
+};

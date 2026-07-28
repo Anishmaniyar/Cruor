@@ -11,11 +11,11 @@ export const bookAppointmentService = async (data) => {
     throw new AppError("Hospital does not exist", 404);
   }
 
-  const hospitalVerified =
-    await appointmentRepository.checkHospitalVerification(hospitalId);
-  if (!hospitalVerified) {
-    throw new AppError("Hospital is not verified", 403);
-  }
+  // const hospitalVerified =
+  //   await appointmentRepository.checkHospitalVerification(hospitalId);
+  // if (!hospitalVerified) {
+  //   throw new AppError("Hospital is not verified", 403);
+  // }
 
   const now = new Date();
   const requestedDateTime = new Date(appointmentDate);

@@ -3,7 +3,11 @@ import * as campaignService from "./campaign.service.js";
 
 export const createCampaign = asyncHandler(async (req, res) => {
   const hospitalId = req.hospital.id;
-  const campaignData = req.body;
+
+  const campaignData = {
+    ...req.body,
+    hospitalName: req.hospital.name,
+  };
 
   const campaign = await campaignService.createCampaignService(
     hospitalId,
@@ -96,7 +100,7 @@ export const cancelRegistration = asyncHandler(async (req, res) => {
 });
 
 export const viewMyRegistration = asyncHandler(async (req, res) => {
-  const userId = req.userId;
+  const userId = req.user.id;
 
   const allRegistration =
     await campaignService.getMyRegistrationsService(userId);
@@ -115,7 +119,7 @@ export const viewHospitalCampaign = asyncHandler(async (req, res) => {
   const hospitalId = req.hospital.id;
 
   const allCampaigns =
-    await campaignService.getHospitalCampaignsService(userId);
+    await campaignService.getHospitalCampaignsService(hospitalId);
 
   return res.status(200).json({
     status: "success",

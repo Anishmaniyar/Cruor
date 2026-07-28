@@ -42,6 +42,14 @@ export const findAppointmentByIdRepository = async (id) => {
 export const findAppointments = async (userId) => {
   return await prisma.appointment.findMany({
     where: { userId },
+    include: {
+      hospital: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
     orderBy: { appointmentDate: "asc" },
   });
 };

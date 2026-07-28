@@ -10,7 +10,7 @@ export const appointmentIdParamSchema = z.object({
 // 2. Schema for creating a new booking request
 export const createAppointmentSchema = z.object({
   body: z.object({
-    hospitalId: z.string().uuid("Invalid hospital ID format"),
+    hospitalId: z.string().min(1, "Hospital ID is required"),
 
     appointmentDate: z
       .string()

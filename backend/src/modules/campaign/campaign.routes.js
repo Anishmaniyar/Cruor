@@ -18,6 +18,7 @@ import {
   viewCampaignById,
   viewCampaignRegistration,
   viewHospitalCampaign,
+  viewMyRegistration,
 } from "./campaign.controller.js";
 
 const router = Router();
@@ -38,6 +39,10 @@ router.patch(
 
 router.get("/", verifyUser, viewCampaign);
 
+router.get("/my-registration", verifyUser, viewMyRegistration);
+
+router.get("/hospital", verifyHospital, viewHospitalCampaign);
+
 router.get("/:id", verifyUser, viewCampaignById);
 
 router.post(
@@ -48,10 +53,6 @@ router.post(
 );
 
 router.patch("/:id/cancel-registration", verifyUser, cancelRegistration);
-
-router.get("/my-registration", verifyUser, viewCampaignRegistration);
-
-router.get("/hospital", verifyHospital, viewHospitalCampaign);
 
 router.get("/:id/registrations", verifyHospital, viewCampaignRegistration);
 export default router;

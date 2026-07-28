@@ -88,10 +88,5 @@ export const loginHospitalSchema = z.object({
       .trim()
       .min(6, "Password must be at least 6 characters long")
       .max(20, "Password must be at most 20 characters long"),
-
-    phoneNo: z
-      .string()
-      .trim()
-      .min(10, "Phone No should have only of 10 characters"),
   }),
 });

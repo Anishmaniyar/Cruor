@@ -4,7 +4,15 @@ import asyncHandler from "../../utils/asyncHandler.js";
 import prisma from "../../db.js";
 
 export const verifyUser = asyncHandler(async (req, res, next) => {
-  const token = req.cookies.accessToken;
+  console.log("--- AUTH DEBUG START ---");
+  console.log("Raw Cookie Header:", req.headers.cookie);
+  console.log("Parsed Cookies Object:", req.cookies);
+  console.log("Token Extracted:", req.cookies?.accessToken);
+  console.log("--- AUTH DEBUG END ---");
+
+  // Update this line inside your verifyUser middleware
+  const token =
+    req.cookies?.accessToken || req.headers.authorization?.split(" ")[1];
 
   if (!token) {
     return res.status(401).json({ message: "Unauthorized" });

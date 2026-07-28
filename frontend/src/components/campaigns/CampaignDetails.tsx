@@ -1,3 +1,5 @@
+"use client";
+
 import { Megaphone, MapPin, Calendar, Clock, Users, Building2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -5,10 +7,21 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Separator } from "@/components/ui/separator";
 
 interface CampaignDetailsProps {
-  campaignId?: string;
+  campaign: {
+    id: string;
+    campName: string;
+    description: string;
+    address: string;
+    campaignDate: string;
+    startTime: string;
+    endTime: string;
+    targetDonors: number;
+    status: string;
+    hospital?: { name: string; address: string | null };
+  };
 }
 
-export default function CampaignDetails({ campaignId }: CampaignDetailsProps) {
+export default function CampaignDetails({ campaign }: CampaignDetailsProps) {
   return (
     <Card>
       <CardHeader>
@@ -25,7 +38,7 @@ export default function CampaignDetails({ campaignId }: CampaignDetailsProps) {
             <Megaphone className="mt-1 h-5 w-5 text-text-muted" />
             <div>
               <p className="info-label">Campaign</p>
-              <p className="info-value">Mega Blood Donation Camp</p>
+              <p className="info-value">{campaign.campName}</p>
             </div>
           </div>
 
@@ -33,7 +46,7 @@ export default function CampaignDetails({ campaignId }: CampaignDetailsProps) {
             <Building2 className="mt-1 h-5 w-5 text-text-muted" />
             <div>
               <p className="info-label">Organizer</p>
-              <p className="text-sm text-text-primary">Red Cross Society</p>
+              <p className="text-sm text-text-primary">{campaign.hospital?.name ?? "Hospital"}</p>
             </div>
           </div>
 
@@ -41,7 +54,7 @@ export default function CampaignDetails({ campaignId }: CampaignDetailsProps) {
             <MapPin className="mt-1 h-5 w-5 text-text-muted" />
             <div>
               <p className="info-label">Location</p>
-              <p className="text-sm text-text-primary">Community Center, Pune</p>
+              <p className="text-sm text-text-primary">{campaign.address || "Not specified"}</p>
             </div>
           </div>
 
@@ -49,7 +62,13 @@ export default function CampaignDetails({ campaignId }: CampaignDetailsProps) {
             <Calendar className="mt-1 h-5 w-5 text-text-muted" />
             <div>
               <p className="info-label">Date</p>
-              <p className="text-sm text-text-primary">10 August 2026</p>
+              <p className="text-sm text-text-primary">
+                {new Date(campaign.campaignDate).toLocaleDateString("en-US", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}
+              </p>
             </div>
           </div>
 
@@ -57,17 +76,28 @@ export default function CampaignDetails({ campaignId }: CampaignDetailsProps) {
             <Clock className="mt-1 h-5 w-5 text-text-muted" />
             <div>
               <p className="info-label">Time</p>
-              <p className="text-sm text-text-primary">09:00 AM – 04:00 PM</p>
+              <p className="text-sm text-text-primary">
+                {campaign.startTime} – {campaign.endTime}
+              </p>
             </div>
           </div>
 
           <div className="info-row !items-start">
             <Users className="mt-1 h-5 w-5 text-text-muted" />
             <div>
-              <p className="info-label">Available Slots</p>
-              <Badge variant="success">18 slots remaining</Badge>
+              <p className="info-label">Target Donors</p>
+              <Badge variant="success">{campaign.targetDonors} slots</Badge>
             </div>
           </div>
+
+          {campaign.description && (
+            <div className="info-row !items-start">
+              <div className="ml-6">
+                <p className="info-label">Description</p>
+                <p className="text-sm text-text-primary">{campaign.description}</p>
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

@@ -4,8 +4,23 @@ import * as NotificationService from "../notifications/notification.service.js";
 import { NotificationType } from "../notifications/notification.constants.js";
 
 export const createCampaignService = async (hospitalId, campaignData) => {
-  const { campName, ampaignDate, startTime, endTime, targetDonors } =
-    campaignData;
+  const {
+    campName,
+    hospitalName,
+    campaignDate,
+    description,
+    address,
+    startTime,
+    endTime,
+    targetDonors,
+  } = campaignData;
+
+  const HospitalExists =
+    await CampaignRepository.findHospitalExists(hospitalName);
+
+  if (!HospitalExists) {
+    throw new AppError("Hospital not found");
+  }
 
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -17,23 +32,36 @@ export const createCampaignService = async (hospitalId, campaignData) => {
   );
 
   if (campaignDay < today) {
-    throw new appError("Campaign date cannot be in the past", 400);
+    throw new AppError("Campaign date cannot be in the past", 400);
   }
 
-  const start = new Date(startTime);
-  const end = new Date(endTime);
+  const [startHours, startMinutes] = startTime.split(":").map(Number);
+  const [endHours, endMinutes] = endTime.split(":").map(Number);
+
+  const start = new Date(campaignD);
+  start.setHours(startHours, startMinutes, 0, 0);
+
+  const end = new Date(campaignD);
+  end.setHours(endHours, endMinutes, 0, 0);
 
   if (end <= start) {
-    throw new appError("End time must be strictly after the start time", 400);
+    throw new AppError("End time must be strictly after the start time", 400);
   }
 
   if (targetDonors <= 0) {
-    throw new appError("Target donors are not valid entry", 400);
+    throw new AppError("Target donors are not valid entry", 400);
   }
 
   const campaign = await CampaignRepository.createCampaignRepository({
     hospitalId,
-    ...campaignData,
+    campName,
+    description,
+    address,
+    campaignDate: campaignD,
+    startTime: start,
+    endTime: end,
+    targetDonors,
+    status: "ACTIVE",
   });
 
   return campaign;
@@ -66,12 +94,11 @@ export const updateCampaignService = async (
     type: NotificationType.CAMPAIGN_UPDATED,
 
     recipients,
-
     payload: {
-      campaignName: updatedCampaign.campName,
-      campaignDate: updatedCampaign.campaignDate,
-      startTime: updatedCampaign.startTime,
-      endTime: updatedCampaign.endTime,
+      campaignName: updateCampagin.campName,
+      campaignDate: updateCampagin.campaignDate,
+      startTime: updateCampagin.startTime,
+      endTime: updateCampagin.endTime,
     },
   });
 
@@ -174,7 +201,7 @@ export const cancelRegistrationService = async (userId, campaignId) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const campaignDate = new Date(campaign.campaignDate);
+  const campaignDate = new Date(campaignExists.campaignDate);
   campaignDate.setHours(0, 0, 0, 0);
 
   if (campaignDate < today) {
@@ -188,10 +215,11 @@ export const cancelRegistrationService = async (userId, campaignId) => {
   );
 
   await CampaignRepository.createNotification({
-    hospitalId,
+    userId,
     title: "Campaign Cancel Notification",
-    message: `A new campaing has been cancelled ${campaignDate.toISOString().split("T")[0]}.`,
-    type: "CANCEL_REMINDER",
+    message: `Your registration for campaign on ${campaignDate.toISOString().split("T")[0]} has been cancelled.`,
+    type: "CAMPAIGN_REGISTERED",
+    priority: "LOW",
     isRead: false,
   });
 };
@@ -214,7 +242,7 @@ export const getCampaignRegistrationService = async (campaignId, hositalId) => {
   const campaignExist = await CampaignRepository.findCampaignId(campaignId);
 
   if (!campaignExist) {
-    throw new appError("Campaign not found", 404);
+    throw new AppError("Campaign not found", 404);
   }
 
   const hospitalOwnsCampaign = await CampaignRepository.hospitalOwnedCampaign(

@@ -1,8 +1,7 @@
 import prisma from "../../db.js";
 
-export const createCampaignRepository = async (hospitalId, data) => {
+export const createCampaignRepository = async (data) => {
   return await prisma.campaign.create({
-    hospitalId,
     data,
   });
 };
@@ -40,9 +39,19 @@ export const getCampaign = async () => {
   return await prisma.campaign.findMany({
     where: {
       status: "ACTIVE",
+      campaignDate: { gte: new Date() },
     },
     orderBy: {
       campaignDate: "asc",
+    },
+    include: {
+      hospital: {
+        select: {
+          id: true,
+          name: true,
+          address: true,
+        },
+      },
     },
   });
 };
@@ -51,6 +60,15 @@ export const getCampaignById = async (campaignId) => {
   return await prisma.campaign.findUnique({
     where: {
       id: campaignId,
+    },
+    include: {
+      hospital: {
+        select: {
+          id: true,
+          name: true,
+          address: true,
+        },
+      },
     },
   });
 };
@@ -103,15 +121,18 @@ export const updateCampaignRegistrationStatusRepository = async (
   });
 };
 
-export const allRegisteredCampaignRepository = async (Id) => {
+export const allRegisteredCampaignRepository = async (userId) => {
   return await prisma.campaignRegistration.findMany({
     where: {
-      Id,
+      userId,
+    },
+    include: {
+      campaign: true,
     },
   });
 };
 
-export const allHospitalCampaigns = async (Id) => {
+export const allHospitalCampaigns = async (hospitalId) => {
   return await prisma.campaign.findMany({
     where: {
       hospitalId,
@@ -120,7 +141,7 @@ export const allHospitalCampaigns = async (Id) => {
       campName: true,
       description: true,
       address: true,
-      campDate: true,
+      campaignDate: true,
       startTime: true,
       endTime: true,
       targetDonors: true,
@@ -153,6 +174,14 @@ export const allRegisteredUserstoCampaign = async (campaignId) => {
           bloodGroup: true,
         },
       },
+    },
+  });
+};
+
+export const findHospitalExists = async (hospitalName) => {
+  return await prisma.hospital.findFirst({
+    where: {
+      name: hospitalName,
     },
   });
 };

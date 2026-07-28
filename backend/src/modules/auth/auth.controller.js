@@ -8,7 +8,7 @@ import { generateAccessToken, generateRefreshToken } from "../../utils/jwt.js";
 
 export const registerUser = async (req, res, next) => {
   try {
-    const { name, email, password, phoneNo, gender, dateOfBirth } = req.body;
+    const { name, email, password, phoneNo, gender } = req.body;
 
     // Check if user already exists
     const existingUser = await prisma.user.findFirst({
@@ -250,6 +250,9 @@ export const resetPassword = asyncHandler(async (req, res, next) => {});
 export const registerHospital = asyncHandler(async (req, res, next) => {
   const { name, email, password, phoneNo } = req.body;
 
+  if (!password) {
+    return next(new AppError("Password is required", 400));
+  }
   const existingHospital = await prisma.hospital.findFirst({
     where: {
       OR: [{ email }, { phoneNo }],
@@ -263,6 +266,26 @@ export const registerHospital = asyncHandler(async (req, res, next) => {
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
+
+  const accessToken = generateAccessToken(user);
+  const refreshToken = generateRefreshToken(user);
+
+  if (!accessToken || !refreshToken) {
+    return next(new AppError("Failed to generate tokens", 500));
+  }
+
+  // Set httpOnly cookies
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    sameSite: "strict",
+    maxAge: 15 * 60 * 1000, // 15 minutes
+  });
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
 
   const newHospital = await prisma.hospital.create({
     data: {
@@ -279,6 +302,7 @@ export const registerHospital = asyncHandler(async (req, res, next) => {
     message: "Hospital registered successfully",
     data: {
       newHospital,
+      accessToken,
     },
   });
 });

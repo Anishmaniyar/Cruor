@@ -61,7 +61,7 @@ export default function BookingActions({
       appointmentDate: selectedDate
         ? selectedDate.toISOString().split("T")[0]
         : "",
-      appointmentTime: selectedTime,
+      appointmentTime: convertTo24Hour(selectedTime),
     };
 
     const result = appointmentSchema.safeParse(payload);
@@ -78,7 +78,7 @@ export default function BookingActions({
         response.data.message || "Appointment booked successfully.",
       );
 
-      router.push("/appointments");
+      router.push("/appointment");
     } catch (error) {
       const err = error as AxiosError<{ message: string }>;
 

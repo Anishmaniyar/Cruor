@@ -15,13 +15,14 @@ import { Button } from "@/components/ui/button";
 interface CampaignCardProps {
   campaign: {
     id: string;
-    name: string;
-    organizer: string;
-    location: string;
-    date: string;
-    time: string;
-    type: string;
-    slotsAvailable: number;
+    campName: string;
+    address: string;
+    campaignDate: string;
+    startTime: string;
+    endTime: string;
+    targetDonors: number;
+    status: string;
+    hospital?: { name: string; address: string | null };
   };
 }
 
@@ -33,16 +34,19 @@ export default function CampaignCard({ campaign }: CampaignCardProps) {
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-surface-hover">
           <Megaphone className="h-6 w-6 text-text-secondary group-hover:text-text-primary transition-colors" />
         </div>
-        <Badge variant="secondary" className="text-[10px]">{campaign.type}</Badge>
       </div>
 
       {/* Campaign Info */}
       <div className="px-6 pt-4">
-        <h3 className="card-title !text-base">{campaign.name}</h3>
-        <p className="mt-0.5 text-xs text-text-muted">by {campaign.organizer}</p>
+        <h3 className="card-title !text-base">{campaign.campName}</h3>
+        <p className="mt-0.5 text-xs text-text-muted">
+          by {campaign.hospital?.name}
+        </p>
         <div className="info-row mt-2">
           <MapPin className="info-icon h-3.5 w-3.5" />
-          <span className="truncate text-sm text-text-secondary">{campaign.location}</span>
+          <span className="truncate text-sm text-text-secondary">
+            {campaign.address}
+          </span>
         </div>
       </div>
 
@@ -52,14 +56,24 @@ export default function CampaignCard({ campaign }: CampaignCardProps) {
           <Calendar className="info-icon" />
           <div>
             <p className="meta-label">Date</p>
-            <p className="text-xs font-medium text-text-secondary">{campaign.date}</p>
+            <p className="text-xs font-medium text-text-secondary">
+              {campaign.campaignDate}
+            </p>
           </div>
         </div>
         <div className="info-row rounded-lg bg-surface-secondary px-3 py-3">
           <Clock className="info-icon" />
           <div>
-            <p className="meta-label">Time</p>
-            <p className="text-xs font-medium text-text-secondary">{campaign.time}</p>
+            <p className="meta-label">Start Time</p>
+            <p className="text-xs font-medium text-text-secondary">
+              {campaign.startTime}
+            </p>
+          </div>
+          <div>
+            <p className="meta-label">End Time</p>
+            <p className="text-xs font-medium text-text-secondary">
+              {campaign.endTime}
+            </p>
           </div>
         </div>
       </div>
@@ -68,9 +82,11 @@ export default function CampaignCard({ campaign }: CampaignCardProps) {
       <div className="mx-6 mt-4 flex items-center justify-between rounded-lg border border-success/20 bg-success/5 px-3 py-3">
         <div className="info-row">
           <Users className="h-4 w-4 text-success" />
-          <span className="text-xs text-text-secondary">Slots Available</span>
+          <span className="text-xs text-text-secondary">Target Donors</span>
         </div>
-        <span className="text-xs font-medium text-success">{campaign.slotsAvailable} slots</span>
+        <span className="text-xs font-medium text-success">
+          {campaign.targetDonors}
+        </span>
       </div>
 
       {/* CTA */}

@@ -1,52 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import StatusCard from "@/components/shared/StatusCard";
 import JourneyTimeline from "@/components/shared/JourneyTimeline";
 import BrowseSection from "@/components/shared/BrowseSection";
 import CampaignCard from "@/components/campaigns/CampaignCard";
 
+import { getCampaigns, getMyRegistrations } from "@/services/campaign.services";
+
 type CampaignStatus = "NONE" | "REGISTERED" | "COMPLETED";
 
+interface CampaignData {
+  id: string;
+  campName: string;
+  address: string;
+  campaignDate: string;
+  startTime: string;
+  endTime: string;
+  targetDonors: number;
+  status: string;
+  hospital?: { name: string; address: string | null };
+}
+
+interface RegistrationData {
+  id: string;
+  campaignId: string;
+  status: string;
+  registeredAt: string;
+  campaign?: CampaignData;
+}
 const CAMPAIGN_JOURNEY_STAGES = [
   "Registered",
   "Confirmed",
   "Attended Campaign",
   "Blood Collected",
   "Transported",
-];
-
-const SAMPLE_CAMPAIGNS = [
-  {
-    id: "camp-1",
-    name: "Mega Blood Donation Camp",
-    organizer: "Red Cross Society",
-    location: "Community Center, Pune",
-    date: "10 Aug 2026",
-    time: "9 AM - 4 PM",
-    type: "Government",
-    slotsAvailable: 18,
-  },
-  {
-    id: "camp-2",
-    name: "Red Cross Lifesavers Drive",
-    organizer: "Indian Red Cross",
-    location: "Metro Station Plaza, Road 12",
-    date: "12 Aug 2026",
-    time: "10 AM - 5 PM",
-    type: "Private",
-    slotsAvailable: 12,
-  },
-  {
-    id: "camp-3",
-    name: "Corporate Blood Donation Drive",
-    organizer: "TechCorp India",
-    location: "TechPark, Hinjewadi, Pune",
-    date: "15 Aug 2026",
-    time: "8 AM - 3 PM",
-    type: "Corporate",
-    slotsAvailable: 25,
-  },
 ];
 
 const CAMPAIGN_FILTERS = [
@@ -58,19 +46,64 @@ const CAMPAIGN_FILTERS = [
 ];
 
 export default function CampaignsPage() {
-  const [campaignStatus] = useState<CampaignStatus>("NONE");
+  const [campaignStatus, setCampaignStatus] = useState<CampaignStatus>("NONE");
+  const [campaigns, setCampaigns] = useState<CampaignData[]>([]);
+  const [activeRegistration, setActiveRegistration] =
+    useState<RegistrationData | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [campaignsRes, registrationRes] = await Promise.all([
+          getCampaigns(),
+          getMyRegistrations().catch(() => null),
+        ]);
+
+        setCampaigns(campaignsRes.data ?? []);
+
+        const registrations: RegistrationData[] =
+          registrationRes?.data?.allRegistration ?? [];
+        const active = registrations.find((r) => r.status === "REGISTERED");
+
+        if (active) {
+          setCampaignStatus("REGISTERED");
+          setActiveRegistration(active);
+        }
+      } catch {
+        // Silently handle network or server errors
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   const isActive = campaignStatus === "REGISTERED";
 
-  const filteredCampaigns = SAMPLE_CAMPAIGNS.filter(
+  const filteredCampaigns = campaigns.filter(
     (c) =>
-      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.location.toLowerCase().includes(searchQuery.toLowerCase()),
+      c.campName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.address.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const status: "NONE" | "ACTIVE" | "COMPLETED" =
-    campaignStatus === "NONE" ? "NONE" : campaignStatus === "COMPLETED" ? "COMPLETED" : "ACTIVE";
+    campaignStatus === "NONE"
+      ? "NONE"
+      : campaignStatus === "COMPLETED"
+        ? "COMPLETED"
+        : "ACTIVE";
+
+  if (loading) {
+    return (
+      <main className="min-h-screen space-y-8 p-6 lg:p-8">
+        <div className="flex items-center justify-center py-20">
+          <p className="text-text-secondary"> Loading Campaigns...</p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen space-y-8 p-6 lg:p-8">
@@ -82,15 +115,13 @@ export default function CampaignsPage() {
           campaignStatus === "NONE"
             ? undefined
             : {
-                title: "Mega Blood Donation Camp",
+                title: activeRegistration?.campaign?.campName ?? "Campaign",
                 subtitle: "Registration confirmed",
-                location: "Community Center, Pune",
-                date: "10 August 2026 • 09:00 AM",
-                bookedFor: "George Anderson",
-                id: "REG-123456",
+                location: activeRegistration?.campaign?.address ?? "",
+                date: activeRegistration?.campaign?.campaignDate ? new Date(activeRegistration.campaign.campaignDate).toLocaleDateString("en-US", {day: "numeric", month: "long", year: "numeric"}) : "",
+                id: activeRegistration?.id.slice(0,12).toUpperCase(),
                 badges: [
-                  { label: "O+", variant: "secondary" },
-                  { label: "Confirmed", variant: "success" },
+                  { label: activeRegistration?.status ?? "Registered", variant: "success" as const },
                 ],
               }
         }
@@ -100,7 +131,9 @@ export default function CampaignsPage() {
       {campaignStatus !== "NONE" && (
         <JourneyTimeline
           stages={CAMPAIGN_JOURNEY_STAGES}
-          activeStage={campaignStatus === "COMPLETED" ? "Transported" : "Confirmed"}
+          activeStage={
+            campaignStatus === "COMPLETED" ? "Transported" : "Confirmed"
+          }
           title="Campaign Journey"
         />
       )}
