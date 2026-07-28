@@ -10,6 +10,7 @@ import {
   viewHospitalDonation,
   viewMyDonationsUser,
   viewMyDonationUserId,
+  viewDashboardPageData,
 } from "./donation.controller.js";
 import {
   createAppointmentDonationSchema,
@@ -41,5 +42,7 @@ router.get("/hospital", verifyHospital, viewHospitalDonation);
 router.patch("/:id/reject", verifyHospital, rejectDonationController);
 
 router.patch("/:id/complete", verifyHospital, completeDonationController);
+
+router.get("/dashboard-page", verifyUser, viewDashboardPageData);
 
 export default router;

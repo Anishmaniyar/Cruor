@@ -1,8 +1,9 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import * as DonationService from "./donation.service.js";
+import * as DonationRepository from "./donation.repository.js";
 
 export const donationAppointment = asyncHandler(async (req, res, next) => {
-  const appointmentId = req.params.id;
+  const appointmentId = req.params.appointmentId;
   const hospitalId = req.hospital.id;
   const { donationData } = req.body;
 
@@ -122,3 +123,15 @@ export const completeDonationController = asyncHandler(
     });
   },
 );
+
+export const viewDashboardPageData = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+
+  const dashboard = await DonationService.viewDashboardPageService(userId);
+
+  res.status(200).json({
+    success: true,
+    message: "Donation dashboard fetched successfully",
+    data: dashboard,
+  });
+});

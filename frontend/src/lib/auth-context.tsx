@@ -55,6 +55,18 @@ function saveToStorage(user: UserData | null, userType: UserType | null) {
   }
 }
 
+function clearAllAuthData() {
+  // Clear localStorage
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem("vital-drops-refresh-token");
+  localStorage.removeItem("vital-drops-access-token");
+
+  // Clear any auth-related cookies
+  document.cookie = "accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
+  document.cookie = "refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
+  document.cookie = "vital-drops-auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>(loadFromStorage);
 
@@ -69,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
-    saveToStorage(null, null);
+    clearAllAuthData();
     setState({ user: null, userType: null, isAuthenticated: false });
   }, []);
 

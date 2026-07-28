@@ -3,6 +3,7 @@ import * as DonationRepository from "./donation.repository.js";
 import * as CampaginRepository from "../campaign/campaign.repository.js";
 import * as NotificationService from "../notifications/notification.service.js";
 import { NotificationType } from "../notifications/notification.constants.js";
+import prisma from "../../db.js";
 
 export const donationAppointmentService = async (
   appointmentId,
@@ -42,15 +43,29 @@ export const donationAppointmentService = async (
     );
   }
 
-  const newDonation = await DonationRepository.createDonationRepo({
-    ...donationData,
-    appointmentId,
-    hospitalId,
-    userId,
-  });
+  return await prisma.$transaction(async (tx) => {
+    const donation = await DonationRepository.createDonationRepo(tx, {
+      ...donationData,
+      appointmentId,
+      hospitalId,
+      userId,
+    });
 
-  // NOTIFICATON LEFT TO BE ADDED
-  return newDonation;
+    await DonationRepository.updateAppointmentStatusRepo(tx, appointmentId);
+
+    // await InventoryRepository.createInventoryEntryRepo(tx, {
+    //   hospitalId,
+    //   userId,
+    //   donationId: donation.id,
+    //   bloodGroup: donation.bloodGroup,
+    //   quantity: donation.quantity,
+    //   componentType: donation.componentType,
+    // });
+
+    // await NotificationService.send()
+
+    return donation;
+  });
 };
 
 export const donationCampaignService = async (
@@ -190,4 +205,30 @@ export const completeDonationService = async (donationId, hospitalId) => {
   });
 
   return updatedDonation;
+};
+
+export const viewDashboardPageService = async (userId) => {
+  const totalDonations = await DonationRepository.countAllDonation(userId);
+
+  const appointmentDonations =
+    await DonationRepository.countAppointmentDonation(userId);
+
+  const campaignDonations =
+    await DonationRepository.countCampaignDonation(userId);
+
+  const livesImpacted = totalDonations * 3;
+
+  const lastDonationDate = await DonationRepository.getLastDonationDate(userId);
+
+  const donationHistory =
+    await DonationRepository.viewUserHistoryDonation(userId);
+
+  return {
+    totalDonations,
+    appointmentDonations,
+    campaignDonations,
+    livesImpacted,
+    lastDonationDate,
+    donationHistory,
+  };
 };

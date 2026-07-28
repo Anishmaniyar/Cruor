@@ -14,10 +14,12 @@ import {
   confirmAppointment,
   markNoShow,
   completeAppointment,
+  getHospitalAppointments,
 } from "./appointment.controller.js";
 
 const router = Router();
 
+// 1. Static Actions / Standard Creation
 router.post(
   "/",
   verifyUser,
@@ -27,6 +29,15 @@ router.post(
 
 router.get("/my", verifyUser, getMyAppointments);
 
+// 2. Hospital Static Route (MOVED UP HERE)
+router.get(
+  "/hospital",
+  verifyHospital,
+  restrictTo("HOSPITAL"),
+  getHospitalAppointments,
+);
+
+// 3. Dynamic / Wildcard Routes (MUST BE LAST)
 router.get(
   "/:id",
   verifyUser,

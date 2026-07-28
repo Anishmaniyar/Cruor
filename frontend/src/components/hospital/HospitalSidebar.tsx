@@ -66,7 +66,7 @@ export default function HospitalSidebar() {
 
   const handleLogout = () => {
     logout();
-    router.push("/hospital/login");
+    router.push("/");
   };
 
   const sidebarContent = (

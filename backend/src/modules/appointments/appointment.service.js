@@ -291,3 +291,13 @@ export const sendAppointmentReminderService = async () => {
     await appointmentRepository.markAppointmentReminderSent(appointment.id);
   }
 };
+
+export const getMyAppointmentsHospitalService = async (hospitalId) => {
+  const data = await appointmentRepository.getHospitalAppointments(hospitalId);
+
+  if (!data) {
+    return null;
+  }
+
+  return data;
+};

@@ -182,3 +182,28 @@ export const markAppointmentReminderSent = async (appointmentId) => {
     },
   });
 };
+
+export const getHospitalAppointments = async (hospitalId) => {
+  return await prisma.appointment.findMany({
+    where: {
+      hospitalId: hospitalId,
+      status: "PENDING",
+    },
+    select: {
+      id: true,
+      appointmentDate: true,
+      appointmentTime: true,
+      status: true,
+      // Fetch donor details so the hospital knows who is visiting
+      user: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc", // Shows the "just booked" appointment at the very top
+    },
+  });
+};
