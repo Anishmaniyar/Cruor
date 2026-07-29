@@ -6,13 +6,14 @@ import {
   refreshAccessToken,
   getCurrentUser,
   changePassword,
-  forgotPassword,
-  resetPassword,
+  // forgotPassword,
+  // resetPassword,
   registerHospital,
   loginHospital,
   getCurrentHospital,
   changeHospitalPassword,
   forgotHospitalPassword,
+  logoutHospital,
 } from "./auth.controller.js";
 import {
   registerUserSchema,
@@ -24,6 +25,7 @@ import {
 } from "./auth.validator.js";
 import { validateRequest } from "../../middleware/validateRequest.js";
 import { verifyUser } from "./auth.middleware.js";
+import { verifyHospital } from "../../middleware/authorize.js";
 
 const router = Router();
 
@@ -40,30 +42,41 @@ router.get("/me", verifyUser, getCurrentUser);
 
 router.patch(
   "/change-password",
-  validateRequest(changePasswordSchema),
   verifyUser,
+  validateRequest(changePasswordSchema),
   changePassword,
 );
 
-router.post(
-  "/forgot-password",
-  validateRequest(forgotPasswordSchema),
-  forgotPassword,
-);
-router.post("/reset-password", resetPassword);
+// router.post(
+//   "/forgot-password",
+//   validateRequest(forgotPasswordSchema),
+//   forgotPassword,
+// );
+// router.post("/reset-password", resetPassword);
 
 // HOSPITAL
-router.post("/register-hospital", registerHospital);
+router.post(
+  "/hospital-register",
+  validateRequest(registerHospitalSchema),
+  registerHospital,
+);
 
 router.post(
-  "/login-hospital",
+  "/hospital-login",
   validateRequest(loginHospitalSchema),
   loginHospital,
 );
 
-router.get("/hospital/me", verifyUser, getCurrentHospital);
+router.get("/hospital-me", verifyHospital, getCurrentHospital);
+
+router.post("/hospital-logout", logoutHospital);
 
 router.post("/hospitals/forgot-password", forgotHospitalPassword);
-router.post("/hospirals/change-password", changeHospitalPassword);
+
+router.post(
+  "/hospital/change-password",
+  verifyHospital,
+  changeHospitalPassword,
+);
 
 export default router;

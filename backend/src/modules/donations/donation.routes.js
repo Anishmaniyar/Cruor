@@ -3,7 +3,7 @@ import { verifyHospital } from "../../middleware/authorize.js";
 import { verifyUser } from "../auth/auth.middleware.js";
 import { validateRequest } from "../../middleware/validateRequest.js";
 import {
-  completeDonationController,
+  // completeDonationController,
   donationAppointment,
   donationCampaign,
   rejectDonationController,
@@ -41,7 +41,7 @@ router.get("/hospital", verifyHospital, viewHospitalDonation);
 
 router.patch("/:id/reject", verifyHospital, rejectDonationController);
 
-router.patch("/:id/complete", verifyHospital, completeDonationController);
+// router.patch("/:id/complete", verifyHospital, completeDonationController);
 
 router.get("/dashboard-page", verifyUser, viewDashboardPageData);
 

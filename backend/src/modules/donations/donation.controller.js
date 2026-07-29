@@ -5,12 +5,11 @@ import * as DonationRepository from "./donation.repository.js";
 export const donationAppointment = asyncHandler(async (req, res, next) => {
   const appointmentId = req.params.appointmentId;
   const hospitalId = req.hospital.id;
-  const { donationData } = req.body;
 
   const donation = await DonationService.donationAppointmentService(
     appointmentId,
     hospitalId,
-    donationData,
+    req.body,
   );
 
   return res.status(201).json({
@@ -23,21 +22,20 @@ export const donationAppointment = asyncHandler(async (req, res, next) => {
 });
 
 export const donationCampaign = asyncHandler(async (req, res, next) => {
-  const registrationId = req.params.id;
-  const hospitalId = req.hospita.id;
-  const { donationData } = req.body;
+  const registrationId = req.params.registrationId;
+  const hospitalId = req.hospital.id;
 
   const donation = await DonationService.donationCampaignService(
     hospitalId,
     registrationId,
-    donationData,
+    req.body,
   );
   return res.status(201).json({
     status: "success",
     data: {
       donation,
     },
-    message: "Donation recoreded successfully",
+    message: "Donation recorded successfully",
   });
 });
 
@@ -78,7 +76,7 @@ export const viewMyDonationUserId = asyncHandler(async (req, res, next) => {
 export const viewHospitalDonation = asyncHandler(async (req, res, next) => {
   const hospitalId = req.hospital.id;
 
-  const donations = await DonationService.viewMyDonationIdService(hospitalId);
+  const donations = await DonationService.viewHospitalDonationService(hospitalId);
 
   return res.status(200).json({
     status: "success",
@@ -100,9 +98,10 @@ export const rejectDonationController = asyncHandler(async (req, res, next) => {
     hospitalId,
   );
 
-  return res.status(204).json({
+  return res.status(200).json({
     status: "success",
     message: "Donation rejected successfully",
+    data: rejectDonation,
   });
 });
 
@@ -117,9 +116,10 @@ export const completeDonationController = asyncHandler(
       hospitalId,
     );
 
-    return res.status(204).json({
+    return res.status(200).json({
       status: "success",
       message: "Donation completed successfully",
+      data: comDonation,
     });
   },
 );

@@ -15,14 +15,10 @@ export const createConstAppointmentRepository = async (data) => {
 };
 
 export const findAppointmentByIdRepository = async (id) => {
-  return await prisma.appointment.findUnique({
+  return await prisma.appointment.findFirst({
     where: { id },
+    // Only include actual relational tables here
     include: {
-      userId: true,
-      hospitalId: true,
-      appointmentDate: true,
-      appointmentTime: true,
-      status: true,
       hospital: {
         select: {
           id: true,
@@ -187,18 +183,20 @@ export const getHospitalAppointments = async (hospitalId) => {
   return await prisma.appointment.findMany({
     where: {
       hospitalId: hospitalId,
-      status: "PENDING",
     },
     select: {
       id: true,
       appointmentDate: true,
       appointmentTime: true,
       status: true,
+      createdAt: true,
       // Fetch donor details so the hospital knows who is visiting
       user: {
         select: {
           id: true,
           name: true,
+          phoneNo: true,
+          bloodGroup: true,
         },
       },
     },

@@ -55,4 +55,5 @@ router.post(
 router.patch("/:id/cancel-registration", verifyUser, cancelRegistration);
 
 router.get("/:id/registrations", verifyHospital, viewCampaignRegistration);
+
 export default router;

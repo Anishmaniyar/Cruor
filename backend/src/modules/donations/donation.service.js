@@ -70,47 +70,69 @@ export const donationAppointmentService = async (
 
 export const donationCampaignService = async (
   hospitalId,
-  registratonId,
+  registrationId,
   donationData,
 ) => {
-  const campaginExists = await CampaginRepository.findCampaignId(registratonId);
+  // 1. Query CampaignRegistration table using registrationId
+  const registration = await CampaginRepository.findRegistrationById(
+    registrationId,
+  );
 
-  if (!campaginExists) {
-    throw new AppError("Campaign does not exists", 404);
+  if (!registration) {
+    throw new AppError("Campaign registration not found", 404);
   }
 
-  if (campaginExists.status != "REGISTERED") {
-    throw new AppError("Campaign registration is Cancelled or Missed", 404);
+  // 2. Check if registration status is still valid
+  if (registration.status !== "REGISTERED") {
+    throw new AppError(
+      "Campaign registration is already completed or cancelled",
+      400,
+    );
   }
 
-  const finalCampaignId = campaignData.id;
+  // 3. Extract campaignId and userId from the registration record
+  const campaignId = registration.campaign.id;
+  const userId = registration.userId;
 
-  const firstRegistration = campaignData.campaignRegistrations[0];
-
-  if (!firstRegistration) {
-    throw new AppError("No registration found for this campaign", 404);
-  }
-
-  const userId = firstRegistration.userId;
-
-  const hospitalOwnsCampaign = await CampaginRepository.hospitalOwnedCampaign(
+  // 4. Query Campaign table using campaignId to verify hospital ownership
+  const hospitalOwnsCampaign = await CampaginRepository.findCampaignByHospital(
     hospitalId,
-    registratonId,
+    campaignId,
   );
 
   if (!hospitalOwnsCampaign) {
-    throw new AppError("Hopsital does not owns campaign", 403);
+    throw new AppError("Hospital does not own this campaign", 403);
   }
 
-  const newDonation = await DonationRepository.createDonationRepo({
-    ...donationData,
-    appointmentId,
-    hospitalId,
-    userId,
-  });
+  // 5. Check if a donation already exists for this registration
+  const existingDonation =
+    await DonationRepository.existingCampaignDonationRepo(registrationId);
 
-  // NOTIFICATON LEFT TO BE ADDED
-  return newDonation;
+  if (existingDonation) {
+    throw new AppError(
+      "A donation has already been recorded for this campaign registration",
+      400,
+    );
+  }
+
+  // 6. Create donation and update registration status in a transaction
+  return await prisma.$transaction(async (tx) => {
+    const donation = await DonationRepository.createDonationRepo(tx, {
+      ...donationData,
+      campaignRegistrationId: registrationId,
+      hospitalId,
+      userId,
+    });
+
+    // 7. Update Campaign Registration Status to COMPLETED
+    await DonationRepository.updateCampaignRegistrationStatusRepo(
+      tx,
+      registrationId,
+      "COMPLETED",
+    );
+
+    return donation;
+  });
 };
 
 export const viewMyDonationService = async (userId) => {
@@ -129,17 +151,17 @@ export const viewMyDonationIdService = async (userId, donationId) => {
 };
 
 export const viewHospitalDonationService = async (hospitalId) => {
-  const dontion = await DonationRepository.viewHospitalDonationRepo(hospitalId);
+  const donations = await DonationRepository.viewHospitalDonationRepo(hospitalId);
 
-  return donation;
+  return donations;
 };
 
 export const rejectDonationService = async (donationId, hospitalId) => {
   const donationExists =
-    await DonationRepository.findDonationForRejectionRepo(donationId);
+    await DonationRepository.findDonationForRejectionRepo(donationId, hospitalId);
 
   if (!donationExists) {
-    throw new AppError("Donation already exists", 404);
+    throw new AppError("Donation not found", 404);
   }
 
   if (donationExists.status === "REJECTED") {
@@ -166,10 +188,10 @@ export const rejectDonationService = async (donationId, hospitalId) => {
 
 export const completeDonationService = async (donationId, hospitalId) => {
   const donationExists =
-    await DonationRepository.findDonationForRejectionRepo(donationId);
+    await DonationRepository.findDonationForRejectionRepo(donationId, hospitalId);
 
   if (!donationExists) {
-    throw new AppError("Donation already exists", 404);
+    throw new AppError("Donation not found", 404);
   }
 
   if (donationExists.status === "REJECTED") {

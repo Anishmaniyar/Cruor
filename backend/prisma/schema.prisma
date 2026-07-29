@@ -41,7 +41,8 @@ model Hospital {
   passwordHash String
   phoneNo      String  @db.VarChar(20)
   address      String? @db.Text
-  isVerified   Boolean
+  
+  registrationId String @unique
 
   role String @default("HOSPITAL") @db.VarChar(20)
 

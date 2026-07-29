@@ -1,12 +1,9 @@
 import AppError from "../../utils/appError.js";
 import * as CampaignRepository from "./campaign.repository.js";
-import * as NotificationService from "../notifications/notification.service.js";
-import { NotificationType } from "../notifications/notification.constants.js";
 
 export const createCampaignService = async (hospitalId, campaignData) => {
   const {
     campName,
-    hospitalName,
     campaignDate,
     description,
     address,
@@ -15,12 +12,8 @@ export const createCampaignService = async (hospitalId, campaignData) => {
     targetDonors,
   } = campaignData;
 
-  const HospitalExists =
-    await CampaignRepository.findHospitalExists(hospitalName);
-
-  if (!HospitalExists) {
-    throw new AppError("Hospital not found");
-  }
+  // Hospital is already authenticated via verifyHospital middleware
+  // No need to look it up again by name
 
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -72,6 +65,7 @@ export const updateCampaignService = async (
   campaignId,
   campaignData,
 ) => {
+  // 1. Fetch the current state of the campaign from the database
   const campaign = await CampaignRepository.campaignExists(campaignId);
 
   if (!campaign) {
@@ -82,27 +76,79 @@ export const updateCampaignService = async (
     throw new AppError("Unauthorized", 403);
   }
 
-  const updateCampagin = await CampaignRepository.updateCampaignRepository(
+  // 2. Prepare an object to hold only the fields we actually want to update
+  const finalUpdatePayload = {};
+
+  // Handle targetDonors if it's being updated
+  if (campaignData.targetDonors !== undefined) {
+    finalUpdatePayload.targetDonors = Number(campaignData.targetDonors);
+  }
+
+  // Handle basic string fields
+  if (campaignData.campName)
+    finalUpdatePayload.campName = campaignData.campName;
+  if (campaignData.description)
+    finalUpdatePayload.description = campaignData.description;
+  if (campaignData.address)
+    finalUpdatePayload.address = campaignData.address;
+
+  // 3. Smart Date/Time Merging Logic
+  // Figure out what date to use (either the new incoming date, or the old one from the DB)
+  const baseDateSource = campaignData.campaignDate || campaign.campaignDate;
+  const dateString = new Date(baseDateSource).toISOString().split("T")[0];
+
+  if (campaignData.campaignDate) {
+    finalUpdatePayload.campaignDate = new Date(campaignData.campaignDate);
+  }
+
+  // If startTime is updating, combine it with our base date string
+  if (campaignData.startTime) {
+    finalUpdatePayload.startTime = new Date(
+      `${dateString}T${campaignData.startTime}:00.000Z`,
+    );
+  } else if (campaignData.campaignDate) {
+    // If date changed but startTime didn't, we still need to move the old time to the new date
+    const oldTimePart = new Date(campaign.startTime)
+      .toISOString()
+      .split("T")[1];
+    finalUpdatePayload.startTime = new Date(`${dateString}T${oldTimePart}`);
+  }
+
+  // If endTime is updating, combine it with our base date string
+  if (campaignData.endTime) {
+    finalUpdatePayload.endTime = new Date(
+      `${dateString}T${campaignData.endTime}:00.000Z`,
+    );
+  } else if (campaignData.campaignDate) {
+    // If date changed but endTime didn't, move the old time to the new date
+    const oldTimePart = new Date(campaign.endTime).toISOString().split("T")[1];
+    finalUpdatePayload.endTime = new Date(`${dateString}T${oldTimePart}`);
+  }
+
+  // 4. Validate endTime > startTime if either is being updated
+  // Normalize both times to epoch date so we only compare the time components
+  const resolvedStart =
+    finalUpdatePayload.startTime || campaign.startTime;
+  const resolvedEnd = finalUpdatePayload.endTime || campaign.endTime;
+
+  const startMs =
+    new Date(resolvedStart).getHours() * 60 +
+    new Date(resolvedStart).getMinutes();
+  const endMs =
+    new Date(resolvedEnd).getHours() * 60 +
+    new Date(resolvedEnd).getMinutes();
+
+  if (endMs <= startMs) {
+    throw new AppError("End time must be strictly after the start time", 400);
+  }
+
+  // 5. Pass the safely assembled partial payload to your repository
+  const updatedCampaign = await CampaignRepository.updateCampaignRepository(
     campaignId,
-    campaignData,
+    finalUpdatePayload,
   );
 
-  const recipients =
-    await CampaignRepository.allRegisteredUserstoCampaign(campaignId);
-
-  await NotificationService.sendBulk({
-    type: NotificationType.CAMPAIGN_UPDATED,
-
-    recipients,
-    payload: {
-      campaignName: updateCampagin.campName,
-      campaignDate: updateCampagin.campaignDate,
-      startTime: updateCampagin.startTime,
-      endTime: updateCampagin.endTime,
-    },
-  });
-
-  return updateCampagin;
+  return updatedCampaign;
 };
 
 export const cancelCampaignService = async () => {};
@@ -161,19 +207,19 @@ export const registerCampaignService = async (userId, campaignId) => {
     registeredAt: new Date(),
   });
 
-  await NotificationService.send({
-    type: NotificationType.CAMPAIGN_REGISTERED,
+  // await NotificationService.send({
+  //   type: NotificationType.CAMPAIGN_REGISTERED,
 
-    recipient: {
-      userId: userId,
-    },
+  //   recipient: {
+  //     userId: userId,
+  //   },
 
-    payload: {
-      campName: campaign.campName,
-      description: campaign.description,
-      campaignDate: campaign.campaignDate,
-    },
-  });
+  //   payload: {
+  //     campName: campaign.campName,
+  //     description: campaign.description,
+  //     campaignDate: campaign.campaignDate,
+  //   },
+  // });
 
   return registration;
 };
@@ -238,26 +284,21 @@ export const getHospitalCampaignsService = async (hospitalId) => {
   return allHospitalCampagins;
 };
 
-export const getCampaignRegistrationService = async (campaignId, hositalId) => {
-  const campaignExist = await CampaignRepository.findCampaignId(campaignId);
-
-  if (!campaignExist) {
-    throw new AppError("Campaign not found", 404);
-  }
-
-  const hospitalOwnsCampaign = await CampaignRepository.hospitalOwnedCampaign(
-    hositalId,
+export const getCampaignRegistrationService = async (campaignId, hospitalId) => {
+  // Single query: checks both campaign existence AND hospital ownership
+  const campaign = await CampaignRepository.findCampaignByHospital(
+    hospitalId,
     campaignId,
   );
 
-  if (!hospitalOwnsCampaign) {
-    throw new AppError("Forbidden t access", 403);
+  if (!campaign) {
+    throw new AppError("Campaign not found or you don't have access", 404);
   }
 
-  const getRegisteredUsers =
+  const registeredUsers =
     await CampaignRepository.allRegisteredUserstoCampaign(campaignId);
 
-  return getRegisteredUsers;
+  return registeredUsers;
 };
 
 export const completeCampaignService = async () => {};

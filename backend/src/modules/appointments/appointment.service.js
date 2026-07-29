@@ -62,19 +62,19 @@ export const bookAppointmentService = async (data) => {
       status: "BOOKED",
     });
 
-  await NotificationService.send({
-    type: NotificationType.APPOINTMENT_BOOKED,
+  // await NotificationService.send({
+  //   type: NotificationType.APPOINTMENT_BOOKED,
 
-    recipient: {
-      userId: appointment.userId,
-    },
+  //   recipient: {
+  //     userId: appointment.userId,
+  //   },
 
-    payload: {
-      hospitalName: appointment.hospital.name,
-      appointmentDate: appointment.appointmentDate,
-      appointmentTime: appointment.appointmentTime,
-    },
-  });
+  //   payload: {
+  //     hospitalName: appointment.hospital.name,
+  //     appointmentDate: appointment.appointmentDate,
+  //     appointmentTime: appointment.appointmentTime,
+  //   },
+  // });
 
   return appointment;
 };
@@ -140,19 +140,19 @@ export const cancelAppointmentService = async (
     );
   }
 
-  await NotificationService.send({
-    type: NotificationType.APPOINTMENT_CANCELED,
+  // await NotificationService.send({
+  //   type: NotificationType.APPOINTMENT_CANCELED,
 
-    recipient: {
-      userId: appointment.userId,
-    },
+  //   recipient: {
+  //     userId: appointment.userId,
+  //   },
 
-    payload: {
-      hospitalName: appointment.hospital.name,
-      appointmentDate: appointment.appointmentDate,
-      appointmentTime: appointment.appointmentTime,
-    },
-  });
+  //   payload: {
+  //     hospitalName: appointment.hospital.name,
+  //     appointmentDate: appointment.appointmentDate,
+  //     appointmentTime: appointment.appointmentTime,
+  //   },
+  // });
 
   return await appointmentRepository.cancelAppointmentRepository(appointmentId);
 };
@@ -179,19 +179,19 @@ export const confirmAppointmentService = async (appointmentId, hospitalId) => {
   const updatedAppointment =
     await appointmentRepository.confirmAppointmentRepository(appointmentId);
 
-  await NotificationService.send({
-    type: NotificationType.APPOINTMENT_CONFIRMED,
+  // await NotificationService.send({
+  //   type: NotificationType.APPOINTMENT_CONFIRMED,
 
-    recipient: {
-      userId: appointment.userId,
-    },
+  //   recipient: {
+  //     userId: appointment.userId,
+  //   },
 
-    payload: {
-      hospitalName: appointment.hospital.name,
-      appointmentDate: appointment.appointmentDate,
-      appointmentTime: appointment.appointmentTime,
-    },
-  });
+  //   payload: {
+  //     hospitalName: appointment.hospital.name,
+  //     appointmentDate: appointment.appointmentDate,
+  //     appointmentTime: appointment.appointmentTime,
+  //   },
+  // });
 
   return updatedAppointment;
 };
@@ -215,17 +215,17 @@ export const markNoShowService = async (appointmentId, hospitalId) => {
     );
   }
 
-  await NotificationService.send({
-    type: NotificationType.NO_SHOW,
+  // await NotificationService.send({
+  //   type: NotificationType.NO_SHOW,
 
-    recipient: {
-      userId: appointment.userId,
-    },
+  //   recipient: {
+  //     userId: appointment.userId,
+  //   },
 
-    payload: {
-      hospitalName: appointment.hospital.name,
-    },
-  });
+  //   payload: {
+  //     hospitalName: appointment.hospital.name,
+  //   },
+  // });
 
   return await appointmentRepository.markNoShowRepository(appointmentId);
 };
@@ -246,18 +246,18 @@ export const completeAppointmentService = async (appointmentId, hospitalId) => {
     throw new AppError("Only confirmed appointments can be completed", 400);
   }
 
-  await NotificationService.send({
-    type: NotificationType.COMPLETED,
+  // await NotificationService.send({
+  //   type: NotificationType.COMPLETED,
 
-    recipient: {
-      userId: appointment.userId,
-    },
+  //   recipient: {
+  //     userId: appointment.userId,
+  //   },
 
-    payload: {
-      hospitalName: appointment.hospital.name,
-      donationDate: appointment.appointmentDate,
-    },
-  });
+  //   payload: {
+  //     hospitalName: appointment.hospital.name,
+  //     donationDate: appointment.appointmentDate,
+  //   },
+  // });
 
   return await appointmentRepository.completeAppointmentRepository(
     appointmentId,
@@ -294,10 +294,6 @@ export const sendAppointmentReminderService = async () => {
 
 export const getMyAppointmentsHospitalService = async (hospitalId) => {
   const data = await appointmentRepository.getHospitalAppointments(hospitalId);
-
-  if (!data) {
-    return null;
-  }
 
   return data;
 };

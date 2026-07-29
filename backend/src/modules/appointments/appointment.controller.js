@@ -83,7 +83,7 @@ export const cancelAppointment = asyncHandler(async (req, res, next) => {
 
 export const confirmAppointment = asyncHandler(async (req, res, next) => {
   const appointmentId = req.params.id;
-  const hospitalId = req.user.id;
+  const hospitalId = req.hospital.id;
 
   const appointment = await appointmentService.confirmAppointmentService(
     appointmentId,
@@ -101,7 +101,7 @@ export const confirmAppointment = asyncHandler(async (req, res, next) => {
 
 export const markNoShow = asyncHandler(async (req, res, next) => {
   const appointmentId = req.params.id;
-  const hospitalId = req.user.id;
+  const hospitalId = req.hospital.id;
 
   const appointment = await appointmentService.markNoShowService(
     appointmentId,
@@ -119,7 +119,7 @@ export const markNoShow = asyncHandler(async (req, res, next) => {
 
 export const completeAppointment = asyncHandler(async (req, res, next) => {
   const appointmentId = req.params.id;
-  const hospitalId = req.user.id;
+  const hospitalId = req.hospital.id;
 
   const appointment = await appointmentService.completeAppointmentService(
     appointmentId,

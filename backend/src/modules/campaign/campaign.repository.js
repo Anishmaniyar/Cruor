@@ -3,6 +3,14 @@ import prisma from "../../db.js";
 export const createCampaignRepository = async (data) => {
   return await prisma.campaign.create({
     data,
+    include: {
+      hospital: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
   });
 };
 
@@ -30,7 +38,7 @@ export const findCampaignId = async (campaignId) => {
       status: "ACTIVE",
     },
     include: {
-      campaignRegistration: true,
+      campaignRegistrations: true,
     },
   });
 };
@@ -138,6 +146,7 @@ export const allHospitalCampaigns = async (hospitalId) => {
       hospitalId,
     },
     select: {
+      id: true,
       campName: true,
       description: true,
       address: true,
@@ -150,11 +159,18 @@ export const allHospitalCampaigns = async (hospitalId) => {
   });
 };
 
-export const hospitalOwnedCampaign = async (hospitalId, campaignId) => {
+// Single-query: checks both campaign existence AND hospital ownership in one call
+export const findCampaignByHospital = async (hospitalId, campaignId) => {
   return await prisma.campaign.findFirst({
     where: {
-      hospitalId,
       id: campaignId,
+      hospitalId,
+    },
+    select: {
+      id: true,
+      campName: true,
+      campaignDate: true,
+      targetDonors: true,
     },
   });
 };
@@ -169,6 +185,7 @@ export const allRegisteredUserstoCampaign = async (campaignId) => {
       registeredAt: true,
       user: {
         select: {
+          id: true,
           name: true,
           phoneNo: true,
           bloodGroup: true,
@@ -178,10 +195,21 @@ export const allRegisteredUserstoCampaign = async (campaignId) => {
   });
 };
 
-export const findHospitalExists = async (hospitalName) => {
-  return await prisma.hospital.findFirst({
+export const findRegistrationById = async (registrationId) => {
+  return await prisma.campaignRegistration.findUnique({
     where: {
-      name: hospitalName,
+      id: registrationId,
+    },
+    include: {
+      campaign: {
+        select: {
+          id: true,
+          hospitalId: true,
+          campName: true,
+        },
+      },
     },
   });
 };
+
+

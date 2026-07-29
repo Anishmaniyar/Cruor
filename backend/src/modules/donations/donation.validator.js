@@ -11,7 +11,7 @@ export const createAppointmentDonationSchema = z.object({
       .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format")
       .transform((val) => new Date(val)),
 
-    bloodType: z.enum(["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"]),
+    bloodGroup: z.enum(["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"]),
 
     volume: z.number().int().positive("Volume must be greater than 0"),
 
@@ -30,7 +30,7 @@ export const createCampaignDonationSchema = z.object({
       .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format")
       .transform((val) => new Date(val)),
 
-    bloodType: z.enum(["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"]),
+    bloodGroup: z.enum(["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"]),
 
     volume: z.number().int().positive("Volume must be greater than 0"),
 

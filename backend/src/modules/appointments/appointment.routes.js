@@ -30,12 +30,7 @@ router.post(
 router.get("/my", verifyUser, getMyAppointments);
 
 // 2. Hospital Static Route (MOVED UP HERE)
-router.get(
-  "/hospital",
-  verifyHospital,
-  restrictTo("HOSPITAL"),
-  getHospitalAppointments,
-);
+router.get("/hospital-my", verifyHospital, getHospitalAppointments);
 
 // 3. Dynamic / Wildcard Routes (MUST BE LAST)
 router.get(
@@ -55,7 +50,6 @@ router.patch(
 router.patch(
   "/:id/confirm",
   verifyHospital,
-  restrictTo("HOSPITAL"),
   validateRequest(appointmentIdParamSchema),
   confirmAppointment,
 );
@@ -63,7 +57,6 @@ router.patch(
 router.patch(
   "/:id/no-show",
   verifyHospital,
-  restrictTo("HOSPITAL"),
   validateRequest(appointmentIdParamSchema),
   markNoShow,
 );
@@ -71,7 +64,6 @@ router.patch(
 router.patch(
   "/:id/complete",
   verifyHospital,
-  restrictTo("HOSPITAL"),
   validateRequest(appointmentIdParamSchema),
   completeAppointment,
 );

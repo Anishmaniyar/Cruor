@@ -22,7 +22,7 @@ export const appointmentBelongsToHospitalRepo = async (
     where: {
       id: appointmentId,
       hospitalId: hospitalId,
-      status: "VALID",
+      status: "CONFIRMED",
     },
     select: {
       userId: true,
@@ -45,6 +45,7 @@ export const viewMyDonationUserRepo = async (userId) => {
       userId: userId,
     },
     select: {
+      id: true,
       donationDate: true,
       bloodGroup: true,
       volume: true,
@@ -65,6 +66,7 @@ export const viewMyDonationUserIdRepo = async (userId, donationId) => {
       id: donationId,
     },
     select: {
+      id: true,
       donationDate: true,
       bloodGroup: true,
       volume: true,
@@ -93,7 +95,7 @@ export const viewHospitalDonationRepo = async (hospitalId) => {
           id: true,
           name: true,
           email: true,
-          phone: true,
+          phoneNo: true,
         },
       },
     },
@@ -142,6 +144,29 @@ export const updateAppointmentStatusRepo = async (tx, appointmentId) => {
     },
     data: {
       status: "COMPLETED",
+    },
+  });
+};
+
+export const existingCampaignDonationRepo = async (campaignRegistrationId) => {
+  return await prisma.donation.findFirst({
+    where: {
+      campaignRegistrationId,
+    },
+  });
+};
+
+export const updateCampaignRegistrationStatusRepo = async (
+  tx,
+  campaignRegistrationId,
+  status,
+) => {
+  return await tx.campaignRegistration.update({
+    where: {
+      id: campaignRegistrationId,
+    },
+    data: {
+      status,
     },
   });
 };

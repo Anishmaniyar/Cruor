@@ -47,8 +47,9 @@ export const verifyHospital = async (req, res, next) => {
 
 export const restrictTo = (...allowedRoles) => {
   return (req, res, next) => {
-    // req.user was populated by the protect middleware above
-    if (!allowedRoles.includes(req.user.role)) {
+    const currentRole = req.user?.role || req.hospital?.role;
+
+    if (!currentRole || !allowedRoles.includes(currentRole)) {
       return next(
         new AppError("You do not have permission to perform this action", 403),
       );
