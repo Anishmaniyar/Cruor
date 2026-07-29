@@ -128,16 +128,28 @@ export const NotificationRegistry = {
     template: donationTemplates.BLOOD_TEST_FAILED,
   },
 
-  BLOOD_REQUEST_APPROVED: {
+  BLOOD_REQUEST_ACCEPTED: {
     priority: "MEDIUM",
     channels: ["IN_APP", "PUSH"],
-    template: bloodRequestTemplates.BLOOD_REQUEST_APPROVED,
+    template: bloodRequestTemplates.BLOOD_REQUEST_ACCEPTED,
   },
 
   BLOOD_REQUEST_REJECTED: {
     priority: "MEDIUM",
     channels: ["IN_APP", "PUSH"],
     template: bloodRequestTemplates.BLOOD_REQUEST_REJECTED,
+  },
+
+  BLOOD_REQUEST_OFFER_SELECTED: {
+    priority: "HIGH",
+    channels: ["IN_APP", "PUSH"],
+    template: bloodRequestTemplates.BLOOD_REQUEST_OFFER_SELECTED,
+  },
+
+  BLOOD_REQUEST_CANCELLED: {
+    priority: "MEDIUM",
+    channels: ["IN_APP", "PUSH"],
+    template: bloodRequestTemplates.BLOOD_REQUEST_CANCELLED,
   },
 
   BLOOD_TRANSFER_CREATED: {

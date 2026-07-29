@@ -54,9 +54,10 @@ model Hospital {
   donations         Donation[]
   notifications     Notification[]
   bloodUnits        BloodUnit[]
-  bloodRequests     BloodRequest[]
-  sentTransfers     BloodTransfer[] @relation("SourceHospital")
-  receivedTransfers BloodTransfer[] @relation("DestinationHospital")
+  bloodRequests          BloodRequest[]
+  bloodRequestResponses  BloodRequestResponse[]
+  sentTransfers          BloodTransfer[] @relation("SourceHospital")
+  receivedTransfers      BloodTransfer[] @relation("DestinationHospital")
 
   @@map("hospitals")
 }
@@ -220,6 +221,7 @@ model BloodUnit {
   @@map("blood_units")
 }
 
+// future proof not in v1
 model BloodTrackingEvent {
   id          String @id @default(uuid())
   bloodUnitId String @map("blood_unit_id")
@@ -235,6 +237,7 @@ model BloodTrackingEvent {
   @@map("blood_tracking_events")
 }
 
+// future proof feature not in v1 when blood unit created it is assumed verified
 model VerificationLog {
   id          String @id @default(uuid())
   bloodUnitId String @map("blood_unit_id")
@@ -264,11 +267,32 @@ model BloodRequest {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  requestingHospital Hospital        @relation(fields: [requestingHospitalId], references: [id], onDelete: Cascade)
+  requestingHospital Hospital                @relation(fields: [requestingHospitalId], references: [id], onDelete: Cascade)
+  responses          BloodRequestResponse[]
   transfers          BloodTransfer[]
 
   @@index([requestingHospitalId])
   @@map("blood_requests")
+}
+
+model BloodRequestResponse {
+  id                   String @id @default(uuid())
+  bloodRequestId       String @map("blood_request_id")
+  respondingHospitalId String @map("responding_hospital_id")
+
+  status  String  @db.VarChar(30)
+  notes   String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bloodRequest      BloodRequest @relation(fields: [bloodRequestId], references: [id], onDelete: Cascade)
+  respondingHospital Hospital     @relation(fields: [respondingHospitalId], references: [id], onDelete: Cascade)
+
+  @@unique([bloodRequestId, respondingHospitalId])
+  @@index([bloodRequestId])
+  @@index([respondingHospitalId])
+  @@map("blood_request_responses")
 }
 
 model BloodTransfer {
@@ -371,8 +395,10 @@ enum NotificationType {
 
   EMERGENCY_REQUEST
 
-  BLOOD_REQUEST_APPROVED
+  BLOOD_REQUEST_ACCEPTED
   BLOOD_REQUEST_REJECTED
+  BLOOD_REQUEST_OFFER_SELECTED
+  BLOOD_REQUEST_CANCELLED
 
   TRANSFER_DISPATCHED
   TRANSFER_RECEIVED

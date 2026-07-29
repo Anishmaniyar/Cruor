@@ -15,7 +15,7 @@ router.get("/hospital", verifyHospital, blooodUnitofHospital);
 
 router.get("/inventory", verifyHospital, bloodUnitInventory);
 
-router.get("/:id", verifyHospital, bloodUnitInventorybyId);
+router.get("/inventory/:id", verifyHospital, bloodUnitInventorybyId);
 
 router.patch(
   "/:id/status",

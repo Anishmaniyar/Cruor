@@ -72,3 +72,17 @@ export const findBloodUnitByIdRepo = async (bloodUnitId, hospitalId) => {
     },
   });
 };
+
+export const createBloodUnitRepo = async (tx, bloodUnitData) => {
+  return await tx.bloodUnit.create({
+    data: bloodUnitData,
+  });
+};
+
+export const findBloodUnitByDonationRepo = async (tx, donationId) => {
+  return await tx.bloodUnit.findFirst({
+    where: {
+      donationId: donationId,
+    },
+  });
+};

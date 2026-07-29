@@ -2,22 +2,20 @@ import asyncHandler from "../../utils/asyncHandler.js";
 import * as bloodUnitService from "./bloodUnit.service.js";
 import * as inventoryService from "./inventory.service.js";
 
-export const blooodUnitofHospital = asyncHandler(
-  async (req, resizeBy, next) => {
-    const hospitalId = req.hospital.id;
+export const blooodUnitofHospital = asyncHandler(async (req, res, next) => {
+  const hospitalId = req.hospital.id;
 
-    const bloodUnit =
-      await bloodUnitService.getBloodUnitofHospitalService(hospitalId);
+  const bloodUnit =
+    await bloodUnitService.getbloodUnitofHospitalService(hospitalId);
 
-    return res.status(200).json({
-      status: "success",
-      totalBloodUnits: bloodUnit.length, // Fixed with ':'
-      data: {
-        bloodUnit,
-      },
-    });
-  },
-);
+  return res.status(200).json({
+    status: "success",
+    totalBloodUnits: bloodUnit.length, // Fixed with ':'
+    data: {
+      bloodUnit,
+    },
+  });
+});
 
 export const bloodUnitInventory = asyncHandler(async (req, res, next) => {
   const hospitalId = req.hospital.id;

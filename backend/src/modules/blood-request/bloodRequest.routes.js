@@ -2,52 +2,89 @@ import Router from "express";
 import { verifyHospital } from "../../middleware/authorize.js";
 import { validateRequest } from "../../middleware/validateRequest.js";
 import {
-  bloodRequestBodySchema,
-  cancelBloodRequestSchema,
-  approveBloodRequestSchema,
-  rejectBloodRequestSchema,
+  createBloodRequestSchema,
+  requestIdParamSchema,
+  selectOfferSchema,
 } from "./bloodRequest.validator.js";
 import {
   createBloodRequestData,
-  getMyBloodRequests,
+  getMyRequests,
+  getAvailableRequests,
   getBloodRequestById,
-  cancelBloodRequest,
-  approveBloodRequest,
+  getRequestResponses,
+  getMyResponse,
+  acceptBloodRequest,
   rejectBloodRequest,
+  cancelBloodRequest,
+  selectOffer,
 } from "./bloodRequest.controller.js";
 
 const router = Router();
 
+// ── Blood Request CRUD ──────────────────────
+
 router.post(
   "/",
   verifyHospital,
-  validateRequest(bloodRequestBodySchema),
+  validateRequest(createBloodRequestSchema),
   createBloodRequestData,
 );
 
-router.get("/my", verifyHospital, getMyBloodRequests);
+router.get("/my", verifyHospital, getMyRequests);
 
-router.get("/:id", verifyHospital, getBloodRequestById);
+router.get("/available", verifyHospital, getAvailableRequests);
+
+router.get(
+  "/:id",
+  verifyHospital,
+  validateRequest(requestIdParamSchema),
+  getBloodRequestById,
+);
+
+// ── Responses ───────────────────────────────
+
+router.get(
+  "/:id/responses",
+  verifyHospital,
+  validateRequest(requestIdParamSchema),
+  getRequestResponses,
+);
+
+router.get(
+  "/:id/my-response",
+  verifyHospital,
+  validateRequest(requestIdParamSchema),
+  getMyResponse,
+);
+
+// ── Actions ─────────────────────────────────
+
+router.post(
+  "/:id/accept",
+  verifyHospital,
+  validateRequest(requestIdParamSchema),
+  acceptBloodRequest,
+);
+
+router.post(
+  "/:id/reject",
+  verifyHospital,
+  validateRequest(requestIdParamSchema),
+  rejectBloodRequest,
+);
 
 router.patch(
   "/:id/cancel",
   verifyHospital,
-  validateRequest(cancelBloodRequestSchema),
+  validateRequest(requestIdParamSchema),
   cancelBloodRequest,
 );
 
-router.patch(
-  "/:id/approve",
+router.post(
+  "/:id/select-offer/:responseId",
   verifyHospital,
-  validateRequest(approveBloodRequestSchema),
-  approveBloodRequest,
-);
-
-router.patch(
-  "/:id/reject",
-  verifyHospital,
-  validateRequest(rejectBloodRequestSchema),
-  rejectBloodRequest,
+  validateRequest(selectOfferSchema),
+  selectOffer,
 );
 
 export default router;

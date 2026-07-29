@@ -19,7 +19,7 @@ rootRouter.use("/appointments", appointmentRoutes);
 rootRouter.use("/campaigns", campaignRoutes);
 rootRouter.use("/donations", donationRoutes);
 rootRouter.use("/blood-units", bloodUnitRoutes);
-rootRouter.use("/blood-request", bloodRequestRoutes);
+rootRouter.use("/blood-requests", bloodRequestRoutes);
 rootRouter.use("/notification", notificationRoutes);
 rootRouter.use("/eligibility", eligibilityRoutes);
 rootRouter.use("/dashboard", dashboardRoutes);

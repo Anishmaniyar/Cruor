@@ -1,50 +1,38 @@
 import { z } from "zod";
 
-const BloodGroupEnum = z.enum([
-  "A+",
-  "A-",
-  "B+",
-  "B-",
-  "AB+",
-  "AB-",
-  "O+",
-  "O-",
-]);
+export const createBloodRequestSchema = z.object({
+  body: z.object({
+    bloodGroup: z.enum(
+      ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
+      { required_error: "Blood group is required" },
+    ),
 
-const PriorityEnum = z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]);
+    unitsRequired: z
+      .number({ required_error: "Units required must be a number" })
+      .int()
+      .min(1, "You must request at least 1 unit"),
 
-export const bloodRequestBodySchema = z.object({
-  bloodGroup: BloodGroupEnum,
+    priority: z.enum(
+      ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
+      { required_error: "Priority level is required" },
+    ),
 
-  unitsRequested: z
-    .number()
-    .int()
-    .positive("Units requested must be greater than 0")
-    .max(50, "Units requested cannot exceed 50 units"),
-
-  priority: PriorityEnum,
-
-  reason: z
-    .string()
-    .trim()
-    .min(5, "Reason must be at least 5 characters")
-    .max(500, "Reason cannot exceed 500 characters"),
+    reason: z
+      .string({ required_error: "Reason is required" })
+      .trim()
+      .min(5, "Please provide a more detailed reason"),
+  }),
 });
 
-export const cancelBloodRequestSchema = z.object({
+export const requestIdParamSchema = z.object({
   params: z.object({
     id: z.string().uuid("Invalid blood request ID"),
   }),
 });
 
-export const approveBloodRequestSchema = z.object({
+export const selectOfferSchema = z.object({
   params: z.object({
     id: z.string().uuid("Invalid blood request ID"),
-  }),
-});
-
-export const rejectBloodRequestSchema = z.object({
-  params: z.object({
-    id: z.string().uuid("Invalid blood request ID"),
+    responseId: z.string().uuid("Invalid response ID"),
   }),
 });

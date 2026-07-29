@@ -1,6 +1,7 @@
 import AppError from "../../utils/appError.js";
 import * as DonationRepository from "./donation.repository.js";
 import * as CampaginRepository from "../campaign/campaign.repository.js";
+import * as BloodUnitRepository from "../blood-units/bloodUnit.repository.js";
 import * as NotificationService from "../notifications/notification.service.js";
 import { NotificationType } from "../notifications/notification.constants.js";
 import prisma from "../../db.js";
@@ -51,16 +52,33 @@ export const donationAppointmentService = async (
       userId,
     });
 
-    await DonationRepository.updateAppointmentStatusRepo(tx, appointmentId);
+    // Check if a Blood Unit already exists for this donation (prevents duplicates)
+    const existingBloodUnit = await BloodUnitRepository.findBloodUnitByDonationRepo(
+      tx,
+      donation.id,
+    );
 
-    // await InventoryRepository.createInventoryEntryRepo(tx, {
-    //   hospitalId,
-    //   userId,
-    //   donationId: donation.id,
-    //   bloodGroup: donation.bloodGroup,
-    //   quantity: donation.quantity,
-    //   componentType: donation.componentType,
-    // });
+    if (!existingBloodUnit) {
+      // Create a Blood Unit record for the donated blood bag
+      const collectionDate = new Date(donation.donationDate);
+      const expirationDate = new Date(collectionDate);
+      expirationDate.setDate(expirationDate.getDate() + 42); // Whole blood shelf life: 42 days
+
+      await BloodUnitRepository.createBloodUnitRepo(tx, {
+        donationId: donation.id,
+        donorId: userId,
+        hospitalId,
+        bloodGroup: donation.bloodGroup,
+        componentType: "WHOLE_BLOOD",
+        collectionDate,
+        expirationDate,
+        volume: donation.volume,
+        storageLocation: "Main Blood Bank",
+        currentStatus: "AVAILABLE",
+      });
+    }
+
+    await DonationRepository.updateAppointmentStatusRepo(tx, appointmentId);
 
     // await NotificationService.send()
 
@@ -74,9 +92,8 @@ export const donationCampaignService = async (
   donationData,
 ) => {
   // 1. Query CampaignRegistration table using registrationId
-  const registration = await CampaginRepository.findRegistrationById(
-    registrationId,
-  );
+  const registration =
+    await CampaginRepository.findRegistrationById(registrationId);
 
   if (!registration) {
     throw new AppError("Campaign registration not found", 404);
@@ -124,6 +141,32 @@ export const donationCampaignService = async (
       userId,
     });
 
+    // Check if a Blood Unit already exists for this donation (prevents duplicates)
+    const existingBloodUnit = await BloodUnitRepository.findBloodUnitByDonationRepo(
+      tx,
+      donation.id,
+    );
+
+    if (!existingBloodUnit) {
+      // Create a Blood Unit record for the donated blood bag
+      const collectionDate = new Date(donation.donationDate);
+      const expirationDate = new Date(collectionDate);
+      expirationDate.setDate(expirationDate.getDate() + 42); // Whole blood shelf life: 42 days
+
+      await BloodUnitRepository.createBloodUnitRepo(tx, {
+        donationId: donation.id,
+        donorId: userId,
+        hospitalId,
+        bloodGroup: donation.bloodGroup,
+        componentType: "WHOLE_BLOOD",
+        collectionDate,
+        expirationDate,
+        volume: donation.volume,
+        storageLocation: "Main Blood Bank",
+        currentStatus: "AVAILABLE",
+      });
+    }
+
     // 7. Update Campaign Registration Status to COMPLETED
     await DonationRepository.updateCampaignRegistrationStatusRepo(
       tx,
@@ -151,14 +194,17 @@ export const viewMyDonationIdService = async (userId, donationId) => {
 };
 
 export const viewHospitalDonationService = async (hospitalId) => {
-  const donations = await DonationRepository.viewHospitalDonationRepo(hospitalId);
+  const donations =
+    await DonationRepository.viewHospitalDonationRepo(hospitalId);
 
   return donations;
 };
 
 export const rejectDonationService = async (donationId, hospitalId) => {
-  const donationExists =
-    await DonationRepository.findDonationForRejectionRepo(donationId, hospitalId);
+  const donationExists = await DonationRepository.findDonationForRejectionRepo(
+    donationId,
+    hospitalId,
+  );
 
   if (!donationExists) {
     throw new AppError("Donation not found", 404);
@@ -187,8 +233,10 @@ export const rejectDonationService = async (donationId, hospitalId) => {
 };
 
 export const completeDonationService = async (donationId, hospitalId) => {
-  const donationExists =
-    await DonationRepository.findDonationForRejectionRepo(donationId, hospitalId);
+  const donationExists = await DonationRepository.findDonationForRejectionRepo(
+    donationId,
+    hospitalId,
+  );
 
   if (!donationExists) {
     throw new AppError("Donation not found", 404);

@@ -5,7 +5,7 @@ export const getHospitalInventoryRepository = async (hospitalId) => {
     by: ["bloodGroup"],
     where: {
       hospitalId,
-      status: "AVAILABLE",
+      currentStatus: "AVAILABLE",
     },
     _count: {
       id: true,
@@ -21,7 +21,7 @@ export const getAvailableUnitsRepository = async (hospitalId, bloodGroup) => {
     where: {
       hospitalId,
       bloodGroup,
-      status: "AVAILABLE",
+      currentStatus: "AVAILABLE",
     },
   });
 };
