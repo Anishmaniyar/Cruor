@@ -1,9 +1,13 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import {
   CalendarDays,
   Megaphone,
   Droplets,
   ClipboardList,
 } from "lucide-react";
+import { getHospitalInventory } from "@/services/bloodUnit.services";
 
 interface KpiCardProps {
   title: string;
@@ -17,9 +21,7 @@ function KpiCard({ title, value, icon, colorClasses }: KpiCardProps) {
     <div className="kpi-card">
       <div className="flex items-start justify-between">
         <span className="kpi-label">{title}</span>
-        <div className={`kpi-icon-box ${colorClasses}`}>
-          {icon}
-        </div>
+        <div className={`kpi-icon-box ${colorClasses}`}>{icon}</div>
       </div>
 
       <div className="mt-4">
@@ -30,6 +32,29 @@ function KpiCard({ title, value, icon, colorClasses }: KpiCardProps) {
 }
 
 export default function HospitalKpiSection() {
+  const [availableUnits, setAvailableUnits] = useState<number | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getHospitalInventory()
+      .then((response) => {
+        if (cancelled) return;
+        const total = (response.data.inventoryData ?? []).reduce(
+          (sum, group) => sum + group._count.id,
+          0,
+        );
+        setAvailableUnits(total);
+      })
+      .catch(() => {
+        /* Dashboard KPI failure is non-blocking */
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
       <KpiCard
@@ -46,7 +71,7 @@ export default function HospitalKpiSection() {
       />
       <KpiCard
         title="Available Blood Units"
-        value="124"
+        value={availableUnits === null ? "—" : String(availableUnits)}
         icon={<Droplets size={16} />}
         colorClasses="text-success bg-success/10"
       />

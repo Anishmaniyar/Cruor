@@ -17,17 +17,15 @@ import { verifyHospital } from "../../middleware/authorize.js";
 
 const router = Router();
 
-router.get(
-  "/hospitals/search",
-  validateRequest(searchHospitalSchema),
-  searchHospital,
-);
+// Router is mounted at /hospitals in src/routes/index.js,
+// so these paths are relative to it (no double /hospitals prefix).
+router.get("/search", validateRequest(searchHospitalSchema), searchHospital);
 
-router.get("/hospitals", getHospitals);
-router.get("/hospitals/:id", getHospitalId);
+router.get("/", getHospitals);
+router.get("/:id", getHospitalId);
 
 router.patch(
-  "/hospitals/:id",
+  "/:id",
   verifyHospital,
   validateRequest(updateHospitalSchema),
   updateHospital,

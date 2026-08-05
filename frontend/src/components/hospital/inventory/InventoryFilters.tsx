@@ -2,6 +2,10 @@
 
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import {
+  BLOOD_UNIT_STATUSES,
+  BLOOD_UNIT_STATUS_DISPLAY,
+} from "@/lib/blood-unit-utils";
 
 interface InventoryFiltersProps {
   searchQuery: string;
@@ -12,15 +16,10 @@ interface InventoryFiltersProps {
 
 const filterOptions = [
   { label: "All", value: "all" },
-  { label: "Available", value: "available" },
-  { label: "Low Stock", value: "low-stock" },
-  { label: "Critical", value: "critical" },
-  { label: "Expiring Soon", value: "expiring" },
-  { label: "Expired", value: "expired" },
-  { label: "Whole Blood", value: "whole-blood" },
-  { label: "Plasma", value: "plasma" },
-  { label: "Platelets", value: "platelets" },
-  { label: "RBC", value: "rbc" },
+  ...BLOOD_UNIT_STATUSES.map((status) => ({
+    label: BLOOD_UNIT_STATUS_DISPLAY[status],
+    value: status,
+  })),
 ];
 
 export default function InventoryFilters({
@@ -34,7 +33,7 @@ export default function InventoryFilters({
       <div className="relative w-full lg:w-72">
         <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted pointer-events-none" />
         <Input
-          placeholder="Search by blood group or component..."
+          placeholder="Search by blood group, component, location or donor..."
           className="pl-10"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}

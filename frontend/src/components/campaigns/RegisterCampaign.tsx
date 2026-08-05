@@ -7,8 +7,10 @@ import { Calendar, Clock, MapPin, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 import { registerForCampaign } from "@/services/campaign.services";
 import { useAuth } from "@/lib/auth-context";
+import { getErrorMessage } from "@/lib/error";
 
 interface RegisterCampaignProps {
   campaignId: string;
@@ -26,20 +28,18 @@ export default function RegisterCampaign({ campaignId, campaign }: RegisterCampa
   const router = useRouter();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const handleRegister = async () => {
     setIsSubmitting(true);
-    setError(null);
 
     try {
       await registerForCampaign(campaignId);
+      toast.success("Registered for campaign successfully");
       router.push("/campaign");
     } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-        "Registration failed. Please try again.";
-      setError(message);
+      toast.error(
+        getErrorMessage(err, "Registration failed. Please try again."),
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -101,12 +101,6 @@ export default function RegisterCampaign({ campaignId, campaign }: RegisterCampa
             </div>
           )}
         </div>
-
-        {error && (
-          <div className="mt-4 rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3">
-            <p className="text-sm text-destructive">{error}</p>
-          </div>
-        )}
 
         <Separator className="my-5" />
 

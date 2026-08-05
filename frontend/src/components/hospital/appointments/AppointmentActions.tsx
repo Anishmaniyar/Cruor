@@ -1,44 +1,52 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, XCircle, UserCheck, UserX } from "lucide-react";
+import { CheckCircle2, Droplets, UserCheck, UserX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import type { AppointmentStatus } from "./AppointmentStatusBadge";
 
 interface AppointmentActionsProps {
   status: AppointmentStatus;
-  onStatusChange?: (newStatus: AppointmentStatus) => void;
+  onConfirm?: () => Promise<void>;
+  onComplete?: () => Promise<void>;
+  onNoShow?: () => Promise<void>;
+  onRecordDonation?: () => void;
 }
 
 export default function AppointmentActions({
   status,
-  onStatusChange,
+  onConfirm,
+  onComplete,
+  onNoShow,
+  onRecordDonation,
 }: AppointmentActionsProps) {
   const [isLoading, setIsLoading] = useState<string | null>(null);
 
-  const handleAction = async (newStatus: AppointmentStatus, label: string) => {
+  const handleAction = async (label: string, action?: () => Promise<void>) => {
+    if (!action) return;
     setIsLoading(label);
-    // Mock API call
-    await new Promise((r) => setTimeout(r, 800));
-    onStatusChange?.(newStatus);
-    setIsLoading(null);
+    try {
+      await action();
+    } finally {
+      setIsLoading(null);
+    }
   };
 
-  /* ── Pending ── */
+  /* ── Pending (BOOKED) ── */
   if (status === "Pending") {
     return (
       <Card className="!p-6">
         <h2 className="card-title mb-2">Appointment Actions</h2>
         <p className="mb-5 text-sm text-text-secondary">
-          Confirm or reject this appointment request.
+          Confirm this appointment request.
         </p>
         <div className="flex flex-wrap gap-3">
           <Button
             variant="primary"
             className="gap-2"
             disabled={isLoading !== null}
-            onClick={() => handleAction("Confirmed", "confirm")}
+            onClick={() => handleAction("confirm", onConfirm)}
           >
             {isLoading === "confirm" ? (
               "Confirming..."
@@ -46,21 +54,6 @@ export default function AppointmentActions({
               <>
                 <CheckCircle2 className="h-4 w-4" />
                 Confirm Appointment
-              </>
-            )}
-          </Button>
-          <Button
-            variant="secondary"
-            className="gap-2 text-danger hover:bg-danger/10 hover:text-danger"
-            disabled={isLoading !== null}
-            onClick={() => handleAction("Cancelled", "reject")}
-          >
-            {isLoading === "reject" ? (
-              "Rejecting..."
-            ) : (
-              <>
-                <XCircle className="h-4 w-4" />
-                Reject Appointment
               </>
             )}
           </Button>
@@ -82,7 +75,20 @@ export default function AppointmentActions({
             variant="primary"
             className="gap-2"
             disabled={isLoading !== null}
-            onClick={() => handleAction("Completed", "complete")}
+            onClick={() => {
+              if (isLoading !== null) return;
+              if (onRecordDonation) onRecordDonation();
+              else handleAction("complete", onComplete);
+            }}
+          >
+            <Droplets className="h-4 w-4" />
+            Record Donation
+          </Button>
+          <Button
+            variant="secondary"
+            className="gap-2"
+            disabled={isLoading !== null}
+            onClick={() => handleAction("complete", onComplete)}
           >
             {isLoading === "complete" ? (
               "Marking..."
@@ -97,7 +103,7 @@ export default function AppointmentActions({
             variant="secondary"
             className="gap-2 text-amber-400 hover:bg-amber-500/10 hover:text-amber-300"
             disabled={isLoading !== null}
-            onClick={() => handleAction("No Show", "noshow")}
+            onClick={() => handleAction("noshow", onNoShow)}
           >
             {isLoading === "noshow" ? (
               "Marking..."
@@ -120,7 +126,7 @@ export default function AppointmentActions({
       message: "This appointment has been completed successfully.",
     },
     Cancelled: {
-      icon: <XCircle className="h-5 w-5 text-danger" />,
+      icon: <CheckCircle2 className="h-5 w-5 text-danger" />,
       message: "This appointment has been cancelled.",
     },
     "No Show": {

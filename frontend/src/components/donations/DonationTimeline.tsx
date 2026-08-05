@@ -1,9 +1,9 @@
 import {
   Building2,
   Megaphone,
-  MapPin,
   CalendarDays,
   Clock,
+  Droplets,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -13,10 +13,11 @@ export interface DonationRecord {
   id: string;
   type: "hospital" | "campaign";
   title: string;
-  location: string;
   date: string;
   time?: string;
-  status: "completed" | "cancelled" | "no-show" | "rejected";
+  bloodGroup?: string;
+  volume?: number;
+  status: "completed" | "rejected";
 }
 
 interface DonationTimelineProps {
@@ -24,10 +25,8 @@ interface DonationTimelineProps {
 }
 
 function StatusBadge({ status }: { status: DonationRecord["status"] }) {
-  const map: Record<DonationRecord["status"], { label: string; variant: "success" | "secondary" | "outline" | "danger" }> = {
+  const map: Record<DonationRecord["status"], { label: string; variant: "success" | "danger" }> = {
     completed: { label: "Completed", variant: "success" },
-    cancelled: { label: "Cancelled", variant: "secondary" },
-    "no-show": { label: "No Show", variant: "outline" },
     rejected: { label: "Rejected", variant: "danger" },
   };
 
@@ -71,7 +70,9 @@ export default function DonationTimeline({ donations }: DonationTimelineProps) {
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className="text-xs font-medium uppercase tracking-wider text-text-muted">
-                      {donation.type === "hospital" ? "Hospital Appointment" : "Blood Donation Campaign"}
+                      {donation.type === "hospital"
+                        ? "Hospital Donation"
+                        : "Campaign Donation"}
                     </p>
                     <h3 className="mt-0.5 text-base font-semibold text-text-primary">
                       {donation.title}
@@ -82,10 +83,6 @@ export default function DonationTimeline({ donations }: DonationTimelineProps) {
 
                 <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-text-secondary">
                   <span className="info-row">
-                    <MapPin size={14} className="text-text-muted" />
-                    {donation.location}
-                  </span>
-                  <span className="info-row">
                     <CalendarDays size={14} className="text-text-muted" />
                     {donation.date}
                   </span>
@@ -93,6 +90,17 @@ export default function DonationTimeline({ donations }: DonationTimelineProps) {
                     <span className="info-row">
                       <Clock size={14} className="text-text-muted" />
                       {donation.time}
+                    </span>
+                  )}
+                  {donation.bloodGroup && (
+                    <span className="info-row">
+                      <Droplets size={14} className="text-text-muted" />
+                      {donation.bloodGroup}
+                    </span>
+                  )}
+                  {donation.volume != null && (
+                    <span className="info-row text-text-muted">
+                      {donation.volume} ml
                     </span>
                   )}
                 </div>

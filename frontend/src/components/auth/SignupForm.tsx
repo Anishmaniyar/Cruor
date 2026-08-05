@@ -9,9 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import PasswordInput from "./PasswordInput";
 
-import { signUpSchema, SignUpSchemaType } from "@/lib/validations/auth";
+import { BLOOD_GROUPS, signUpSchema, SignUpSchemaType } from "@/lib/validations/auth";
 import { useAuth } from "@/lib/auth-context";
 import { registerUser } from "@/services/auth.services";
+import { getErrorMessage } from "@/lib/error";
+
+const selectClassName =
+  "h-12 w-full rounded-xl border border-border bg-surface px-4 text-sm text-text-primary outline-none transition-all focus:border-border-light focus:ring-2 focus:ring-ring/40";
 
 export default function SignupForm() {
   const router = useRouter();
@@ -25,6 +29,7 @@ export default function SignupForm() {
       phoneNo: "",
       password: "",
       gender: "male",
+      bloodGroup: undefined,
     },
   });
 
@@ -39,6 +44,7 @@ export default function SignupForm() {
           email: response.data.user.email,
         },
         "donor",
+        response.data.accessToken,
       );
 
       toast.success("Account created successfully");
@@ -46,9 +52,8 @@ export default function SignupForm() {
       form.reset();
 
       router.push("/dashboard");
-    } catch (error: any) {
-      const message = error.response?.data?.message || "something went wrong";
-      toast.error(message);
+    } catch (error) {
+      toast.error(getErrorMessage(error, "something went wrong"));
     }
   };
 
@@ -120,9 +125,43 @@ export default function SignupForm() {
       </div>
 
       <div className="space-y-2">
+        <Input
+          type="date"
+          placeholder="Date of Birth"
+          {...form.register("dateOfBirth")}
+        />
+        {form.formState.errors.dateOfBirth && (
+          <p className="text-sm text-danger">
+            {form.formState.errors.dateOfBirth.message}
+          </p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <select
+          {...form.register("bloodGroup")}
+          className={selectClassName}
+        >
+          <option value="" className="bg-surface text-text-primary">
+            Select Blood Group
+          </option>
+          {BLOOD_GROUPS.map((bg) => (
+            <option key={bg} value={bg} className="bg-surface text-text-primary">
+              {bg}
+            </option>
+          ))}
+        </select>
+        {form.formState.errors.bloodGroup && (
+          <p className="text-sm text-danger">
+            {form.formState.errors.bloodGroup.message}
+          </p>
+        )}
+      </div>
+
+      <div className="space-y-2">
         <select
           {...form.register("gender")}
-          className="h-12 w-full rounded-xl border border-border bg-surface px-4 text-sm text-text-primary outline-none transition-all focus:border-border-light focus:ring-2 focus:ring-ring/40"
+          className={selectClassName}
         >
           <option value="male" className="bg-surface text-text-primary">
             Male

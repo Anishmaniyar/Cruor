@@ -12,14 +12,12 @@ import {
   loginHospital,
   getCurrentHospital,
   changeHospitalPassword,
-  forgotHospitalPassword,
   logoutHospital,
 } from "./auth.controller.js";
 import {
   registerUserSchema,
   loginUserSchema,
   changePasswordSchema,
-  forgotPasswordSchema,
   registerHospitalSchema,
   loginHospitalSchema,
 } from "./auth.validator.js";
@@ -71,11 +69,12 @@ router.get("/hospital-me", verifyHospital, getCurrentHospital);
 
 router.post("/hospital-logout", logoutHospital);
 
-router.post("/hospitals/forgot-password", forgotHospitalPassword);
+// router.post("/hospitals/forgot-password", forgotHospitalPassword);
 
 router.post(
   "/hospital/change-password",
   verifyHospital,
+  validateRequest(changePasswordSchema),
   changeHospitalPassword,
 );
 

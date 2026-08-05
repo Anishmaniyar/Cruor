@@ -1,4 +1,5 @@
 import asyncHandler from "../../utils/asyncHandler.js";
+import AppError from "../../utils/appError.js";
 import * as hospitalService from "./hospital.service.js";
 
 export const getHospitals = asyncHandler(async (req, res, next) => {
@@ -30,6 +31,13 @@ export const getHospitalId = asyncHandler(async (req, res, next) => {
 export const updateHospital = asyncHandler(async (req, res, next) => {
   const { email, name, phoneNo } = req.body;
   const id = req.params.id;
+
+  // Ownership guard: a hospital may only update its own profile.
+  if (req.hospital.id !== id) {
+    return next(
+      new AppError("You can only update your own hospital profile", 403),
+    );
+  }
 
   const hospital = await hospitalService.updateHospitalService(id, {
     email,

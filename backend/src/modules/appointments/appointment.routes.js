@@ -15,6 +15,7 @@ import {
   markNoShow,
   completeAppointment,
   getHospitalAppointments,
+  getHospitalAppointmentById,
 } from "./appointment.controller.js";
 
 const router = Router();
@@ -29,8 +30,15 @@ router.post(
 
 router.get("/my", verifyUser, getMyAppointments);
 
-// 2. Hospital Static Route (MOVED UP HERE)
+// 2. Hospital Static Routes (MUST BE BEFORE THE /:id WILDCARD)
 router.get("/hospital-my", verifyHospital, getHospitalAppointments);
+
+router.get(
+  "/hospital-my/:id",
+  verifyHospital,
+  validateRequest(appointmentIdParamSchema),
+  getHospitalAppointmentById,
+);
 
 // 3. Dynamic / Wildcard Routes (MUST BE LAST)
 router.get(

@@ -3,13 +3,9 @@ import type { Campaign } from "./CampaignRow";
 
 interface CampaignTableProps {
   campaigns: Campaign[];
-  onCancel?: (id: string) => void;
 }
 
-export default function CampaignTable({
-  campaigns,
-  onCancel,
-}: CampaignTableProps) {
+export default function CampaignTable({ campaigns }: CampaignTableProps) {
   return (
     <div className="overflow-hidden rounded-2xl border border-border">
       <table className="w-full">
@@ -37,11 +33,7 @@ export default function CampaignTable({
         </thead>
         <tbody className="divide-y-0">
           {campaigns.map((campaign) => (
-            <CampaignRow
-              key={campaign.id}
-              campaign={campaign}
-              onCancel={onCancel}
-            />
+            <CampaignRow key={campaign.id} campaign={campaign} />
           ))}
         </tbody>
       </table>

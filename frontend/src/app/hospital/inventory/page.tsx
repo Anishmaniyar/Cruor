@@ -1,81 +1,148 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Droplets } from "lucide-react";
 import InventoryHeader from "@/components/hospital/inventory/InventoryHeader";
 import InventoryStatistics from "@/components/hospital/inventory/InventoryStatistics";
-import LowStockAlert from "@/components/hospital/inventory/LowStockAlert";
 import InventoryFilters from "@/components/hospital/inventory/InventoryFilters";
 import InventoryTable from "@/components/hospital/inventory/InventoryTable";
 import EmptyInventoryState from "@/components/hospital/inventory/EmptyInventoryState";
-import type { InventoryItem } from "@/components/hospital/inventory/InventoryTable";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
-const mockInventory: InventoryItem[] = [
-  { id: "INV-001", bloodGroup: "O+", component: "Whole Blood", units: 48, collectionDate: "Jul 15, 2026", expiryDate: "Sep 15, 2026", status: "Healthy" },
-  { id: "INV-002", bloodGroup: "A+", component: "Whole Blood", units: 31, collectionDate: "Jul 20, 2026", expiryDate: "Sep 20, 2026", status: "Healthy" },
-  { id: "INV-003", bloodGroup: "B+", component: "Plasma", units: 19, collectionDate: "Jul 10, 2026", expiryDate: "Oct 10, 2026", status: "Healthy" },
-  { id: "INV-004", bloodGroup: "AB+", component: "Platelets", units: 12, collectionDate: "Aug 01, 2026", expiryDate: "Aug 05, 2026", status: "Expiring Soon" },
-  { id: "INV-005", bloodGroup: "O-", component: "Whole Blood", units: 8, collectionDate: "Jun 20, 2026", expiryDate: "Aug 20, 2026", status: "Low Stock" },
-  { id: "INV-006", bloodGroup: "A-", component: "RBC", units: 6, collectionDate: "Jul 25, 2026", expiryDate: "Sep 25, 2026", status: "Low Stock" },
-  { id: "INV-007", bloodGroup: "B-", component: "Whole Blood", units: 4, collectionDate: "Jun 30, 2026", expiryDate: "Aug 30, 2026", status: "Critical" },
-  { id: "INV-008", bloodGroup: "AB-", component: "Plasma", units: 5, collectionDate: "May 10, 2026", expiryDate: "Aug 10, 2026", status: "Expired" },
-  { id: "INV-009", bloodGroup: "O+", component: "RBC", units: 22, collectionDate: "Aug 05, 2026", expiryDate: "Oct 05, 2026", status: "Healthy" },
-  { id: "INV-010", bloodGroup: "A+", component: "Platelets", units: 3, collectionDate: "Aug 01, 2026", expiryDate: "Aug 04, 2026", status: "Expired" },
-  { id: "INV-011", bloodGroup: "AB+", component: "Whole Blood", units: 7, collectionDate: "Jul 28, 2026", expiryDate: "Sep 28, 2026", status: "Low Stock" },
-];
+import {
+  getHospitalBloodUnits,
+  getHospitalInventory,
+  type BloodUnit,
+  type BloodUnitStatus,
+  type InventoryGroup,
+} from "@/services/bloodUnit.services";
+import { BLOOD_GROUPS } from "@/lib/blood-unit-utils";
+import { getErrorMessage } from "@/lib/error";
+
+function countByStatus(units: BloodUnit[], status: BloodUnitStatus): number {
+  return units.filter((u) => u.currentStatus === status).length;
+}
 
 export default function InventoryPage() {
+  const [bloodUnits, setBloodUnits] = useState<BloodUnit[]>([]);
+  const [inventoryGroups, setInventoryGroups] = useState<InventoryGroup[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
 
-  const filteredInventory = useMemo(() => {
-    let filtered = mockInventory;
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const [unitsResponse, inventoryResponse] = await Promise.all([
+        getHospitalBloodUnits(),
+        getHospitalInventory(),
+      ]);
+
+      setBloodUnits(unitsResponse.data.bloodUnit ?? []);
+      setInventoryGroups(inventoryResponse.data.inventoryData ?? []);
+      setError(null);
+    } catch (e) {
+      setError(getErrorMessage(e, "Failed to load inventory"));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    Promise.all([getHospitalBloodUnits(), getHospitalInventory()])
+      .then(([unitsResponse, inventoryResponse]) => {
+        if (cancelled) return;
+        setBloodUnits(unitsResponse.data.bloodUnit ?? []);
+        setInventoryGroups(inventoryResponse.data.inventoryData ?? []);
+        setError(null);
+      })
+      .catch((e) => {
+        if (!cancelled) setError(getErrorMessage(e, "Failed to load inventory"));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  /* Summary statistics — derived from the hospital's blood units */
+  const stats = useMemo(
+    () => ({
+      total: bloodUnits.length,
+      available: countByStatus(bloodUnits, "AVAILABLE"),
+      reserved: countByStatus(bloodUnits, "RESERVED"),
+      used: countByStatus(bloodUnits, "USED"),
+      expired: countByStatus(bloodUnits, "EXPIRED"),
+    }),
+    [bloodUnits],
+  );
+
+  /* Blood group distribution — only AVAILABLE units (GET /blood-units/inventory) */
+  const distribution = useMemo(() => {
+    const groupMap = new Map<string, number>();
+    for (const group of inventoryGroups) {
+      groupMap.set(group.bloodGroup, group._count.id);
+    }
+    return BLOOD_GROUPS.map((group) => ({
+      group,
+      units: groupMap.get(group) ?? 0,
+    }));
+  }, [inventoryGroups]);
+
+  const filteredUnits = useMemo(() => {
+    let filtered = bloodUnits;
 
     if (activeFilter !== "all") {
-      const statusMap: Record<string, string> = {
-        "low-stock": "Low Stock",
-        critical: "Critical",
-        expiring: "Expiring Soon",
-        expired: "Expired",
-      };
-      if (statusMap[activeFilter]) {
-        filtered = filtered.filter((i) => i.status === statusMap[activeFilter]);
-      } else if (activeFilter === "available") {
-        filtered = filtered.filter((i) => i.status !== "Expired");
-      } else if (activeFilter === "whole-blood") {
-        filtered = filtered.filter((i) => i.component === "Whole Blood");
-      } else if (activeFilter === "plasma") {
-        filtered = filtered.filter((i) => i.component === "Plasma");
-      } else if (activeFilter === "platelets") {
-        filtered = filtered.filter((i) => i.component === "Platelets");
-      } else if (activeFilter === "rbc") {
-        filtered = filtered.filter((i) => i.component === "RBC");
-      }
+      filtered = filtered.filter((u) => u.currentStatus === activeFilter);
     }
 
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
-        (i) =>
-          i.bloodGroup.toLowerCase().includes(query) ||
-          i.component.toLowerCase().includes(query)
+        (u) =>
+          u.bloodGroup.toLowerCase().includes(query) ||
+          u.componentType.toLowerCase().includes(query) ||
+          u.storageLocation.toLowerCase().includes(query) ||
+          (u.donor?.name ?? "").toLowerCase().includes(query),
       );
     }
 
     return filtered;
-  }, [searchQuery, activeFilter]);
+  }, [bloodUnits, activeFilter, searchQuery]);
 
-  const stats = useMemo(() => {
-    const total = mockInventory.reduce((sum, i) => sum + i.units, 0);
-    const lowStock = mockInventory.filter((i) => i.status === "Low Stock" || i.status === "Critical").length;
-    const expiring = mockInventory.filter((i) => i.status === "Expiring Soon").length;
-    return { total, lowStock, expiring, addedToday: 4 };
-  }, []);
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
-  const alerts = [
-    { text: "O− blood group is critically low", type: "critical" as const },
-    { text: `${stats.expiring} units expire within the next 7 days`, type: "warning" as const },
-    { text: "2 expired units require disposal", type: "info" as const },
-  ];
+  if (error && bloodUnits.length === 0) {
+    return (
+      <div className="space-y-6 p-6 lg:p-8">
+        <InventoryHeader />
+        <div className="rounded-2xl border border-border bg-surface p-8 text-center">
+          <p className="text-sm text-text-secondary">{error}</p>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="mt-4"
+            onClick={loadData}
+          >
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 p-6 lg:p-8">
@@ -83,12 +150,39 @@ export default function InventoryPage() {
 
       <InventoryStatistics
         totalUnits={stats.total}
-        lowStockGroups={stats.lowStock}
-        expiringSoonUnits={stats.expiring}
-        addedToday={stats.addedToday}
+        availableUnits={stats.available}
+        reservedUnits={stats.reserved}
+        usedUnits={stats.used}
+        expiredUnits={stats.expired}
       />
 
-      <LowStockAlert alerts={alerts} />
+      {/* Blood group distribution */}
+      <Card className="!p-6">
+        <h2 className="card-title mb-1">Blood Group Distribution</h2>
+        <p className="mb-5 text-sm text-text-secondary">
+          Currently available units by blood group.
+        </p>
+        <div className="grid grid-cols-2 gap-x-6 sm:grid-cols-4">
+          {distribution.map(({ group, units }) => (
+            <div
+              key={group}
+              className="flex items-center justify-between border-b border-border py-3 transition-colors hover:bg-surface-hover"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                  <Droplets className="h-4 w-4 text-primary" />
+                </div>
+                <span className="text-sm font-semibold text-text-primary">
+                  {group}
+                </span>
+              </div>
+              <span className="text-sm text-text-secondary">
+                {units} Units
+              </span>
+            </div>
+          ))}
+        </div>
+      </Card>
 
       <InventoryFilters
         searchQuery={searchQuery}
@@ -97,8 +191,8 @@ export default function InventoryPage() {
         onFilterChange={setActiveFilter}
       />
 
-      {filteredInventory.length > 0 ? (
-        <InventoryTable inventory={filteredInventory} />
+      {filteredUnits.length > 0 ? (
+        <InventoryTable inventory={filteredUnits} />
       ) : (
         <EmptyInventoryState />
       )}

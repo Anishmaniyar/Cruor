@@ -84,12 +84,14 @@ export const viewHospitalDonationRepo = async (hospitalId) => {
   return await prisma.donation.findMany({
     where: {
       hospitalId: hospitalId,
-      status: "COMPLETED",
     },
     select: {
       id: true,
       donationDate: true,
       bloodGroup: true,
+      volume: true,
+      status: true,
+      createdAt: true,
       user: {
         select: {
           id: true,
@@ -98,6 +100,9 @@ export const viewHospitalDonationRepo = async (hospitalId) => {
           phoneNo: true,
         },
       },
+    },
+    orderBy: {
+      createdAt: "desc",
     },
   });
 };

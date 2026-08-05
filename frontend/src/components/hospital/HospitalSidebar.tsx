@@ -17,6 +17,7 @@ import {
   LogOut,
 } from "lucide-react";
 import SidebarItem from "./SidebarItem";
+import ThemeToggle from "@/components/shared/ThemeToggle";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
 
@@ -72,7 +73,7 @@ export default function HospitalSidebar() {
   const sidebarContent = (
     <>
       {/* Logo */}
-      <div className="mb-8">
+      <div className="mb-8 flex items-center justify-between">
         <Link href="/hospital/dashboard" className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/20">
             <Hospital className="h-5 w-5 text-primary" />
@@ -84,6 +85,7 @@ export default function HospitalSidebar() {
             <p className="text-[11px] text-text-muted">Hospital Portal</p>
           </div>
         </Link>
+        <ThemeToggle className="h-9 w-9" />
       </div>
 
       {/* Navigation */}
@@ -182,13 +184,16 @@ export default function HospitalSidebar() {
                 </div>
               </Link>
 
-              <button
-                onClick={() => setMobileOpen(false)}
-                className="flex h-10 w-10 items-center justify-center rounded-xl border border-border text-text-secondary hover:text-text-primary transition-colors"
-                aria-label="Close navigation"
-              >
-                <X size={18} />
-              </button>
+              <div className="flex items-center gap-2">
+                <ThemeToggle className="h-9 w-9" />
+                <button
+                  onClick={() => setMobileOpen(false)}
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-border text-text-secondary hover:text-text-primary transition-colors"
+                  aria-label="Close navigation"
+                >
+                  <X size={18} />
+                </button>
+              </div>
             </div>
 
             <nav className="flex-1 space-y-1 overflow-y-auto">

@@ -70,14 +70,12 @@ export const changePasswordSchema = z.object({
     currentPassword: z
       .string()
       .trim()
-      .min(6, "Password must be atleast 6 charatcers long")
-      .toLowerCase(),
+      .min(6, "Password must be atleast 6 charatcers long"),
 
     newPassword: z
       .string()
       .trim()
-      .min(6, "Password must be atleast 6 charatcers long")
-      .toLowerCase(),
+      .min(6, "Password must be atleast 6 charatcers long"),
   }),
 });
 

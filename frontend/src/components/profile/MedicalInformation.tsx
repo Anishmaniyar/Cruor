@@ -1,7 +1,28 @@
+"use client";
+
 import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import { useCurrentUser } from "@/lib/use-current-user";
 
 export default function MedicalInformation() {
+  const { user, loading } = useCurrentUser();
+
+  if (loading) {
+    return (
+      <div className="flex min-h-64 items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (!user) return null;
+
   return (
     <Card>
       <CardHeader>
@@ -14,19 +35,9 @@ export default function MedicalInformation() {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
             <p className="info-label mb-1">Blood Group</p>
-            <Badge variant="default" className="mt-0.5 h-6 px-3">O+</Badge>
-          </div>
-          <div>
-            <p className="info-label mb-1">Weight</p>
-            <p className="info-value">72 kg</p>
-          </div>
-          <div>
-            <p className="info-label mb-1">Last Donation Date</p>
-            <p className="info-value">12 June 2026</p>
-          </div>
-          <div>
-            <p className="info-label mb-1">Next Eligible Date</p>
-            <p className="text-sm font-medium text-success">12 September 2026</p>
+            <Badge variant="default" className="mt-0.5 h-6 px-3">
+              {user.bloodGroup ?? "—"}
+            </Badge>
           </div>
         </div>
 

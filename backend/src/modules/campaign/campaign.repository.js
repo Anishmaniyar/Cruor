@@ -44,10 +44,15 @@ export const findCampaignId = async (campaignId) => {
 };
 
 export const getCampaign = async () => {
+  // Start of today, so today's campaigns are NOT excluded (the stored
+  // date-only value is midnight, which would be < new Date() otherwise).
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+
   return await prisma.campaign.findMany({
     where: {
       status: "ACTIVE",
-      campaignDate: { gte: new Date() },
+      campaignDate: { gte: startOfToday },
     },
     orderBy: {
       campaignDate: "asc",
@@ -155,6 +160,35 @@ export const allHospitalCampaigns = async (hospitalId) => {
       endTime: true,
       targetDonors: true,
       status: true,
+      _count: {
+        select: {
+          campaignRegistrations: {
+            where: { status: "REGISTERED" },
+          },
+        },
+      },
+    },
+  });
+};
+
+export const findHospitalCampaignById = async (hospitalId, campaignId) => {
+  return await prisma.campaign.findFirst({
+    where: { id: campaignId, hospitalId },
+    include: {
+      hospital: {
+        select: {
+          id: true,
+          name: true,
+          address: true,
+        },
+      },
+      _count: {
+        select: {
+          campaignRegistrations: {
+            where: { status: "REGISTERED" },
+          },
+        },
+      },
     },
   });
 };
@@ -182,6 +216,7 @@ export const allRegisteredUserstoCampaign = async (campaignId) => {
       status: "REGISTERED",
     },
     select: {
+      id: true,
       registeredAt: true,
       user: {
         select: {

@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
@@ -10,10 +9,9 @@ import {
   HeartHandshake,
   User,
   LogOut,
-  Moon,
-  Sun,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import ThemeToggle from "@/components/shared/ThemeToggle";
 
 const navItems = [
   {
@@ -51,7 +49,6 @@ export default function Sidebar() {
     day: "numeric",
   });
 
-  const [isDark, setIsDark] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
@@ -74,12 +71,7 @@ export default function Sidebar() {
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-sm font-semibold text-primary">
             {user?.name?.charAt(0) ?? "U"}
           </div>
-          <button
-            onClick={() => setIsDark(!isDark)}
-            className="rounded-full border border-border p-2 text-text-secondary hover:text-text-primary transition-colors"
-          >
-            {isDark ? <Moon size={16} /> : <Sun size={16} />}
-          </button>
+          <ThemeToggle className="h-9 w-9 rounded-full" />
         </div>
 
         <div className="mb-3 text-xs text-text-muted">

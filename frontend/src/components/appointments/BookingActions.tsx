@@ -35,7 +35,8 @@ export default function BookingActions({
   const convertTo24Hour = (time12h: string): string => {
     if (!time12h) return "";
     const [time, modifier] = time12h.split(" ");
-    let [hours, minutes] = time.split(":");
+    const [hourPart, minutes] = time.split(":");
+    let hours = hourPart;
 
     if (hours === "12") {
       hours = "00";
@@ -58,8 +59,10 @@ export default function BookingActions({
 
     const payload = {
       hospitalId: resolvedHospitalId ?? "",
+      // Use local date formatting — toISOString() shifts the day for UTC+
+      // timezones (e.g. India evening selections would send the previous day).
       appointmentDate: selectedDate
-        ? selectedDate.toISOString().split("T")[0]
+        ? format(selectedDate, "yyyy-MM-dd")
         : "",
       appointmentTime: convertTo24Hour(selectedTime),
     };
@@ -75,7 +78,7 @@ export default function BookingActions({
       const response = await bookAppointment(result.data);
 
       toast.success(
-        response.data.message || "Appointment booked successfully.",
+        response.message || "Appointment booked successfully.",
       );
 
       router.push("/appointment");

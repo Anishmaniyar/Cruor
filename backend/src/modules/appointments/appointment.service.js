@@ -28,15 +28,13 @@ export const bookAppointmentService = async (data) => {
     );
   }
 
-  const userConflict =
-    await appointmentRepository.findConflictingUserAppointment(
-      userId,
-      appointmentDate,
-      appointmentTime,
-    );
-  if (userConflict) {
+  // Business rule: a user can only have ONE active (BOOKED/CONFIRMED)
+  // appointment at a time, regardless of date.
+  const activeAppointment =
+    await appointmentRepository.findActiveUserAppointment(userId);
+  if (activeAppointment) {
     throw new AppError(
-      "You already have an appointment scheduled at this exact time",
+      "You already have an active appointment. Complete or cancel it before booking another one.",
       409,
     );
   }
@@ -296,4 +294,21 @@ export const getMyAppointmentsHospitalService = async (hospitalId) => {
   const data = await appointmentRepository.getHospitalAppointments(hospitalId);
 
   return data;
+};
+
+export const getHospitalAppointmentByIdService = async (
+  appointmentId,
+  hospitalId,
+) => {
+  const appointment =
+    await appointmentRepository.findHospitalAppointmentById(
+      hospitalId,
+      appointmentId,
+    );
+
+  if (!appointment) {
+    throw new AppError("Appointment not found", 404);
+  }
+
+  return appointment;
 };

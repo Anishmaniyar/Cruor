@@ -18,6 +18,7 @@ import {
   viewCampaignById,
   viewCampaignRegistration,
   viewHospitalCampaign,
+  viewHospitalCampaignById,
   viewMyRegistration,
 } from "./campaign.controller.js";
 
@@ -42,6 +43,9 @@ router.get("/", verifyUser, viewCampaign);
 router.get("/my-registration", verifyUser, viewMyRegistration);
 
 router.get("/hospital", verifyHospital, viewHospitalCampaign);
+
+// MUST be registered before the /:id wildcard
+router.get("/hospital/:id", verifyHospital, viewHospitalCampaignById);
 
 router.get("/:id", verifyUser, viewCampaignById);
 

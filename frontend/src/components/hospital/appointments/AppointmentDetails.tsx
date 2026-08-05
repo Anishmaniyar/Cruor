@@ -1,4 +1,4 @@
-import { CalendarDays, Clock, Hash } from "lucide-react";
+import { CalendarDays, Clock, Hash, Building2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import AppointmentStatusBadge from "./AppointmentStatusBadge";
 import type { AppointmentStatus } from "./AppointmentStatusBadge";
@@ -8,6 +8,8 @@ export interface AppointmentInfo {
   date: string;
   time: string;
   status: AppointmentStatus;
+  bookedOn?: string;
+  hospitalName?: string;
 }
 
 interface AppointmentDetailsProps {
@@ -54,6 +56,26 @@ export default function AppointmentDetails({
             </div>
           </div>
         </div>
+
+        {appointment.hospitalName && (
+          <div className="info-row">
+            <Building2 className="info-icon" />
+            <div>
+              <p className="info-label">Hospital</p>
+              <p className="info-value">{appointment.hospitalName}</p>
+            </div>
+          </div>
+        )}
+
+        {appointment.bookedOn && (
+          <div className="info-row">
+            <CalendarDays className="info-icon" />
+            <div>
+              <p className="info-label">Booked On</p>
+              <p className="info-value">{appointment.bookedOn}</p>
+            </div>
+          </div>
+        )}
       </div>
     </Card>
   );

@@ -13,7 +13,7 @@ export default function AddBloodUnitPage() {
       <header className="flex flex-col gap-1">
         <h1 className="page-title">Add Blood Unit</h1>
         <p className="page-description">
-          Register newly collected blood units to inventory.
+          Blood units are created automatically from successful donations.
         </p>
       </header>
 

@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 export const hospitalSignUpSchema = z.object({
-  hospitalName: z
+  name: z
     .string()
     .trim()
-    .min(2, "Hospital name must be at least 2 characters long")
+    .min(3, "Hospital name must be at least 3 characters long")
     .max(100, "Hospital name must be at most 100 characters long"),
 
   email: z
@@ -23,6 +23,11 @@ export const hospitalSignUpSchema = z.object({
     .string()
     .min(10, "Phone number must be at least 10 digits long")
     .max(15, "Phone number must be at most 15 digits long"),
+
+  registrationId: z
+    .string()
+    .trim()
+    .min(3, "Registration ID must be at least 3 characters long"),
 });
 
 export type HospitalSignUpSchemaType = z.infer<typeof hospitalSignUpSchema>;

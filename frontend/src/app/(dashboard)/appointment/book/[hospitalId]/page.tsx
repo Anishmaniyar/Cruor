@@ -19,7 +19,7 @@ export default function BookingHospitalPage() {
       <BookingHeader />
 
       <div className="grid lg:grid-cols-5 gap-6">
-        <HospitalDetails />
+        <HospitalDetails hospitalId={hospitalId} />
 
         <section className="lg:col-span-3 space-y-6">
           <BookingCalendar

@@ -9,8 +9,8 @@ import {
 } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { formatCampaignDate, formatCampaignTime } from "@/lib/campaign-utils";
 
 interface CampaignCardProps {
   campaign: {
@@ -57,22 +57,16 @@ export default function CampaignCard({ campaign }: CampaignCardProps) {
           <div>
             <p className="meta-label">Date</p>
             <p className="text-xs font-medium text-text-secondary">
-              {campaign.campaignDate}
+              {formatCampaignDate(campaign.campaignDate)}
             </p>
           </div>
         </div>
         <div className="info-row rounded-lg bg-surface-secondary px-3 py-3">
           <Clock className="info-icon" />
           <div>
-            <p className="meta-label">Start Time</p>
+            <p className="meta-label">Time</p>
             <p className="text-xs font-medium text-text-secondary">
-              {campaign.startTime}
-            </p>
-          </div>
-          <div>
-            <p className="meta-label">End Time</p>
-            <p className="text-xs font-medium text-text-secondary">
-              {campaign.endTime}
+              {formatCampaignTime(campaign.startTime)} – {formatCampaignTime(campaign.endTime)}
             </p>
           </div>
         </div>

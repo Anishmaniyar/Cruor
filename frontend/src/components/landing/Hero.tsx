@@ -93,7 +93,7 @@ export default function Hero() {
               </div>
 
               {/* Headline */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] text-text-primary">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight leading-[1.1] text-text-primary">
                 Donate Blood.
                 <br />
                 <span className="text-primary">Save Lives.</span>

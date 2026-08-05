@@ -1,40 +1,22 @@
 "use client";
 
-import JourneyTimeline from "@/components/shared/JourneyTimeline";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import KPICard from "@/components/dashboard/KPICard";
 import NearbyCampaigns from "@/components/dashboard/NearbyCampaigns";
 import UpcomingAppointment from "@/components/dashboard/UpcomingAppointment";
 
-import { useState, useEffect } from "react";
-import { getDashboardData } from "@/services/donation.services";
+import { useState, useEffect, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { getDashboard, type DashboardData } from "@/services/dashboard.services";
+import { formatAppointmentTime } from "@/lib/appointment-utils";
+import { getErrorMessage } from "@/lib/error";
 
-// ─── TypeScript interface for the dashboard API response ───
-interface NextAppointment {
-  date: string;
-  time: string;
-  hospital: string;
-}
-
-interface Campaign {
-  id: string;
-  campName: string;
-  address: string;
-  campaignDate: string;
-  hospital: { name: string; address: string | null };
-}
-
-interface DashboardData {
-  totalDonations: number;
-  livesImpacted: number;
-  nextAppointment: NextAppointment | null;
-  eligiblity: string | null;
-  nearByCampaigns: Campaign[];
-}
-
-// ─── Helper to format a date nicely ───
+// ─── Helper to format a date nicely (date-only values are parsed as local midnight) ───
 function formatDate(dateStr: string): string {
-  const d = new Date(dateStr);
+  const d = /^\d{4}-\d{2}-\d{2}$/.test(dateStr)
+    ? new Date(`${dateStr}T00:00:00`)
+    : new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
   return d.toLocaleDateString("en-US", {
     weekday: "short",
     day: "numeric",
@@ -42,23 +24,59 @@ function formatDate(dateStr: string): string {
   });
 }
 
-function formatTime(timeStr: string): string {
-  const [hours, minutes] = timeStr.split(":");
-  const h = parseInt(hours, 10);
-  const ampm = h >= 12 ? "PM" : "AM";
-  const h12 = h % 12 || 12;
-  return `${h12}:${minutes} ${ampm}`;
-}
-
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    getDashboardData().then(setData).catch(console.error);
+  const loadDashboard = useCallback(async () => {
+    try {
+      const result = await getDashboard();
+      setData(result);
+      setError(null);
+    } catch (e) {
+      setError(getErrorMessage(e, "Failed to load dashboard"));
+    }
   }, []);
 
-  // Loading state
+  useEffect(() => {
+    let cancelled = false;
+
+    getDashboard()
+      .then((result) => {
+        if (!cancelled) {
+          setData(result);
+          setError(null);
+        }
+      })
+      .catch((e) => {
+        if (!cancelled) setError(getErrorMessage(e, "Failed to load dashboard"));
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Loading / error states
   if (!data) {
+    if (error) {
+      return (
+        <main className="flex min-h-screen items-center justify-center p-12">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-surface p-8 text-center">
+            <p className="text-sm text-text-secondary">{error}</p>
+            <Button
+              variant="secondary"
+              size="sm"
+              className="mt-4"
+              onClick={loadDashboard}
+            >
+              Retry
+            </Button>
+          </div>
+        </main>
+      );
+    }
+
     return (
       <main className="flex min-h-screen items-center justify-center p-12">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -86,7 +104,7 @@ export default function DashboardPage() {
     : "None";
 
   const appointmentSubtitle = data.nextAppointment
-    ? `${formatTime(data.nextAppointment.time)} \u2014 ${data.nextAppointment.hospital}`
+    ? `${formatAppointmentTime(data.nextAppointment.time)} \u2014 ${data.nextAppointment.hospital}`
     : "No appointment scheduled";
 
   const eligiblityValue = data.eligiblity

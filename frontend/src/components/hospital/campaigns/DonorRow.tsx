@@ -1,27 +1,27 @@
-import { Button } from "@/components/ui/button";
-import CampaignStatusBadge from "./CampaignStatusBadge";
-import type { DonorStatus } from "./CampaignStatusBadge";
+import type { CampaignRegistrationDonor } from "@/lib/campaign-utils";
 
-export interface CampaignDonor {
-  id: string;
-  name: string;
-  bloodGroup: string;
-  status: DonorStatus;
+function formatRegisteredAt(value: string): string {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return value;
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 }
+
+export type CampaignDonor = CampaignRegistrationDonor["user"] & {
+  registeredAt: string;
+  registrationId: string;
+};
 
 interface DonorRowProps {
   donor: CampaignDonor;
-  onCheckIn?: (id: string) => void;
-  onComplete?: (id: string) => void;
-  onNoShow?: (id: string) => void;
+  onRecord?: (registrationId: string, donorName: string) => void;
 }
 
-export default function DonorRow({
-  donor,
-  onCheckIn,
-  onComplete,
-  onNoShow,
-}: DonorRowProps) {
+export default function DonorRow({ donor, onRecord }: DonorRowProps) {
   return (
     <tr className="border-b border-border transition-colors hover:bg-surface-hover">
       <td className="px-6 py-4">
@@ -30,56 +30,40 @@ export default function DonorRow({
             {donor.name
               .split(" ")
               .map((n) => n[0])
-              .join("")}
+              .join("")
+              .slice(0, 2)}
           </div>
-          <span className="text-sm font-medium text-text-primary">
-            {donor.name}
-          </span>
+          <div>
+            <span className="text-sm font-medium text-text-primary">
+              {donor.name}
+            </span>
+            <p className="text-xs text-text-muted font-mono">
+              {donor.id.slice(0, 12)}
+            </p>
+          </div>
         </div>
       </td>
       <td className="px-6 py-4">
         <div className="flex h-7 w-10 items-center justify-center rounded-lg bg-primary/10 text-xs font-semibold text-primary">
-          {donor.bloodGroup}
+          {donor.bloodGroup ?? "—"}
         </div>
       </td>
-      <td className="px-6 py-4">
-        <CampaignStatusBadge status={donor.status} />
+      <td className="px-6 py-4 text-sm text-text-secondary">
+        {donor.phoneNo ?? "—"}
       </td>
-      <td className="px-6 py-4 text-right">
-        <div className="flex items-center justify-end gap-2">
-          {donor.status === "Registered" && (
-            <Button
-              variant="secondary"
-              size="xs"
-              onClick={() => onCheckIn?.(donor.id)}
-            >
-              Check In
-            </Button>
-          )}
-          {donor.status === "Checked In" && (
-            <>
-              <Button
-                variant="primary"
-                size="xs"
-                onClick={() => onComplete?.(donor.id)}
-              >
-                Mark Completed
-              </Button>
-              <Button
-                variant="ghost"
-                size="xs"
-                className="text-danger hover:bg-danger/10 hover:text-danger"
-                onClick={() => onNoShow?.(donor.id)}
-              >
-                No Show
-              </Button>
-            </>
-          )}
-          {(donor.status === "Donation Completed" || donor.status === "No Show") && (
-            <span className="text-xs text-text-muted">—</span>
-          )}
-        </div>
+      <td className="px-6 py-4 text-sm text-text-secondary">
+        {formatRegisteredAt(donor.registeredAt)}
       </td>
+      {onRecord && (
+        <td className="px-6 py-4 text-right">
+          <button
+            onClick={() => onRecord(donor.registrationId, donor.name)}
+            className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/10"
+          >
+            Record Donation
+          </button>
+        </td>
+      )}
     </tr>
   );
 }

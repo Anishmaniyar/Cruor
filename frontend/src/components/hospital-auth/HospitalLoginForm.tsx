@@ -16,6 +16,8 @@ import {
   HospitalLogInSchemaType,
 } from "@/lib/validations/hospital";
 import { useAuth } from "@/lib/auth-context";
+import { loginHospital } from "@/services/auth.services";
+import { getErrorMessage } from "@/lib/error";
 
 export default function HospitalLoginForm() {
   const router = useRouter();
@@ -31,21 +33,25 @@ export default function HospitalLoginForm() {
 
   const onSubmit = async (data: HospitalLogInSchemaType) => {
     try {
-      // Mock submission — replace with actual API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await loginHospital(data);
 
       login(
-        { id: "H-1024", name: "City Hospital, Pune", email: data.email },
-        "hospital"
+        {
+          id: response.data.hospital.id,
+          name: response.data.hospital.name,
+          email: data.email,
+        },
+        "hospital",
+        response.data.accessToken,
       );
 
-      toast.success("Hospital login successful");
+      toast.success(response.data.message ?? "Hospital login successful");
 
       form.reset();
 
       router.push("/hospital/dashboard");
-    } catch {
-      toast.error("Something went wrong");
+    } catch (error) {
+      toast.error(getErrorMessage(error, "something went wrong"));
     }
   };
 

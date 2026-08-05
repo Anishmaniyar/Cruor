@@ -5,6 +5,7 @@ import { Megaphone, MapPin, Calendar, Clock, Users, Building2 } from "lucide-rea
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { formatCampaignDate, formatCampaignTime } from "@/lib/campaign-utils";
 
 interface CampaignDetailsProps {
   campaign: {
@@ -63,11 +64,7 @@ export default function CampaignDetails({ campaign }: CampaignDetailsProps) {
             <div>
               <p className="info-label">Date</p>
               <p className="text-sm text-text-primary">
-                {new Date(campaign.campaignDate).toLocaleDateString("en-US", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
+                {formatCampaignDate(campaign.campaignDate)}
               </p>
             </div>
           </div>
@@ -77,7 +74,7 @@ export default function CampaignDetails({ campaign }: CampaignDetailsProps) {
             <div>
               <p className="info-label">Time</p>
               <p className="text-sm text-text-primary">
-                {campaign.startTime} – {campaign.endTime}
+                {formatCampaignTime(campaign.startTime)} – {formatCampaignTime(campaign.endTime)}
               </p>
             </div>
           </div>

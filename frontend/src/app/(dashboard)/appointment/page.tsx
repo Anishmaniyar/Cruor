@@ -1,27 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 import StatusCard from "@/components/shared/StatusCard";
 import JourneyTimeline from "@/components/shared/JourneyTimeline";
 import BrowseSection from "@/components/shared/BrowseSection";
 import HospitalCard from "@/components/appointments/HospitalCard";
-import { getMyAppointments } from "@/services/appointment.services";
-import { format } from "date-fns";
+import { getMyAppointments, cancelAppointment } from "@/services/appointment.services";
+import { getHospitals, type Hospital } from "@/services/hospital.services";
+import {
+  formatAppointmentDate,
+  formatAppointmentTime,
+  type AppointmentBackend,
+} from "@/lib/appointment-utils";
+import { getErrorMessage } from "@/lib/error";
 
 type AppointmentStatus = "NONE" | "BOOKED" | "COMPLETED";
-
-interface AppointmentData {
-  id: string;
-  userId: string;
-  hospitalId: string;
-  appointmentDate: string;
-  appointmentTime: string;
-  status: string;
-  hospital?: {
-    id: string;
-    name: string;
-  };
-}
 
 const APPOINTMENT_JOURNEY_STAGES = [
   "Booked",
@@ -29,26 +23,6 @@ const APPOINTMENT_JOURNEY_STAGES = [
   "Visited Hospital",
   "Blood Collected",
   "Completed",
-];
-
-const SAMPLE_HOSPITALS = [
-  {
-    id: "28d9e852-eb26-43e4-b7ed-94b7610cf933",
-    name: "Hospital 1",
-    location: "Pune",
-    rating: 4.8,
-    workingHours: "8 AM - 5 PM",
-    donationType: "Whole Blood",
-    availableSlots: 18,
-  },
-];
-
-const HOSPITAL_FILTERS = [
-  { label: "Open Today", active: false },
-  { label: "Nearby", active: false },
-  { label: "Government", active: false },
-  { label: "Private", active: false },
-  { label: "Whole Blood", active: false },
 ];
 
 function getJourneyStage(status: string): string {
@@ -66,84 +40,138 @@ function getJourneyStage(status: string): string {
 
 export default function AppointmentsPage() {
   const [appointmentStatus, setAppointmentStatus] = useState<AppointmentStatus>("NONE");
-  const [latestAppointment, setLatestAppointment] = useState<AppointmentData | null>(null);
+  const [latestAppointment, setLatestAppointment] = useState<AppointmentBackend | null>(null);
+  const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [cancelling, setCancelling] = useState(false);
 
-  // Fetch appointments on mount
+  const fetchAppointments = useCallback(async () => {
+    try {
+      const response = await getMyAppointments();
+      const appointments: AppointmentBackend[] = response.data.appointments ?? [];
+
+      // Find the most recent active appointment (BOOKED or CONFIRMED)
+      const activeAppt = appointments.find(
+        (a) => a.status === "BOOKED" || a.status === "CONFIRMED",
+      );
+
+      if (activeAppt) {
+        setLatestAppointment(activeAppt);
+        setAppointmentStatus("BOOKED");
+      } else {
+        // Fall back to the most recent completed appointment
+        const completedAppt = appointments.find((a) => a.status === "COMPLETED");
+        if (completedAppt) {
+          setLatestAppointment(completedAppt);
+          setAppointmentStatus("COMPLETED");
+        } else {
+          setLatestAppointment(null);
+          setAppointmentStatus("NONE");
+        }
+      }
+    } catch {
+      // No appointments or not logged in — stay in NONE state
+      setLatestAppointment(null);
+      setAppointmentStatus("NONE");
+    }
+  }, []);
+
   useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        const response = await getMyAppointments();
-        const appointments: AppointmentData[] = response.data?.appointments ?? [];
+    let cancelled = false;
 
-        if (appointments.length > 0) {
-          // Find the most recent active appointment (BOOKED or CONFIRMED)
-          const activeAppt = appointments.find(
-            (a) => a.status === "BOOKED" || a.status === "CONFIRMED",
-          );
+    Promise.all([getMyAppointments(), getHospitals()])
+      .then(([apptResponse, hospitalsResponse]) => {
+        if (cancelled) return;
 
-          if (activeAppt) {
-            setLatestAppointment(activeAppt);
-            setAppointmentStatus("BOOKED");
+        setHospitals(hospitalsResponse.data.hospitals ?? []);
+
+        const appointments: AppointmentBackend[] =
+          apptResponse.data.appointments ?? [];
+
+        const activeAppt = appointments.find(
+          (a) => a.status === "BOOKED" || a.status === "CONFIRMED",
+        );
+
+        if (activeAppt) {
+          setLatestAppointment(activeAppt);
+          setAppointmentStatus("BOOKED");
+        } else {
+          const completedAppt = appointments.find((a) => a.status === "COMPLETED");
+          if (completedAppt) {
+            setLatestAppointment(completedAppt);
+            setAppointmentStatus("COMPLETED");
           } else {
-            // Check if there's a completed one
-            const completedAppt = appointments.find(
-              (a) => a.status === "COMPLETED",
-            );
-            if (completedAppt) {
-              setLatestAppointment(completedAppt);
-              setAppointmentStatus("COMPLETED");
-            }
+            setLatestAppointment(null);
+            setAppointmentStatus("NONE");
           }
         }
-      } catch {
-        // No appointments or not logged in — stay in NONE state
-      } finally {
-        setLoading(false);
-      }
-    };
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setHospitals([]);
+        setLatestAppointment(null);
+        setAppointmentStatus("NONE");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
 
-    fetchAppointments();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const isActive = appointmentStatus === "BOOKED";
 
-  const filteredHospitals = SAMPLE_HOSPITALS.filter(
+  const filteredHospitals = hospitals.filter(
     (h) =>
       h.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      h.location.toLowerCase().includes(searchQuery.toLowerCase()),
+      (h.address ?? "").toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const status: "NONE" | "ACTIVE" | "COMPLETED" =
-    appointmentStatus === "NONE" ? "NONE" : appointmentStatus === "COMPLETED" ? "COMPLETED" : "ACTIVE";
+    appointmentStatus === "NONE"
+      ? "NONE"
+      : appointmentStatus === "COMPLETED"
+        ? "COMPLETED"
+        : "ACTIVE";
+
+  const handleCancel = async () => {
+    if (!latestAppointment) return;
+
+    if (!window.confirm("Are you sure you want to cancel this appointment?")) {
+      return;
+    }
+
+    try {
+      setCancelling(true);
+      await cancelAppointment(latestAppointment.id);
+      toast.success("Appointment cancelled successfully");
+      await fetchAppointments();
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Failed to cancel appointment"));
+    } finally {
+      setCancelling(false);
+    }
+  };
 
   // Format appointment data for StatusCard
-  const formatAppointmentData = (appt: AppointmentData) => {
-    const dateStr = appt.appointmentDate
-      ? format(new Date(appt.appointmentDate), "EEE, dd MMM yyyy")
-      : "";
-    const timeStr = appt.appointmentTime
-      ? format(new Date(appt.appointmentTime), "hh:mm a")
-      : "";
-
-    const statusBadgeVariant =
-      appt.status === "COMPLETED"
-        ? "success"
-        : appt.status === "CONFIRMED"
-          ? "success"
-          : "secondary";
-
-    return {
-      title: appt.hospital?.name ?? "Hospital",
-      subtitle: appt.status === "COMPLETED" ? "Donation completed" : "Awaiting confirmation",
-      date: `${dateStr} • ${timeStr}`,
-      id: appt.id.slice(0, 12).toUpperCase(),
-      badges: [
-        { label: appt.status, variant: statusBadgeVariant },
-      ],
-    };
-  };
+  const formatAppointmentData = (appt: AppointmentBackend) => ({
+    title: appt.hospital?.name ?? "Hospital",
+    subtitle: appt.status === "COMPLETED" ? "Donation completed" : "Awaiting confirmation",
+    date: `${formatAppointmentDate(appt.appointmentDate)} • ${formatAppointmentTime(appt.appointmentTime)}`,
+    id: appt.id.slice(0, 12).toUpperCase(),
+    badges: [
+      {
+        label: appt.status,
+        variant: appt.status === "COMPLETED" || appt.status === "CONFIRMED"
+          ? "success" as const
+          : "secondary" as const,
+      },
+    ],
+    onCancel: isActive && !cancelling ? handleCancel : undefined,
+  });
 
   if (loading) {
     return (
@@ -161,9 +189,7 @@ export default function AppointmentsPage() {
       <StatusCard
         type="appointment"
         status={status}
-        data={
-          latestAppointment ? formatAppointmentData(latestAppointment) : undefined
-        }
+        data={latestAppointment ? formatAppointmentData(latestAppointment) : undefined}
       />
 
       {/* Journey — only for BOOKED or COMPLETED */}
@@ -182,9 +208,8 @@ export default function AppointmentsPage() {
         searchPlaceholder="Search hospitals by name or location..."
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        filters={HOSPITAL_FILTERS}
         emptyMessage="No hospitals found"
-        emptyDescription="Try adjusting your search or filters."
+        emptyDescription="Try adjusting your search."
         disabled={isActive}
         disabledMessage="You already have an active appointment. Complete or cancel your current appointment before booking another one."
         isEmpty={!isActive && filteredHospitals.length === 0}

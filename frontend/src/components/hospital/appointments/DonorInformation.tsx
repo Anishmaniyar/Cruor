@@ -1,11 +1,11 @@
-import { User, Droplets, Calendar, Phone } from "lucide-react";
+import { Droplets, Phone, Hash } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 export interface Donor {
   fullName: string;
-  bloodGroup: string;
-  age: number;
-  phone: string;
+  bloodGroup?: string | null;
+  phone?: string | null;
+  id?: string;
 }
 
 interface DonorInformationProps {
@@ -22,7 +22,8 @@ export default function DonorInformation({ donor }: DonorInformationProps) {
           {donor.fullName
             .split(" ")
             .map((n) => n[0])
-            .join("")}
+            .join("")
+            .slice(0, 2)}
         </div>
         <div>
           <h3 className="text-base font-semibold text-text-primary">
@@ -33,35 +34,41 @@ export default function DonorInformation({ donor }: DonorInformationProps) {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="info-row rounded-lg bg-surface-secondary px-4 py-3">
-          <Droplets className="h-4 w-4 text-primary shrink-0" />
-          <div>
-            <p className="info-label">Blood Group</p>
-            <p className="text-sm font-semibold text-text-primary">
-              {donor.bloodGroup}
-            </p>
+        {donor.bloodGroup && (
+          <div className="info-row rounded-lg bg-surface-secondary px-4 py-3">
+            <Droplets className="h-4 w-4 text-primary shrink-0" />
+            <div>
+              <p className="info-label">Blood Group</p>
+              <p className="text-sm font-semibold text-text-primary">
+                {donor.bloodGroup}
+              </p>
+            </div>
           </div>
-        </div>
+        )}
 
-        <div className="info-row rounded-lg bg-surface-secondary px-4 py-3">
-          <Calendar className="h-4 w-4 text-text-muted shrink-0" />
-          <div>
-            <p className="info-label">Age</p>
-            <p className="text-sm font-medium text-text-primary">
-              {donor.age} years
-            </p>
+        {donor.phone && (
+          <div className="info-row rounded-lg bg-surface-secondary px-4 py-3">
+            <Phone className="h-4 w-4 text-text-muted shrink-0" />
+            <div>
+              <p className="info-label">Phone</p>
+              <p className="text-sm font-medium text-text-primary">
+                {donor.phone}
+              </p>
+            </div>
           </div>
-        </div>
+        )}
 
-        <div className="info-row rounded-lg bg-surface-secondary px-4 py-3">
-          <Phone className="h-4 w-4 text-text-muted shrink-0" />
-          <div>
-            <p className="info-label">Phone</p>
-            <p className="text-sm font-medium text-text-primary">
-              {donor.phone}
-            </p>
+        {donor.id && (
+          <div className="info-row rounded-lg bg-surface-secondary px-4 py-3">
+            <Hash className="h-4 w-4 text-text-muted shrink-0" />
+            <div>
+              <p className="info-label">Donor ID</p>
+              <p className="text-sm font-medium text-text-primary font-mono">
+                {donor.id.slice(0, 12)}
+              </p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </Card>
   );

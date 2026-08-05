@@ -13,6 +13,7 @@ import { LogInSchema, LogInSchemaType } from "@/lib/validations/auth";
 import { useAuth } from "@/lib/auth-context";
 
 import { loginUser } from "@/services/auth.services";
+import { getErrorMessage } from "@/lib/error";
 
 export default function LogInForm() {
   const router = useRouter();
@@ -37,6 +38,7 @@ export default function LogInForm() {
           email: response.data.user.email,
         },
         "donor",
+        response.data.accessToken,
       );
 
       toast.success("Login successful");
@@ -44,9 +46,8 @@ export default function LogInForm() {
       form.reset();
 
       router.push("/dashboard");
-    } catch (error: any) {
-      const message = error.response?.data?.message || "something went wrong";
-      toast.error(message);
+    } catch (error) {
+      toast.error(getErrorMessage(error, "something went wrong"));
     }
   };
 

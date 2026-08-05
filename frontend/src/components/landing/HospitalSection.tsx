@@ -166,7 +166,7 @@ export default function HospitalSection() {
                 : "opacity-0 -translate-x-8",
             )}
           >
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-text-primary">
+            <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-text-primary">
               Built for <span className="text-primary">Hospitals</span>
             </h2>
             <p className="mt-4 text-lg text-text-secondary leading-relaxed">

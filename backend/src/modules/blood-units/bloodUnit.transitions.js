@@ -1,11 +1,13 @@
 export const allowedTransitions = {
-  AVAILABLE: ["RESERVED", "EXPIRED"],
+  AVAILABLE: ["RESERVED", "EXPIRED", "REJECTED"],
 
   RESERVED: ["AVAILABLE", "TRANSFERRED"],
 
-  TRANSFERRED: ["TRANSFUSED"],
+  TRANSFERRED: ["USED"],
 
-  TRANSFUSED: [],
+  USED: [],
 
   EXPIRED: [],
+
+  REJECTED: [],
 };

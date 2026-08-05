@@ -3,10 +3,12 @@ import HospitalIllustration from "@/components/hospital-auth/HospitalIllustratio
 import { HospitalAuthCard } from "@/components/hospital-auth/HospitalAuthCard";
 import { AuthSwitchCard, AuthPageLink } from "@/components/auth/AuthSwitchCard";
 import HospitalLoginForm from "@/components/hospital-auth/HospitalLoginForm";
+import ThemeToggle from "@/components/shared/ThemeToggle";
 
 export default function HospitalLoginPage() {
   return (
     <main className="flex min-h-screen w-full">
+      <ThemeToggle className="fixed right-6 top-6 z-50" />
       {/* Left — Branding / Illustration */}
       <HospitalIllustration />
 

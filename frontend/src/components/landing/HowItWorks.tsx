@@ -60,14 +60,14 @@ export default function HowItWorks() {
     <section
       id="how-it-works"
       ref={ref}
-      className="relative py-32 border-t border-border"
+      className="relative py-32 border-t border-border bg-surface-secondary"
     >
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-20">
           <h2
             className={cn(
-              "text-3xl sm:text-4xl font-bold tracking-tight text-text-primary transition-all duration-700",
+              "text-3xl sm:text-4xl font-medium tracking-tight text-text-primary transition-all duration-700",
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6",
             )}
           >

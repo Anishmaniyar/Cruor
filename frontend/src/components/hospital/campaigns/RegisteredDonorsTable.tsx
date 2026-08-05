@@ -3,19 +3,24 @@ import type { CampaignDonor } from "./DonorRow";
 
 interface RegisteredDonorsTableProps {
   donors: CampaignDonor[];
-  onCheckIn?: (id: string) => void;
-  onComplete?: (id: string) => void;
-  onNoShow?: (id: string) => void;
+  onRecord?: (registrationId: string, donorName: string) => void;
 }
 
 export default function RegisteredDonorsTable({
   donors,
-  onCheckIn,
-  onComplete,
-  onNoShow,
+  onRecord,
 }: RegisteredDonorsTableProps) {
   if (donors.length === 0) {
-    return null;
+    return (
+      <div>
+        <h2 className="card-title mb-4">Registered Donors</h2>
+        <div className="rounded-2xl border border-border bg-surface p-8 text-center">
+          <p className="text-sm text-text-secondary">
+            No donors have registered for this campaign yet.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -27,28 +32,27 @@ export default function RegisteredDonorsTable({
           <thead>
             <tr className="border-b border-border bg-surface-secondary">
               <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-text-muted">
-                Donor Name
+                Donor
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-text-muted">
                 Blood Group
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-text-muted">
-                Status
+                Phone
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-text-muted">
-                Actions
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-text-muted">
+                Registered On
               </th>
+              {onRecord && (
+                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-text-muted">
+                  Action
+                </th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y-0">
             {donors.map((donor) => (
-              <DonorRow
-                key={donor.id}
-                donor={donor}
-                onCheckIn={onCheckIn}
-                onComplete={onComplete}
-                onNoShow={onNoShow}
-              />
+              <DonorRow key={donor.id} donor={donor} onRecord={onRecord} />
             ))}
           </tbody>
         </table>

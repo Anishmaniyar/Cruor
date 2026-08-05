@@ -8,13 +8,13 @@ export default function EmptyInventoryState() {
       <div className="empty-state-icon-box">
         <Package className="empty-state-icon" />
       </div>
-      <h3 className="empty-state-title">No Inventory Available</h3>
+      <h3 className="empty-state-title">No Blood Units Found</h3>
       <p className="empty-state-description">
-        Blood units will appear here once donations are added to inventory.
+        Blood units will appear here once successful donations are recorded.
       </p>
       <Link href="/hospital/inventory/add">
         <Button variant="primary" className="mt-6 gap-2">
-          Add Blood Unit
+          Learn How to Add Stock
         </Button>
       </Link>
     </div>

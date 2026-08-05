@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 
-export type DonationFilter = "all" | "hospital" | "campaign" | "completed" | "cancelled";
+export type DonationFilter = "all" | "hospital" | "campaign" | "completed" | "rejected";
 
 interface DonationFiltersProps {
   activeFilter: DonationFilter;
@@ -14,7 +14,7 @@ const FILTERS: { key: DonationFilter; label: string }[] = [
   { key: "hospital", label: "Hospital Appointments" },
   { key: "campaign", label: "Campaigns" },
   { key: "completed", label: "Completed" },
-  { key: "cancelled", label: "Cancelled" },
+  { key: "rejected", label: "Rejected" },
 ];
 
 export default function DonationFilters({ activeFilter, onFilterChange }: DonationFiltersProps) {

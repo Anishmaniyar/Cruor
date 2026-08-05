@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { logoutHospital, logoutUser } from "@/services/auth.services";
 
 export type UserType = "donor" | "hospital";
 
@@ -17,14 +18,15 @@ interface AuthState {
 }
 
 interface AuthContextType extends AuthState {
-  login: (user: UserData, userType: UserType) => void;
-  signup: (user: UserData, userType: UserType) => void;
+  login: (user: UserData, userType: UserType, accessToken?: string) => void;
+  signup: (user: UserData, userType: UserType, accessToken?: string) => void;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const STORAGE_KEY = "vital-drops-auth";
+const TOKEN_KEY = "vital-drops-access-token";
 
 function loadFromStorage(): AuthState {
   if (typeof window === "undefined") {
@@ -55,6 +57,15 @@ function saveToStorage(user: UserData | null, userType: UserType | null) {
   }
 }
 
+function saveToken(token: string | null) {
+  if (typeof window === "undefined") return;
+  if (token) {
+    localStorage.setItem(TOKEN_KEY, token);
+  } else {
+    localStorage.removeItem(TOKEN_KEY);
+  }
+}
+
 function clearAllAuthData() {
   // Clear localStorage
   localStorage.removeItem(STORAGE_KEY);
@@ -70,20 +81,32 @@ function clearAllAuthData() {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>(loadFromStorage);
 
-  const login = useCallback((user: UserData, userType: UserType) => {
+  const login = useCallback((user: UserData, userType: UserType, accessToken?: string) => {
     saveToStorage(user, userType);
+    if (accessToken) saveToken(accessToken);
     setState({ user, userType, isAuthenticated: true });
   }, []);
 
-  const signup = useCallback((user: UserData, userType: UserType) => {
+  const signup = useCallback((user: UserData, userType: UserType, accessToken?: string) => {
     saveToStorage(user, userType);
+    if (accessToken) saveToken(accessToken);
     setState({ user, userType, isAuthenticated: true });
   }, []);
 
   const logout = useCallback(() => {
+    // Invalidate the httpOnly cookies on the backend (fire-and-forget).
+    const request =
+      state.userType === "hospital"
+        ? logoutHospital()
+        : logoutUser();
+
+    request.catch(() => {
+      // Even if the API call fails, we still clear the local session.
+    });
+
     clearAllAuthData();
     setState({ user: null, userType: null, isAuthenticated: false });
-  }, []);
+  }, [state.userType]);
 
   return (
     <AuthContext.Provider value={{ ...state, login, signup, logout }}>

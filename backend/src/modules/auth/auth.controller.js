@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken";
 import asyncHandler from "../../utils/asyncHandler.js";
 import AppError from "../../utils/appError.js";
 import bcrypt from "bcrypt";
@@ -6,57 +7,84 @@ import { NotificationType } from "../notifications/notification.constants.js";
 import prisma from "../../db.js";
 import { generateAccessToken, generateRefreshToken } from "../../utils/jwt.js";
 
-export const registerUser = async (req, res, next) => {
-  try {
-    const { name, email, password, phoneNo, gender, dateOfBirth, bloodGroup } =
-      req.body;
+export const registerUser = asyncHandler(async (req, res, next) => {
+  const { name, email, password, phoneNo, gender, dateOfBirth, bloodGroup } =
+    req.body;
 
-    // 1. Defensively trim inputs to avoid hidden spaces affecting your password hash bytes
-    const cleanPassword = password.trim();
+  // 1. Defensively trim inputs to avoid hidden spaces affecting your password hash bytes
+  const cleanPassword = password.trim();
 
-    // Check if user already exists
-    const existingUser = await prisma.user.findFirst({
-      where: {
-        OR: [{ email }, ...(phoneNo ? [{ phoneNo }] : [])],
-      },
-    });
+  // Check if user already exists
+  const existingUser = await prisma.user.findFirst({
+    where: {
+      OR: [{ email }, ...(phoneNo ? [{ phoneNo }] : [])],
+    },
+  });
 
-    if (existingUser) {
-      return next(
-        new AppError(
-          existingUser.email === email
-            ? "Email is already registered."
-            : "Phone number is already registered.",
-          409,
-        ),
-      );
-    }
-
-    // 2. Hash using the explicitly sanitized, clean string reference
-    const hashedPassword = await bcrypt.hash(cleanPassword, 10);
-
-    // 3. Ensure dateOfBirth is saved safely as an explicit Date string instance if it was mutated into an object
-    const finalizedDob =
-      dateOfBirth instanceof Date ? dateOfBirth : new Date(dateOfBirth);
-
-    // Create user
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        passwordHash: hashedPassword,
-        phoneNo: phoneNo || null, // Normalizes empty strings down to clean database null values
-        dateOfBirth: finalizedDob,
-        bloodGroup,
-        gender,
-      },
-    });
-
-    // ... balance of your code remains perfect and unchanged ...
-  } catch {
-    throw new AppError("Error registering the user");
+  if (existingUser) {
+    return next(
+      new AppError(
+        existingUser.email === email
+          ? "Email is already registered."
+          : "Phone number is already registered.",
+        409,
+      ),
+    );
   }
-};
+
+  // 2. Hash using the explicitly sanitized, clean string reference
+  const hashedPassword = await bcrypt.hash(cleanPassword, 10);
+
+  // 3. Ensure dateOfBirth is saved safely as an explicit Date string instance if it was mutated into an object
+  const finalizedDob =
+    dateOfBirth instanceof Date ? dateOfBirth : new Date(dateOfBirth);
+
+  // Create user
+  const user = await prisma.user.create({
+    data: {
+      name,
+      email,
+      passwordHash: hashedPassword,
+      phoneNo: phoneNo || null, // Normalizes empty strings down to clean database null values
+      dateOfBirth: finalizedDob,
+      bloodGroup,
+      gender,
+    },
+  });
+
+  // 4. Auto-login: issue tokens exactly like the login flow
+  const accessToken = generateAccessToken(user);
+  const refreshToken = generateRefreshToken(user);
+
+  if (!accessToken || !refreshToken) {
+    return next(new AppError("Failed to generate tokens", 500));
+  }
+
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    sameSite: "strict",
+    maxAge: 15 * 60 * 1000,
+  });
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  return res.status(201).json({
+    status: "success",
+    message: "User registered successfully",
+    data: {
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+      accessToken,
+    },
+  });
+});
 
 export const loginUser = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
@@ -154,6 +182,7 @@ export const refreshAccessToken = asyncHandler(async (req, res, next) => {
   return res.status(200).json({
     status: "success",
     message: "Access token refreshed",
+    data: { accessToken },
   });
 });
 
@@ -452,14 +481,15 @@ export const changeHospitalPassword = asyncHandler(async (req, res, next) => {
   });
 });
 
-export const forgotHospitalPassword = asyncHandler(async (req, res, next) => {
-  const { email } = req.body;
+// IMPLEMENT WHEN WE INTEGRATE EMAIL IN THIS
+// export const forgotHospitalPassword = asyncHandler(async (req, res, next) => {
+//   const { email } = req.body;
 
-  const existingHospital = await prisma.hospital.findUnique({
-    where: { email },
-  });
+//   const existingHospital = await prisma.hospital.findUnique({
+//     where: { email },
+//   });
 
-  if (!existingHospital) {
-    return next(new AppError("Invalid email", 401));
-  }
-});
+//   if (!existingHospital) {
+//     return next(new AppError("Invalid email", 401));
+//   }
+// });

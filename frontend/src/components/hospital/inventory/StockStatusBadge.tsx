@@ -1,25 +1,31 @@
 import { Badge } from "@/components/ui/badge";
-
-type StockStatus = "Healthy" | "Low Stock" | "Critical" | "Expiring Soon" | "Expired";
+import type { BloodUnitStatus } from "@/services/bloodUnit.services";
+import { BLOOD_UNIT_STATUS_DISPLAY } from "@/lib/blood-unit-utils";
 
 const statusConfig: Record<
-  StockStatus,
-  { variant: "default" | "secondary" | "success" | "danger" | "outline"; label: string }
+  BloodUnitStatus,
+  { variant: "default" | "secondary" | "success" | "danger" | "outline" }
 > = {
-  Healthy: { variant: "success", label: "Healthy" },
-  "Low Stock": { variant: "secondary", label: "Low Stock" },
-  Critical: { variant: "danger", label: "Critical" },
-  "Expiring Soon": { variant: "outline", label: "Expiring Soon" },
-  Expired: { variant: "danger", label: "Expired" },
+  AVAILABLE: { variant: "success" },
+  RESERVED: { variant: "default" },
+  TRANSFERRED: { variant: "secondary" },
+  USED: { variant: "outline" },
+  EXPIRED: { variant: "danger" },
+  REJECTED: { variant: "danger" },
 };
 
 interface StockStatusBadgeProps {
-  status: StockStatus;
+  status: BloodUnitStatus;
 }
 
-export type { StockStatus };
+export type { BloodUnitStatus as StockStatus };
 
 export default function StockStatusBadge({ status }: StockStatusBadgeProps) {
-  const config = statusConfig[status];
-  return <Badge variant={config.variant}>{config.label}</Badge>;
+  // Fall back gracefully for unexpected/legacy statuses (e.g. TRANSFUSED rows).
+  const config = statusConfig[status] ?? { variant: "secondary" as const };
+  return (
+    <Badge variant={config.variant}>
+      {BLOOD_UNIT_STATUS_DISPLAY[status] ?? status}
+    </Badge>
+  );
 }

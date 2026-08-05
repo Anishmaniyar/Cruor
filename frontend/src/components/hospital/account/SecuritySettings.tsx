@@ -6,6 +6,10 @@ import { Monitor, ShieldCheck, ChevronRight, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+
+import { changeHospitalPassword } from "@/services/auth.services";
+import { getErrorMessage } from "@/lib/error";
 
 const comingSoonRows = [
   {
@@ -38,10 +42,28 @@ export default function SecuritySettings() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    await new Promise((r) => setTimeout(r, 1000));
-    setIsSubmitting(false);
-    setFormData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+
+    if (formData.newPassword !== formData.confirmPassword) {
+      toast.error("New passwords do not match");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      await changeHospitalPassword({
+        currentPassword: formData.currentPassword,
+        newPassword: formData.newPassword,
+      });
+
+      toast.success("Hospital password changed successfully");
+
+      setFormData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Failed to change password"));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

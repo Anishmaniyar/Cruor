@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Droplets } from "lucide-react";
+import ThemeToggle from "@/components/shared/ThemeToggle";
 
 const NAV_LINKS = [
   { label: "Home", href: "#hero" },
@@ -58,6 +59,7 @@ export default function Navbar() {
 
         {/* Right Side */}
         <div className="flex items-center gap-3">
+          <ThemeToggle className="h-9 w-9" />
           <Link href="/login">
             <Button variant="ghost" size="sm">
               Login

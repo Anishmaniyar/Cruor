@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,101 +10,117 @@ import CampaignTable from "@/components/hospital/campaigns/CampaignTable";
 import EmptyCampaignState from "@/components/hospital/campaigns/EmptyCampaignState";
 import type { Campaign } from "@/components/hospital/campaigns/CampaignTable";
 
-const mockCampaigns: Campaign[] = [
-  {
-    id: "CAMP-001",
-    name: "Summer Blood Drive",
-    date: "Aug 20, 2026",
-    location: "City Blood Bank, Pune",
-    registrations: 24,
-    status: "Active",
-  },
-  {
-    id: "CAMP-002",
-    name: "Corporate Donation Camp",
-    date: "Aug 25, 2026",
-    location: "Tech Park, Mumbai",
-    registrations: 18,
-    status: "Upcoming",
-  },
-  {
-    id: "CAMP-003",
-    name: "Emergency Blood Drive",
-    date: "Sep 01, 2026",
-    location: "District Hospital, Nagpur",
-    registrations: 12,
-    status: "Upcoming",
-  },
-  {
-    id: "CAMP-004",
-    name: "Community Health Camp",
-    date: "Jul 15, 2026",
-    location: "Community Center, Delhi",
-    registrations: 35,
-    status: "Completed",
-  },
-  {
-    id: "CAMP-005",
-    name: "Annual Blood Drive",
-    date: "Jul 10, 2026",
-    location: "City Hospital, Bangalore",
-    registrations: 42,
-    status: "Completed",
-  },
-  {
-    id: "CAMP-006",
-    name: "College Donation Camp",
-    date: "Jun 05, 2026",
-    location: "University Campus, Pune",
-    registrations: 8,
-    status: "Cancelled",
-  },
-];
+import { getHospitalCampaigns } from "@/services/campaign.services";
+import {
+  displayCampaignStatus,
+  formatCampaignDate,
+  type CampaignBackend,
+} from "@/lib/campaign-utils";
+import { getErrorMessage } from "@/lib/error";
+
+function mapToRow(c: CampaignBackend): Campaign {
+  return {
+    id: c.id,
+    name: c.campName,
+    date: formatCampaignDate(c.campaignDate),
+    location: c.address,
+    registrations: c._count?.campaignRegistrations ?? 0,
+    status: displayCampaignStatus(c.status),
+  };
+}
+
+const STATUS_FILTERS = ["upcoming", "active", "completed", "cancelled"];
 
 export default function CampaignsPage() {
+  const [campaigns, setCampaigns] = useState<CampaignBackend[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
 
-  const filteredCampaigns = useMemo(() => {
-    let filtered = mockCampaigns;
+  const fetchCampaigns = async () => {
+    try {
+      setLoading(true);
+      const response = await getHospitalCampaigns();
+      setCampaigns(response.data.allCampaigns ?? []);
+      setError(null);
+    } catch (e) {
+      setError(getErrorMessage(e, "Failed to load campaigns"));
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    if (activeFilter !== "all") {
-      const statusMap: Record<string, string> = {
-        upcoming: "Upcoming",
-        active: "Active",
-        completed: "Completed",
-        cancelled: "Cancelled",
-      };
-      if (statusMap[activeFilter]) {
-        filtered = filtered.filter(
-          (c) => c.status === statusMap[activeFilter]
-        );
-      }
+  useEffect(() => {
+    let cancelled = false;
+
+    getHospitalCampaigns()
+      .then((response) => {
+        if (!cancelled) setCampaigns(response.data.allCampaigns ?? []);
+      })
+      .catch((e) => {
+        if (!cancelled) setError(getErrorMessage(e, "Failed to load campaigns"));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const filteredRows = useMemo(() => {
+    let filtered = campaigns;
+
+    if (activeFilter !== "all" && STATUS_FILTERS.includes(activeFilter)) {
+      const target =
+        activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1);
+      filtered = filtered.filter(
+        (c) => displayCampaignStatus(c.status) === target,
+      );
     }
 
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
         (c) =>
-          c.name.toLowerCase().includes(query) ||
-          c.location.toLowerCase().includes(query)
+          c.campName.toLowerCase().includes(query) ||
+          c.address.toLowerCase().includes(query),
       );
     }
 
-    return filtered;
-  }, [searchQuery, activeFilter]);
+    return filtered.map(mapToRow);
+  }, [campaigns, activeFilter, searchQuery]);
 
-  const handleCancel = (id: string) => {
-    // Mock cancel - in real app would update state/API
-    console.log("Cancel campaign:", id);
-  };
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <p className="text-text-secondary">Loading campaigns...</p>
+      </div>
+    );
+  }
+
+  if (error && campaigns.length === 0) {
+    return (
+      <div className="space-y-6 p-6 lg:p-8">
+        <CampaignHeader />
+        <div className="rounded-2xl border border-border bg-surface p-8 text-center">
+          <p className="text-sm text-text-secondary">{error}</p>
+          <Button variant="secondary" size="sm" className="mt-4" onClick={fetchCampaigns}>
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 p-6 lg:p-8">
       <CampaignHeader />
 
       <div className="flex items-center justify-between">
-        <div /> {/* Spacer */}
+        <div />
         <Link href="/hospital/campaigns/create">
           <Button variant="primary" className="gap-2">
             <Plus className="h-4 w-4" />
@@ -120,11 +136,8 @@ export default function CampaignsPage() {
         onFilterChange={setActiveFilter}
       />
 
-      {filteredCampaigns.length > 0 ? (
-        <CampaignTable
-          campaigns={filteredCampaigns}
-          onCancel={handleCancel}
-        />
+      {filteredRows.length > 0 ? (
+        <CampaignTable campaigns={filteredRows} />
       ) : (
         <EmptyCampaignState />
       )}

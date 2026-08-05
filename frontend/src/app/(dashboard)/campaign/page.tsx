@@ -1,12 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 import StatusCard from "@/components/shared/StatusCard";
 import JourneyTimeline from "@/components/shared/JourneyTimeline";
 import BrowseSection from "@/components/shared/BrowseSection";
 import CampaignCard from "@/components/campaigns/CampaignCard";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
-import { getCampaigns, getMyRegistrations } from "@/services/campaign.services";
+import {
+  getCampaigns,
+  getMyRegistrations,
+  cancelRegistration,
+} from "@/services/campaign.services";
+import { formatCampaignDate } from "@/lib/campaign-utils";
+import { getErrorMessage } from "@/lib/error";
 
 type CampaignStatus = "NONE" | "REGISTERED" | "COMPLETED";
 
@@ -29,6 +39,7 @@ interface RegistrationData {
   registeredAt: string;
   campaign?: CampaignData;
 }
+
 const CAMPAIGN_JOURNEY_STAGES = [
   "Registered",
   "Confirmed",
@@ -37,47 +48,70 @@ const CAMPAIGN_JOURNEY_STAGES = [
   "Transported",
 ];
 
-const CAMPAIGN_FILTERS = [
-  { label: "Open Today", active: false },
-  { label: "Nearby", active: false },
-  { label: "Government", active: false },
-  { label: "Private", active: false },
-  { label: "Corporate", active: false },
-];
-
 export default function CampaignsPage() {
   const [campaignStatus, setCampaignStatus] = useState<CampaignStatus>("NONE");
   const [campaigns, setCampaigns] = useState<CampaignData[]>([]);
+  const [registrations, setRegistrations] = useState<RegistrationData[]>([]);
   const [activeRegistration, setActiveRegistration] =
     useState<RegistrationData | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [cancelling, setCancelling] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    try {
+      const [campaignsRes, registrationRes] = await Promise.all([
+        getCampaigns(),
+        getMyRegistrations().catch(() => null),
+      ]);
+
+      setCampaigns(campaignsRes.data ?? []);
+
+      const allRegistrations: RegistrationData[] =
+        registrationRes?.data?.allRegistration ?? [];
+      setRegistrations(allRegistrations);
+
+      const active = allRegistrations.find((r) => r.status === "REGISTERED");
+      setActiveRegistration(active ?? null);
+      setCampaignStatus(active ? "REGISTERED" : "NONE");
+    } catch {
+      // Silently handle network or server errors
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [campaignsRes, registrationRes] = await Promise.all([
-          getCampaigns(),
-          getMyRegistrations().catch(() => null),
-        ]);
+    let cancelled = false;
+
+    Promise.all([
+      getCampaigns(),
+      getMyRegistrations().catch(() => null),
+    ])
+      .then(([campaignsRes, registrationRes]) => {
+        if (cancelled) return;
 
         setCampaigns(campaignsRes.data ?? []);
 
-        const registrations: RegistrationData[] =
+        const allRegistrations: RegistrationData[] =
           registrationRes?.data?.allRegistration ?? [];
-        const active = registrations.find((r) => r.status === "REGISTERED");
+        setRegistrations(allRegistrations);
 
-        if (active) {
-          setCampaignStatus("REGISTERED");
-          setActiveRegistration(active);
-        }
-      } catch {
-        // Silently handle network or server errors
-      } finally {
-        setLoading(false);
-      }
+        const active = allRegistrations.find((r) => r.status === "REGISTERED");
+        setActiveRegistration(active ?? null);
+        setCampaignStatus(active ? "REGISTERED" : "NONE");
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setCampaigns([]);
+        setRegistrations([]);
+        setCampaignStatus("NONE");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
     };
-    fetchData();
   }, []);
 
   const isActive = campaignStatus === "REGISTERED";
@@ -94,6 +128,23 @@ export default function CampaignsPage() {
       : campaignStatus === "COMPLETED"
         ? "COMPLETED"
         : "ACTIVE";
+
+  const handleCancel = async (campaignId: string) => {
+    if (!window.confirm("Are you sure you want to cancel this registration?")) {
+      return;
+    }
+
+    try {
+      setCancelling(true);
+      await cancelRegistration(campaignId);
+      toast.success("Registration cancelled successfully");
+      await fetchData();
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Failed to cancel registration"));
+    } finally {
+      setCancelling(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -118,24 +169,78 @@ export default function CampaignsPage() {
                 title: activeRegistration?.campaign?.campName ?? "Campaign",
                 subtitle: "Registration confirmed",
                 location: activeRegistration?.campaign?.address ?? "",
-                date: activeRegistration?.campaign?.campaignDate ? new Date(activeRegistration.campaign.campaignDate).toLocaleDateString("en-US", {day: "numeric", month: "long", year: "numeric"}) : "",
-                id: activeRegistration?.id.slice(0,12).toUpperCase(),
+                date: activeRegistration?.campaign?.campaignDate
+                  ? formatCampaignDate(activeRegistration.campaign.campaignDate)
+                  : "",
+                id: activeRegistration?.id.slice(0, 12).toUpperCase(),
                 badges: [
-                  { label: activeRegistration?.status ?? "Registered", variant: "success" as const },
+                  {
+                    label: activeRegistration?.status ?? "Registered",
+                    variant: "success" as const,
+                  },
                 ],
+                onCancel:
+                  activeRegistration?.status === "REGISTERED" && !cancelling
+                    ? () => handleCancel(activeRegistration.campaignId)
+                    : undefined,
               }
         }
       />
 
-      {/* Journey — only for REGISTERED or COMPLETED */}
-      {campaignStatus !== "NONE" && (
+      {/* Journey — only for REGISTERED */}
+      {campaignStatus === "REGISTERED" && (
         <JourneyTimeline
           stages={CAMPAIGN_JOURNEY_STAGES}
-          activeStage={
-            campaignStatus === "COMPLETED" ? "Transported" : "Confirmed"
-          }
+          activeStage="Confirmed"
           title="Campaign Journey"
         />
+      )}
+
+      {/* Your Registrations */}
+      {registrations.length > 0 && (
+        <Card className="!p-6">
+          <h2 className="card-title mb-4">Your Registrations</h2>
+          <div className="divide-y divide-border/50">
+            {registrations.map((registration) => (
+              <div
+                key={registration.id}
+                className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="text-sm font-medium text-text-primary">
+                    {registration.campaign?.campName ?? "Campaign"}
+                  </p>
+                  <p className="text-xs text-text-muted">
+                    {registration.campaign?.campaignDate
+                      ? formatCampaignDate(registration.campaign.campaignDate)
+                      : ""}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Badge
+                    variant={
+                      registration.status === "REGISTERED" ? "success" : "secondary"
+                    }
+                  >
+                    {registration.status}
+                  </Badge>
+                  {registration.status === "REGISTERED" && (
+                    <Button
+                      variant="ghost"
+                      size="xs"
+                      className="text-danger hover:bg-danger/10 hover:text-danger"
+                      disabled={cancelling}
+                      onClick={() => handleCancel(registration.campaignId)}
+                    >
+                      Cancel
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
       )}
 
       {/* Browse Campaigns */}
@@ -145,7 +250,6 @@ export default function CampaignsPage() {
         searchPlaceholder="Search campaigns by name or location..."
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        filters={CAMPAIGN_FILTERS}
         emptyMessage="No campaigns found"
         emptyDescription="Check back later or adjust your search."
         disabled={isActive}

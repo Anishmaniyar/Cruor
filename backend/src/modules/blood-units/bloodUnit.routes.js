@@ -5,6 +5,7 @@ import {
   blooodUnitofHospital,
   updateBloodUnitPacketStatus,
   bloodUnitInventorybyId,
+  expireBloodUnitPacketStatus,
 } from "./bloodUnit.controller.js";
 import { updateBloodUnitStatusSchema } from "./bloodUnit.validator.js";
 import { validateRequest } from "../../middleware/validateRequest.js";
@@ -24,7 +25,7 @@ router.patch(
   updateBloodUnitPacketStatus,
 );
 
-//later this will become background job
-router.patch("/:id/expire", verifyHospital);
+// later this will become a background job
+router.patch("/:id/expire", verifyHospital, expireBloodUnitPacketStatus);
 
 export default router;

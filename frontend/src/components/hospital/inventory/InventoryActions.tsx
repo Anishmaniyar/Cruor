@@ -1,95 +1,111 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil, Trash2, AlertTriangle } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import type { StockStatus } from "./StockStatusBadge";
+import { updateBloodUnitStatus } from "@/services/bloodUnit.services";
+import type { BloodUnitStatus } from "@/services/bloodUnit.services";
+import {
+  BLOOD_UNIT_STATUS_DISPLAY,
+  BLOOD_UNIT_TRANSITIONS,
+} from "@/lib/blood-unit-utils";
+import { getErrorMessage } from "@/lib/error";
+
+const selectClass =
+  "h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-text-primary outline-none transition-all focus:border-border-light focus:ring-2 focus:ring-ring/40";
 
 interface InventoryActionsProps {
-  status: StockStatus;
+  bloodUnitId: string;
+  currentStatus: BloodUnitStatus;
+  onStatusUpdated: (newStatus: BloodUnitStatus) => void;
 }
 
-export default function InventoryActions({ status }: InventoryActionsProps) {
-  const [isLoading, setIsLoading] = useState<string | null>(null);
+export default function InventoryActions({
+  bloodUnitId,
+  currentStatus,
+  onStatusUpdated,
+}: InventoryActionsProps) {
+  const [selectedStatus, setSelectedStatus] = useState<BloodUnitStatus | "">("");
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  const handleAction = async (label: string) => {
-    setIsLoading(label);
-    await new Promise((r) => setTimeout(r, 800));
-    setIsLoading(null);
+  const allowedNext = BLOOD_UNIT_TRANSITIONS[currentStatus] ?? [];
+
+  const handleUpdate = async () => {
+    if (!selectedStatus) return;
+
+    try {
+      setIsUpdating(true);
+      await updateBloodUnitStatus(bloodUnitId, selectedStatus);
+      toast.success(
+        `Blood unit marked as ${BLOOD_UNIT_STATUS_DISPLAY[selectedStatus]}`,
+      );
+      onStatusUpdated(selectedStatus);
+      setSelectedStatus("");
+    } catch (e) {
+      toast.error(getErrorMessage(e, "Failed to update blood unit status"));
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
-  // Expired stock — disposal only
-  if (status === "Expired") {
+  if (allowedNext.length === 0) {
     return (
       <Card className="!p-6">
         <h2 className="card-title mb-2">Inventory Actions</h2>
-        <div className="mb-4 flex items-center gap-3 rounded-xl bg-danger/10 px-5 py-4">
-          <AlertTriangle className="h-5 w-5 text-danger" />
-          <p className="text-sm text-text-secondary">
-            This blood unit has expired. Only disposal actions are available.
-          </p>
-        </div>
-        <Button
-          variant="secondary"
-          className="gap-2 text-danger hover:bg-danger/10 hover:text-danger"
-          disabled={isLoading !== null}
-          onClick={() => handleAction("dispose")}
-        >
-          {isLoading === "dispose" ? (
-            "Disposing..."
-          ) : (
-            <>
-              <Trash2 className="h-4 w-4" />
-              Dispose Blood Unit
-            </>
-          )}
-        </Button>
+        <p className="text-sm text-text-secondary">
+          No status changes are available for a{" "}
+          {BLOOD_UNIT_STATUS_DISPLAY[currentStatus]?.toLowerCase() ?? currentStatus}{" "}
+          blood unit.
+        </p>
       </Card>
     );
   }
 
-  // Healthy / Low Stock / Critical / Expiring Soon — full actions
   return (
     <Card className="!p-6">
-      <h2 className="card-title mb-2">Inventory Actions</h2>
+      <h2 className="card-title mb-2">Update Blood Unit Status</h2>
       <p className="mb-5 text-sm text-text-secondary">
-        Manage this inventory record.
+        Current status:{" "}
+        <span className="font-semibold text-text-primary">
+          {BLOOD_UNIT_STATUS_DISPLAY[currentStatus] ?? currentStatus}
+        </span>
       </p>
-      <div className="flex flex-wrap gap-3">
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div className="w-full sm:w-64">
+          <label className="mb-2 block text-sm font-medium text-text-primary">
+            Next Status
+          </label>
+          <select
+            value={selectedStatus}
+            onChange={(e) =>
+              setSelectedStatus(e.target.value as BloodUnitStatus)
+            }
+            className={selectClass}
+          >
+            <option value="" disabled>
+              Select next status
+            </option>
+            {allowedNext.map((status) => (
+              <option
+                key={status}
+                value={status}
+                className="bg-surface text-text-primary"
+              >
+                {BLOOD_UNIT_STATUS_DISPLAY[status]}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <Button
-          variant="secondary"
+          variant="primary"
           className="gap-2"
-          disabled={isLoading !== null}
-          onClick={() => handleAction("edit")}
+          disabled={!selectedStatus || isUpdating}
+          onClick={handleUpdate}
         >
-          <Pencil className="h-4 w-4" />
-          Edit Record
-        </Button>
-        <Button
-          variant="secondary"
-          className="gap-2"
-          disabled={isLoading !== null}
-          onClick={() => handleAction("correct")}
-        >
-          Correct Quantity
-        </Button>
-        <Button
-          variant="secondary"
-          className="gap-2"
-          disabled={isLoading !== null}
-          onClick={() => handleAction("update-expiry")}
-        >
-          Update Expiry Date
-        </Button>
-        <Button
-          variant="ghost"
-          className="gap-2 text-danger hover:bg-danger/10 hover:text-danger"
-          disabled={isLoading !== null}
-          onClick={() => handleAction("remove")}
-        >
-          <Trash2 className="h-4 w-4" />
-          Remove Units
+          {isUpdating ? "Updating..." : "Update Status"}
         </Button>
       </div>
     </Card>

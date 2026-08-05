@@ -16,6 +16,8 @@ import {
   HospitalSignUpSchemaType,
 } from "@/lib/validations/hospital";
 import { useAuth } from "@/lib/auth-context";
+import { registerHospital } from "@/services/auth.services";
+import { getErrorMessage } from "@/lib/error";
 
 export default function HospitalRegisterForm() {
   const router = useRouter();
@@ -24,21 +26,26 @@ export default function HospitalRegisterForm() {
   const form = useForm<HospitalSignUpSchemaType>({
     resolver: zodResolver(hospitalSignUpSchema),
     defaultValues: {
-      hospitalName: "",
+      name: "",
       email: "",
       password: "",
       phoneNo: "",
+      registrationId: "",
     },
   });
 
   const onSubmit = async (data: HospitalSignUpSchemaType) => {
     try {
-      // Mock submission — replace with actual API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await registerHospital(data);
 
       signup(
-        { id: "H-1024", name: data.hospitalName, email: data.email },
-        "hospital"
+        {
+          id: response.data.hospital.id,
+          name: response.data.hospital.name,
+          email: response.data.hospital.email,
+        },
+        "hospital",
+        response.data.accessToken,
       );
 
       toast.success("Hospital account created successfully");
@@ -46,8 +53,8 @@ export default function HospitalRegisterForm() {
       form.reset();
 
       router.push("/hospital/dashboard");
-    } catch {
-      toast.error("Something went wrong");
+    } catch (error) {
+      toast.error(getErrorMessage(error, "something went wrong"));
     }
   };
 
@@ -65,11 +72,11 @@ export default function HospitalRegisterForm() {
         <Input
           placeholder="Hospital Name"
           autoComplete="organization"
-          {...form.register("hospitalName")}
+          {...form.register("name")}
         />
-        {form.formState.errors.hospitalName && (
+        {form.formState.errors.name && (
           <p className="text-sm text-danger">
-            {form.formState.errors.hospitalName.message}
+            {form.formState.errors.name.message}
           </p>
         )}
       </div>
@@ -98,6 +105,19 @@ export default function HospitalRegisterForm() {
         {form.formState.errors.phoneNo && (
           <p className="text-sm text-danger">
             {form.formState.errors.phoneNo.message}
+          </p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Input
+          placeholder="Registration ID"
+          autoComplete="off"
+          {...form.register("registrationId")}
+        />
+        {form.formState.errors.registrationId && (
+          <p className="text-sm text-danger">
+            {form.formState.errors.registrationId.message}
           </p>
         )}
       </div>

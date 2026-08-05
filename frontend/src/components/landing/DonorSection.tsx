@@ -36,7 +36,7 @@ export default function DonorSection() {
     <section
       id="donors"
       ref={ref}
-      className="relative py-32 border-t border-border"
+      className="relative py-32 border-t border-border bg-surface-secondary"
     >
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
@@ -139,7 +139,7 @@ export default function DonorSection() {
                 : "opacity-0 translate-x-8",
             )}
           >
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-text-primary">
+            <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-text-primary">
               Designed for <span className="text-primary">Blood Donors</span>
             </h2>
             <p className="mt-4 text-lg text-text-secondary leading-relaxed">

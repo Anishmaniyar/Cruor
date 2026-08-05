@@ -71,6 +71,12 @@ export const getHospitalCampaigns = async () => {
   return response.data;
 };
 
+// Get a single campaign for a hospital (ownership-checked)
+export const getHospitalCampaignById = async (campaignId: string) => {
+  const response = await api.get(`/campaigns/hospital/${campaignId}`);
+  return response.data;
+};
+
 // Get registrations for a specific campaign (hospital view)
 export const getCampaignRegistrations = async (campaignId: string) => {
   const response = await api.get(`/campaigns/${campaignId}/registrations`);

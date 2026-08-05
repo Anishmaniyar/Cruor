@@ -146,3 +146,21 @@ export const getHospitalAppointments = asyncHandler(async (req, res, next) => {
     data: appointments,
   });
 });
+
+export const getHospitalAppointmentById = asyncHandler(async (req, res, next) => {
+  const appointmentId = req.params.id;
+  const hospitalId = req.hospital.id;
+
+  const appointment = await appointmentService.getHospitalAppointmentByIdService(
+    appointmentId,
+    hospitalId,
+  );
+
+  return res.status(200).json({
+    status: "success",
+    message: "Appointment fetched successfully",
+    data: {
+      appointment,
+    },
+  });
+});

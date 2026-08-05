@@ -65,9 +65,10 @@ export const updateBloodUnitPacketStatus = asyncHandler(
       newStatus,
     );
 
-    return res.status(204).json({
+    return res.status(200).json({
       status: "success",
       message: "Status updated successfully",
+      data: updateStatus,
     });
   },
 );
@@ -78,17 +79,15 @@ export const expireBloodUnitPacketStatus = asyncHandler(
 
     const bloodUnitId = req.params.id;
 
-    const { status } = req.body;
-
     const expireBloodUnit = await bloodUnitService.expireBloodUnitService(
       hospitalId,
       bloodUnitId,
-      newStatus,
     );
 
-    return res.status(204).json({
+    return res.status(200).json({
       status: "success",
-      message: "Status updated successfully",
+      message: "Blood unit expired successfully",
+      data: expireBloodUnit,
     });
   },
 );

@@ -32,10 +32,20 @@ export default function DeleteAccountCard() {
           </div>
         </div>
 
-        <Button variant="ghost" className="w-full gap-2 border border-danger/20 bg-danger/5 text-danger hover:bg-danger/10 hover:text-danger">
+        <Button
+          variant="ghost"
+          className="w-full gap-2 border border-danger/20 bg-danger/5 text-danger hover:bg-danger/10 hover:text-danger"
+          disabled
+          title="Account deletion is not implemented on the backend yet"
+        >
           <Trash2 size={16} />
           Delete My Account
         </Button>
+
+        <p className="mt-3 text-center text-xs text-text-muted">
+          Account deletion is not available yet — the backend does not expose a
+          delete endpoint for donor accounts.
+        </p>
       </CardContent>
     </Card>
   );

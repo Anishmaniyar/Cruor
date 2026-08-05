@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Pencil, XCircle } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CampaignStatusBadge from "./CampaignStatusBadge";
 import type { CampaignStatus } from "./CampaignStatusBadge";
@@ -15,10 +15,9 @@ export interface Campaign {
 
 interface CampaignRowProps {
   campaign: Campaign;
-  onCancel?: (id: string) => void;
 }
 
-export default function CampaignRow({ campaign, onCancel }: CampaignRowProps) {
+export default function CampaignRow({ campaign }: CampaignRowProps) {
   return (
     <tr className="border-b border-border transition-colors hover:bg-surface-hover">
       <td className="px-6 py-4">
@@ -39,29 +38,12 @@ export default function CampaignRow({ campaign, onCancel }: CampaignRowProps) {
         <CampaignStatusBadge status={campaign.status} />
       </td>
       <td className="px-6 py-4 text-right">
-        <div className="flex items-center justify-end gap-2">
-          <Link href={`/hospital/campaigns/${campaign.id}`}>
-            <Button variant="ghost" size="xs" className="gap-1.5">
-              View Details
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Button>
-          </Link>
-          <Link href={`/hospital/campaigns/${campaign.id}/edit`}>
-            <Button variant="ghost" size="xs" className="gap-1.5">
-              <Pencil className="h-3.5 w-3.5" />
-            </Button>
-          </Link>
-          {campaign.status !== "Completed" && campaign.status !== "Cancelled" && (
-            <Button
-              variant="ghost"
-              size="xs"
-              className="gap-1.5 text-danger hover:bg-danger/10 hover:text-danger"
-              onClick={() => onCancel?.(campaign.id)}
-            >
-              <XCircle className="h-3.5 w-3.5" />
-            </Button>
-          )}
-        </div>
+        <Link href={`/hospital/campaigns/${campaign.id}`}>
+          <Button variant="ghost" size="xs" className="gap-1.5">
+            View Details
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Button>
+        </Link>
       </td>
     </tr>
   );

@@ -67,6 +67,21 @@ export const viewCampaignById = asyncHandler(async (req, res) => {
   });
 });
 
+export const viewHospitalCampaignById = asyncHandler(async (req, res) => {
+  const campaignId = req.params.id;
+  const hospitalId = req.hospital.id;
+
+  const campaign = await campaignService.getHospitalCampaignByIdService(
+    hospitalId,
+    campaignId,
+  );
+
+  return res.status(200).json({
+    status: "success",
+    data: campaign,
+  });
+});
+
 export const registerCampaign = asyncHandler(async (req, res) => {
   const campaignId = req.params.id;
 

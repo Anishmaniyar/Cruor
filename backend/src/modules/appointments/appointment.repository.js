@@ -78,16 +78,10 @@ export const checkHospitalVerification = async (id) => {
   return !!hospital;
 };
 
-export const findConflictingUserAppointment = async (
-  userId,
-  appointmentDate,
-  appointmentTime,
-) => {
+export const findActiveUserAppointment = async (userId) => {
   return await prisma.appointment.findFirst({
     where: {
       userId,
-      appointmentDate,
-      appointmentTime,
       status: { in: ["BOOKED", "CONFIRMED"] },
     },
   });
@@ -202,6 +196,28 @@ export const getHospitalAppointments = async (hospitalId) => {
     },
     orderBy: {
       createdAt: "desc", // Shows the "just booked" appointment at the very top
+    },
+  });
+};
+
+export const findHospitalAppointmentById = async (hospitalId, id) => {
+  return await prisma.appointment.findFirst({
+    where: { id, hospitalId },
+    include: {
+      hospital: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      user: {
+        select: {
+          id: true,
+          name: true,
+          phoneNo: true,
+          bloodGroup: true,
+        },
+      },
     },
   });
 };

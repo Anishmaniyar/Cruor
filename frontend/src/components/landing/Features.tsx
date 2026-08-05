@@ -82,7 +82,7 @@ export default function Features() {
         <div className="text-center mb-16">
           <h2
             className={cn(
-              "text-3xl sm:text-4xl font-bold tracking-tight text-text-primary transition-all duration-700",
+              "text-3xl sm:text-4xl font-medium tracking-tight text-text-primary transition-all duration-700",
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6",
             )}
           >

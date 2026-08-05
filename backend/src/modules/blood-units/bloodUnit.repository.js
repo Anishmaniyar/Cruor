@@ -6,6 +6,8 @@ export const findBloodUnitsofHospital = async (hospitalId) => {
       hospitalId: hospitalId,
     },
     select: {
+      id: true,
+      hospitalId: true,
       bloodGroup: true,
       componentType: true,
       collectionDate: true,
@@ -37,6 +39,8 @@ export const hospitalOwnedBloodUnitRepo = async (hospitalId, bloodUnitId) => {
       hospitalId: hospitalId,
     },
     select: {
+      id: true,
+      hospitalId: true,
       bloodGroup: true,
       componentType: true,
       collectionDate: true,

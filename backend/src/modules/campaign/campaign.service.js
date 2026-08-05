@@ -167,6 +167,19 @@ export const getCampaignByIdService = async (campaignId) => {
   return campaign;
 };
 
+export const getHospitalCampaignByIdService = async (hospitalId, campaignId) => {
+  const campaign = await CampaignRepository.findHospitalCampaignById(
+    hospitalId,
+    campaignId,
+  );
+
+  if (!campaign) {
+    throw new AppError("Campaign not found or you don't have access", 404);
+  }
+
+  return campaign;
+};
+
 export const registerCampaignService = async (userId, campaignId) => {
   const campaign = await CampaignRepository.findCampaignId(campaignId);
 
