@@ -9,47 +9,43 @@ import {
   Siren,
   ArrowLeftRight,
   ShieldCheck,
-} from "lucide-react";
-
-const features = [
+} from "lucide-react";const features = [
   {
     icon: CalendarClock,
     title: "Smart Appointment Booking",
     description: "Book blood donation appointments with verified hospitals.",
-    color: "#dc2626",
+    color: "var(--primary)",
   },
   {
     icon: Megaphone,
     title: "Blood Donation Campaigns",
     description: "Find and join nearby donation campaigns in your area.",
-    color: "#f59e0b",
+    color: "var(--warning)",
   },
   {
     icon: Warehouse,
     title: "Blood Inventory Management",
     description: "Hospitals can monitor and manage blood stock efficiently.",
-    color: "#10b981",
+    color: "var(--success)",
   },
   {
     icon: Siren,
     title: "Emergency Blood Requests",
     description:
       "Hospitals can request blood from other hospitals when inventory is low.",
-    color: "#ef4444",
+    color: "var(--danger)",
   },
   {
     icon: ArrowLeftRight,
     title: "Hospital Collaboration",
-    description:
-      "Enable secure hospital-to-hospital blood transfers when needed.",
-    color: "#3b82f6",
+    description: "Enable secure hospital-to-hospital blood transfers when needed.",
+    color: "var(--secondary-accent)",
   },
   {
     icon: ShieldCheck,
     title: "Secure & Verified Platform",
-    description:
-      "Authentication, verification, and secure access for donors and hospitals.",
-    color: "#8b5cf6",
+    description: "Authentication, verification, and secure access for donors and hospitals.",
+    color: "var(--text-muted)",
   },
 ];
 
@@ -82,7 +78,7 @@ export default function Features() {
         <div className="text-center mb-16">
           <h2
             className={cn(
-              "text-3xl sm:text-4xl font-medium tracking-tight text-text-primary transition-all duration-700",
+              "text-3xl sm:text-4xl font-normal tracking-tight text-text-primary transition-all duration-700",
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6",
             )}
           >
@@ -105,7 +101,7 @@ export default function Features() {
             <div
               key={feature.title}
               className={cn(
-                "group relative rounded-2xl border border-border bg-surface p-6 transition-all duration-300 hover:border-border-light hover:shadow-[0_1px_8px_rgba(0,0,0,0.2)] hover:-translate-y-1",
+                "group relative rounded-xl border border-border bg-surface p-6 transition-all duration-200 hover:border-border-light hover:-translate-y-0.5",
                 visible
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-8",
@@ -124,7 +120,7 @@ export default function Features() {
               </div>
 
               {/* Title */}
-              <h3 className="text-base font-semibold text-text-primary mb-2">
+              <h3 className="text-base font-medium text-text-primary mb-2">
                 {feature.title}
               </h3>
 

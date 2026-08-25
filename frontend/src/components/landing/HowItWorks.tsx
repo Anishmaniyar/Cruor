@@ -67,7 +67,7 @@ export default function HowItWorks() {
         <div className="text-center mb-20">
           <h2
             className={cn(
-              "text-3xl sm:text-4xl font-medium tracking-tight text-text-primary transition-all duration-700",
+              "text-3xl sm:text-4xl font-normal tracking-tight text-text-primary transition-all duration-700",
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6",
             )}
           >
@@ -100,12 +100,12 @@ export default function HowItWorks() {
               style={{ transitionDelay: `${index * 150}ms` }}
             >
               {/* Step Number Circle */}
-              <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-border bg-surface mb-6 group transition-all duration-300 hover:border-primary/50 hover:bg-primary/5">
+              <div className="relative flex h-14 w-14 items-center justify-center rounded-xl border border-border bg-surface mb-6 group transition-all duration-200 hover:border-primary/50 hover:bg-primary/5">
                 <step.icon className="h-6 w-6 text-text-secondary transition-colors duration-300 group-hover:text-primary" />
               </div>
 
               {/* Content */}
-              <h3 className="text-base font-semibold text-text-primary mb-2">
+              <h3 className="text-base font-medium text-text-primary mb-2">
                 {step.title}
               </h3>
               <p className="text-sm text-text-muted max-w-[200px]">
@@ -144,7 +144,7 @@ export default function HowItWorks() {
 
                 {/* Content */}
                 <div>
-                  <h3 className="text-base font-semibold text-text-primary">
+                  <h3 className="text-base font-medium text-text-primary">
                     {step.title}
                   </h3>
                   <p className="text-sm text-text-muted mt-1">

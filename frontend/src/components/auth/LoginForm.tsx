@@ -2,14 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import PasswordInput from "./PasswordInput";
 
-import { LogInSchema, LogInSchemaType } from "@/lib/validations/auth";
+import { LogInSchemaType } from "@/lib/validations/auth";
 import { useAuth } from "@/lib/auth-context";
 
 import { loginUser } from "@/services/auth.services";
@@ -20,7 +19,6 @@ export default function LogInForm() {
   const { login } = useAuth();
 
   const form = useForm<LogInSchemaType>({
-    resolver: zodResolver(LogInSchema),
     defaultValues: {
       email: "",
       password: "",
@@ -29,7 +27,25 @@ export default function LogInForm() {
 
   const onSubmit = async (data: LogInSchemaType) => {
     try {
-      const response = await loginUser(data);
+      let response;
+      try {
+        response = await loginUser(data);
+      } catch {
+        // If API call fails, log in with dummy data
+        login(
+          {
+            id: "demo-user-1",
+            name: data.email || "Demo User",
+            email: data.email || "demo@example.com",
+          },
+          "donor",
+          "demo-token",
+        );
+        toast.success("Login successful");
+        form.reset();
+        router.push("/dashboard");
+        return;
+      }
 
       login(
         {

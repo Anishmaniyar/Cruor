@@ -1,6 +1,7 @@
 "use client";
 
 import { Mail, Phone, Calendar, Droplets, User } from "lucide-react";
+import Image from "next/image";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -72,8 +73,14 @@ export default function ProfileOverview() {
     <div className="space-y-8">
       {/* Profile Header */}
       <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-surface-hover ring-2 ring-border">
-          <User size={40} className="text-text-muted" />
+        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-surface-hover ring-2 ring-border overflow-hidden">
+          <Image
+            src="/logo1.png"
+            alt="Profile"
+            width={96}
+            height={96}
+            className="h-24 w-24 object-cover"
+          />
         </div>
 
         <div className="flex flex-col items-center sm:items-start">

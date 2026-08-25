@@ -57,14 +57,14 @@ export default function HospitalSection() {
                 : "opacity-0 translate-x-8",
             )}
           >
-            <div className="rounded-2xl border border-border bg-surface overflow-hidden shadow-xl">
+            <div className="rounded-xl border border-border bg-surface overflow-hidden">
               {/* Mock Dashboard Header */}
               <div className="flex items-center justify-between border-b border-border px-6 py-4">
                 <div className="flex items-center gap-2">
                   <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/20">
                     <Building2 className="h-4 w-4 text-primary" />
                   </div>
-                  <span className="text-sm font-semibold text-text-primary">
+                  <span className="text-sm font-medium text-text-primary">
                     Hospital Dashboard
                   </span>
                 </div>
@@ -166,7 +166,7 @@ export default function HospitalSection() {
                 : "opacity-0 -translate-x-8",
             )}
           >
-            <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-text-primary">
+            <h2 className="text-3xl sm:text-4xl font-normal tracking-tight text-text-primary">
               Built for <span className="text-primary">Hospitals</span>
             </h2>
             <p className="mt-4 text-lg text-text-secondary leading-relaxed">

@@ -49,14 +49,14 @@ export default function DonorSection() {
                 : "opacity-0 -translate-x-8",
             )}
           >
-            <div className="rounded-2xl border border-border bg-surface overflow-hidden shadow-xl">
+            <div className="rounded-xl border border-border bg-surface overflow-hidden">
               {/* Mock Dashboard Header */}
               <div className="flex items-center justify-between border-b border-border px-6 py-4">
                 <div className="flex items-center gap-2">
                   <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/20">
                     <Droplets className="h-4 w-4 text-primary" />
                   </div>
-                  <span className="text-sm font-semibold text-text-primary">
+                  <span className="text-sm font-medium text-text-primary">
                     Donor Dashboard
                   </span>
                 </div>
@@ -77,7 +77,7 @@ export default function DonorSection() {
                     key={stat.label}
                     className="bg-surface px-5 py-4 text-center"
                   >
-                    <p className="text-lg font-bold text-text-primary">
+                    <p className="text-lg font-medium text-text-primary">
                       {stat.value}
                     </p>
                     <p className="text-xs text-text-muted mt-0.5">
@@ -139,7 +139,7 @@ export default function DonorSection() {
                 : "opacity-0 translate-x-8",
             )}
           >
-            <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-text-primary">
+            <h2 className="text-3xl sm:text-4xl font-normal tracking-tight text-text-primary">
               Designed for <span className="text-primary">Blood Donors</span>
             </h2>
             <p className="mt-4 text-lg text-text-secondary leading-relaxed">
