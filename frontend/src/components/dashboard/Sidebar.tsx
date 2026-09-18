@@ -62,7 +62,7 @@ export default function Sidebar() {
     <aside className="flex min-h-screen w-72 flex-col border-r border-border bg-surface p-6">
       {/* Logo */}
       <div className="mb-8">
-        <h1 className="text-lg font-semibold text-text-primary">Vital Drops</h1>
+        <h1 className="text-lg font-semibold text-text-primary">Cruor</h1>
       </div>
 
       {/* Welcome Card */}

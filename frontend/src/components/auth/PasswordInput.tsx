@@ -18,7 +18,6 @@ export default function PasswordInput(props: PasswordInputProps) {
       <Input
         {...props}
         type={showPassword ? "text" : "password"}
-        placeholder="Enter your password"
       />
 
       <button

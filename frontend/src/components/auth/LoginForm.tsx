@@ -73,7 +73,7 @@ export default function LogInForm() {
       className="flex flex-col gap-6"
     >
       <div className="space-y-2 text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-text-primary">
+        <h1 className="text-3xl font-medium tracking-tight text-text-primary">
           Welcome Back
         </h1>
         <p className="text-sm text-text-secondary">Sign in to your account</p>

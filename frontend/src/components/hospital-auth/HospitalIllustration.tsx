@@ -51,7 +51,7 @@ export default function HospitalIllustration() {
 
           {/* Description */}
           <div className="space-y-3 text-center">
-            <h1 className="text-2xl font-bold tracking-tight text-text-primary">
+            <h1 className="text-2xl font-medium tracking-tight text-text-primary">
               Hospital Network
             </h1>
             <p className="mx-auto max-w-sm text-sm leading-relaxed text-text-secondary">

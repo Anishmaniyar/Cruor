@@ -71,7 +71,7 @@ export default function HowItWorks() {
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6",
             )}
           >
-            How Vital Drops Works
+            How Cruor Works
           </h2>
           <p
             className={cn(

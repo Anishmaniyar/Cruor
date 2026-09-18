@@ -48,7 +48,7 @@ function MetricSkeleton() {
 
 function CardSkeleton() {
   return (
-    <div className="rounded-xl border border-border bg-surface p-6 animate-pulse">
+    <div className="rounded-lg border border-border bg-surface p-6 animate-pulse">
       <div className="flex items-center justify-between mb-4">
         <div className="h-4 w-32 rounded bg-surface-hover" />
         <div className="h-3 w-16 rounded bg-surface-hover" />
