@@ -70,8 +70,13 @@ export default function AppointmentsPage() {
           setAppointmentStatus("NONE");
         }
       }
-    } catch {
-      // No appointments or not logged in — stay in NONE state
+    } catch (error) {
+      // Stay in the NONE state, but log the reason: swallowing it silently makes
+      // a failed request look identical to "you have no appointments".
+      console.warn(
+        "[appointments] Failed to load appointments:",
+        getErrorMessage(error, "unknown error"),
+      );
       setLatestAppointment(null);
       setAppointmentStatus("NONE");
     }
@@ -107,8 +112,12 @@ export default function AppointmentsPage() {
           }
         }
       })
-      .catch(() => {
+      .catch((error) => {
         if (cancelled) return;
+        console.warn(
+          "[appointments] Failed to load appointments or hospitals:",
+          getErrorMessage(error, "unknown error"),
+        );
         setHospitals([]);
         setLatestAppointment(null);
         setAppointmentStatus("NONE");
@@ -150,6 +159,9 @@ export default function AppointmentsPage() {
       toast.success("Appointment cancelled successfully");
       await fetchAppointments();
     } catch (error) {
+      // Log the raw error as well as the toast, so the exact status/message can
+      // be read from the browser console without guessing.
+      console.error("[appointments] Cancel request failed:", error);
       toast.error(getErrorMessage(error, "Failed to cancel appointment"));
     } finally {
       setCancelling(false);
@@ -170,7 +182,11 @@ export default function AppointmentsPage() {
           : "secondary" as const,
       },
     ],
-    onCancel: isActive && !cancelling ? handleCancel : undefined,
+    // Keep the handler attached while the request is in flight and let the
+    // button show a disabled "Cancelling…" state, so a click always produces
+    // visible feedback instead of the button silently disappearing.
+    onCancel: isActive ? handleCancel : undefined,
+    cancelDisabled: cancelling,
   });
 
   if (loading) {

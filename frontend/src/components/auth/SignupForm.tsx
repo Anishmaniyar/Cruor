@@ -33,25 +33,11 @@ export default function SignupForm() {
 
   const onSubmit = async (data: SignUpSchemaType) => {
     try {
-      let response;
-      try {
-        response = await registerUser(data);
-      } catch {
-        // If API call fails, sign up with dummy data
-        signup(
-          {
-            id: "demo-user-1",
-            name: data.name || "Demo User",
-            email: data.email || "demo@example.com",
-          },
-          "donor",
-          "demo-token",
-        );
-        toast.success("Account created successfully");
-        form.reset();
-        router.push("/dashboard");
-        return;
-      }
+      // A failed signup must surface the real API error (email already
+      // registered, weak password, backend unreachable) instead of faking a
+      // session with "demo-token", which is not a real JWT and makes every
+      // later request 401.
+      const response = await registerUser(data);
 
       signup(
         {

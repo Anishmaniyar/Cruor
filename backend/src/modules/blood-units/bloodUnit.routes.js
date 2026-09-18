@@ -1,4 +1,4 @@
-import Router from "express";
+import { Router } from "express";
 import { verifyHospital } from "../../middleware/authorize.js";
 import {
   bloodUnitInventory,

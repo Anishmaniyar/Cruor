@@ -27,6 +27,8 @@ interface StatusCardData {
   badges?: { label: string; variant?: "default" | "secondary" | "success" }[];
   onReschedule?: () => void;
   onCancel?: () => void;
+  /** Keeps the Cancel button visible but disabled while the request is in flight. */
+  cancelDisabled?: boolean;
 }
 
 interface StatusCardProps {
@@ -147,7 +149,11 @@ export default function StatusCard({ type, status, data }: StatusCardProps) {
             {status === "ACTIVE" && (
               <div className="flex items-center gap-2">
                 {data?.onReschedule && (
-                  <Button variant="ghost" size="sm">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={data.onReschedule}
+                  >
                     <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
                     {type === "appointment" ? "Reschedule" : "Update"}
                   </Button>
@@ -157,9 +163,11 @@ export default function StatusCard({ type, status, data }: StatusCardProps) {
                     variant="ghost"
                     size="sm"
                     className="text-danger hover:bg-danger/10 hover:text-danger"
+                    onClick={data.onCancel}
+                    disabled={data.cancelDisabled}
                   >
                     <XCircle className="mr-1.5 h-3.5 w-3.5" />
-                    Cancel
+                    {data.cancelDisabled ? "Cancelling…" : "Cancel"}
                   </Button>
                 )}
               </div>

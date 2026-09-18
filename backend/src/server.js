@@ -20,15 +20,40 @@ dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 
+// Without these, a rejected promise or an uncaught throw kills the process and
+// the deployment log shows nothing useful about why it died.
+process.on("unhandledRejection", (reason) => {
+  console.error("[fatal] Unhandled promise rejection:", reason);
+});
+
+process.on("uncaughtException", (error) => {
+  // An uncaught exception leaves the process in an unknown state, so report it
+  // and exit - the platform then restarts a healthy instance.
+  console.error("[fatal] Uncaught exception, exiting:", error);
+  process.exit(1);
+});
+
 async function startServer() {
   try {
+    console.log(
+      `[boot] Starting backend - NODE_ENV=${process.env.NODE_ENV ?? "development"} PORT=${PORT}`,
+    );
+    // Only whether the variable is present is logged - never its value, since
+    // DATABASE_URL contains credentials.
+    console.log(
+      `[boot] DATABASE_URL is ${process.env.DATABASE_URL ? "set" : "MISSING"}`,
+    );
+    console.log(
+      "[boot] API mounted at /api/v1 - health check: GET /api/v1/health",
+    );
+
     console.log("Connecting to Neon PostgreSQL database...");
     await prisma.$connect();
     console.log("Successfully connected to Neon DB via Prisma Client.");
 
     const server = app.listen(PORT, async () => {
       console.log(
-        `🚀 Server smoothly running on port ${PORT} in development mode`,
+        `🚀 Server smoothly running on port ${PORT} - ready to accept requests`,
       );
     });
 

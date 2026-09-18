@@ -1,4 +1,4 @@
-import Router from "express";
+import { Router } from "express";
 import { verifyUser } from "../auth/auth.middleware.js";
 import { getDashboard } from "./dashboard.controller.js";
 

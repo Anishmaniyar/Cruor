@@ -28,25 +28,10 @@ export default function HospitalLoginForm() {
 
   const onSubmit = async (data: HospitalLogInSchemaType) => {
     try {
-      let response;
-      try {
-        response = await loginHospital(data);
-      } catch {
-        // If API call fails, log in with dummy data
-        login(
-          {
-            id: "demo-hospital-1",
-            name: data.email || "Demo Hospital",
-            email: data.email || "demo@hospital.com",
-          },
-          "hospital",
-          "demo-token",
-        );
-        toast.success("Hospital login successful");
-        form.reset();
-        router.push("/hospital/dashboard");
-        return;
-      }
+      // A failed login must surface the real API error (wrong password,
+      // backend unreachable) instead of faking a session with "demo-token",
+      // which is not a real JWT and makes every later request 401.
+      const response = await loginHospital(data);
 
       login(
         {

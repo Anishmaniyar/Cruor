@@ -180,9 +180,10 @@ export default function CampaignsPage() {
                   },
                 ],
                 onCancel:
-                  activeRegistration?.status === "REGISTERED" && !cancelling
+                  activeRegistration?.status === "REGISTERED"
                     ? () => handleCancel(activeRegistration.campaignId)
                     : undefined,
+                cancelDisabled: cancelling,
               }
         }
       />

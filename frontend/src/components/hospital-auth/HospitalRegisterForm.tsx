@@ -31,25 +31,11 @@ export default function HospitalRegisterForm() {
 
   const onSubmit = async (data: HospitalSignUpSchemaType) => {
     try {
-      let response;
-      try {
-        response = await registerHospital(data);
-      } catch {
-        // If API call fails, sign up with dummy data
-        signup(
-          {
-            id: "demo-hospital-1",
-            name: data.name || "Demo Hospital",
-            email: data.email || "demo@hospital.com",
-          },
-          "hospital",
-          "demo-token",
-        );
-        toast.success("Hospital account created successfully");
-        form.reset();
-        router.push("/hospital/dashboard");
-        return;
-      }
+      // A failed signup must surface the real API error (duplicate email,
+      // registration ID already taken, backend unreachable). It must NOT be
+      // turned into a fake local session: "demo-token" is not a real JWT, so
+      // every authenticated request 401s and the user is bounced to /login.
+      const response = await registerHospital(data);
 
       signup(
         {

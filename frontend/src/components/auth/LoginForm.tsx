@@ -27,25 +27,10 @@ export default function LogInForm() {
 
   const onSubmit = async (data: LogInSchemaType) => {
     try {
-      let response;
-      try {
-        response = await loginUser(data);
-      } catch {
-        // If API call fails, log in with dummy data
-        login(
-          {
-            id: "demo-user-1",
-            name: data.email || "Demo User",
-            email: data.email || "demo@example.com",
-          },
-          "donor",
-          "demo-token",
-        );
-        toast.success("Login successful");
-        form.reset();
-        router.push("/dashboard");
-        return;
-      }
+      // A failed login must surface the real API error (wrong password,
+      // backend unreachable) instead of faking a session with "demo-token",
+      // which is not a real JWT and makes every later request 401.
+      const response = await loginUser(data);
 
       login(
         {
