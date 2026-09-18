@@ -1,3 +1,8 @@
+// REDIS DISABLED - re-enable when Redis is configured
+// This module is no longer imported by server.js, so the cron jobs below are
+// not registered. It is left intact and its calls are safe: scheduler.queue.js
+// exports a no-op stand-in that resolves without touching Redis, so importing
+// this file will not throw. Re-add the import in server.js to re-enable.
 import { schedulerQueue } from "../scheduler.queue.js";
 
 const registerSchedulerJobs = async () => {
@@ -16,7 +21,10 @@ const registerSchedulerJobs = async () => {
       },
     },
   );
-  console.log("📅 Inventory Expiry Job registered.");
+  // REDIS DISABLED - re-enable when Redis is configured
+  // Log commented out: with Redis off nothing is actually registered, so this
+  // message would be misleading. Restore it together with the queue above.
+  // console.log("📅 Inventory Expiry Job registered.");
 
   await schedulerQueue.updateJobProgress(
     "appointmentReminderScheduler",
@@ -50,7 +58,8 @@ const registerSchedulerJobs = async () => {
     },
   );
 
-  console.log("📅 Scheduler Job registered successfully.");
+  // REDIS DISABLED - re-enable when Redis is configured
+  // console.log("📅 Scheduler Job registered successfully.");
 };
 
 registerSchedulerJobs().catch((err) => {

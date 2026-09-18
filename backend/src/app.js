@@ -10,7 +10,7 @@ app.use(morgan("dev"));
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "vital-drops-2-0.vercel.app"],
+    origin: ["http://localhost:3000", "https://vital-drops-2-0.vercel.app"],
     credentials: true,
   }),
 );

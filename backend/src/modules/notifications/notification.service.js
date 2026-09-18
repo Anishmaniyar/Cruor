@@ -27,6 +27,10 @@ export const send = async (data) => {
     type,
   });
 
+  // REDIS DISABLED - re-enable when Redis is configured
+  // The notification row above is still written to Postgres; only the queue
+  // dispatch is skipped. notification.queue.js exports a no-op stand-in, so
+  // this resolves without Redis and without breaking the caller.
   await notificationQueue.add("sendNotificationJob", {
     notification: createNotification,
     recipient,
@@ -53,6 +57,8 @@ export const sendBulk = async (type, recipients, payload) => {
       },
     );
 
+    // REDIS DISABLED - re-enable when Redis is configured
+    // Same as `send` above: the notification is persisted, dispatch is skipped.
     await notificationQueue.add(
       "sendNotificationJob",
       {

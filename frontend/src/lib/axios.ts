@@ -2,8 +2,10 @@ import axios from "axios";
 
 const TOKEN_KEY = "vital-drops-access-token";
 
+// The API origin comes from the environment so the same build works locally
+// and in production. The backend mounts all routes under `/api/v1`.
 const api = axios.create({
-  baseURL: "http://localhost:8000/api/v1",
+  baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api/v1`,
   withCredentials: true,
 });
 

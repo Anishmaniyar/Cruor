@@ -1,13 +1,20 @@
 import dotenv from "dotenv";
 import app from "./app.js";
 import prisma from "./db.js";
-import redisClient from "./config/redis.js";
 
-import "./modules/notifications/notification.worker.js";
-import "./modules/notifications/jobs/scheduler.js";
-import "./modules/notifications/scheduler.worker.js";
+// REDIS DISABLED - re-enable when Redis is configured
+// import redisClient from "./config/redis.js";
 
-import { notificationQueue } from "./modules/notifications/notification.queue.js";
+// REDIS DISABLED - re-enable when Redis is configured
+// The BullMQ workers and the cron scheduler registration all connect to Redis
+// on import. They are commented out so the process starts with no Redis
+// connection attempts. Re-import them together with the Redis client above.
+// import "./modules/notifications/notification.worker.js";
+// import "./modules/notifications/jobs/scheduler.js";
+// import "./modules/notifications/scheduler.worker.js";
+
+// REDIS DISABLED - re-enable when Redis is configured
+// import { notificationQueue } from "./modules/notifications/notification.queue.js";
 
 dotenv.config();
 
@@ -34,8 +41,9 @@ async function startServer() {
         await prisma.$disconnect();
         console.log("Database connections closed.");
 
-        await redisClient.quit();
-        console.log("Redis connection closed.");
+        // REDIS DISABLED - re-enable when Redis is configured
+        // await redisClient.quit();
+        // console.log("Redis connection closed.");
 
         process.exit(0);
       });
