@@ -1,5 +1,7 @@
 import { format } from "date-fns";
 
+import { parseDateOnly } from "@/lib/date-utils";
+
 /* ─── Backend campaign statuses ─── */
 
 export type CampaignDisplayStatus =
@@ -61,10 +63,9 @@ export interface CampaignRegistrationDonor {
 
 export function formatCampaignDate(value: string): string {
   if (!value) return "—";
-  const date = /^\d{4}-\d{2}-\d{2}$/.test(value)
-    ? new Date(`${value}T00:00:00`)
-    : new Date(value);
-  if (isNaN(date.getTime())) return value;
+  // parseDateOnly keeps the calendar day stable across timezones.
+  const date = parseDateOnly(value);
+  if (!date) return value;
   return format(date, "MMM d, yyyy");
 }
 

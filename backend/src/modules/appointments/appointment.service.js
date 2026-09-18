@@ -18,9 +18,19 @@ export const bookAppointmentService = async (data) => {
   // }
 
   const now = new Date();
-  const requestedDateTime = new Date(appointmentDate);
-  requestedDateTime.setHours(appointmentTime.getUTCHours());
-  requestedDateTime.setMinutes(appointmentTime.getUTCMinutes());
+  // appointmentDate arrives as UTC midnight of the requested calendar date
+  // (zod: new Date("YYYY-MM-DD")) and appointmentTime as 1970-01-01T<HH:MM>Z.
+  // Read the calendar and time components off those UTC values, then rebuild a
+  // LOCAL datetime from them. The previous setHours(...) version mixed a UTC
+  // date with local hours, which shifted this check by a whole day on any
+  // server running west of UTC.
+  const requestedDateTime = new Date(
+    appointmentDate.getUTCFullYear(),
+    appointmentDate.getUTCMonth(),
+    appointmentDate.getUTCDate(),
+    appointmentTime.getUTCHours(),
+    appointmentTime.getUTCMinutes(),
+  );
   if (requestedDateTime < now) {
     throw new AppError(
       "Appointment date and time cannot be in the past or yesterday",

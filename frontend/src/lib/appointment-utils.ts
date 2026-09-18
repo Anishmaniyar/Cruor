@@ -1,5 +1,7 @@
 import { format } from "date-fns";
 
+import { parseDateOnly } from "@/lib/date-utils";
+
 /* ─── Backend appointment statuses ─── */
 
 export type AppointmentBackendStatus =
@@ -63,21 +65,17 @@ export interface AppointmentBackend {
 /* ─── Parsing helpers ─── */
 
 export function parseAppointmentDate(value: string): Date {
-  // Date-only values (YYYY-MM-DD) are parsed as UTC midnight by Date;
-  // append a local time so comparisons match the user's timezone.
-  return /^\d{4}-\d{2}-\d{2}$/.test(value)
-    ? new Date(`${value}T00:00:00`)
-    : new Date(value);
+  // Keeps the calendar day stable in every timezone so date comparisons
+  // (isToday / isTomorrow) match what the donor actually sees.
+  return parseDateOnly(value) ?? new Date(value);
 }
 
 /* ─── Formatting helpers ─── */
 
 export function formatAppointmentDate(value: string): string {
   if (!value) return "—";
-  const date = /^\d{4}-\d{2}-\d{2}$/.test(value)
-    ? new Date(`${value}T00:00:00`)
-    : new Date(value);
-  if (isNaN(date.getTime())) return value;
+  const date = parseDateOnly(value);
+  if (!date) return value;
   return format(date, "MMM d, yyyy");
 }
 

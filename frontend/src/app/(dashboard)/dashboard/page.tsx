@@ -24,6 +24,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { parseDateOnly } from "@/lib/date-utils";
 import { getDashboard, type DashboardData } from "@/services/dashboard.services";
 import { getDonationDashboard, type DonationDashboardData } from "@/services/donation.services";
 import { getMyAppointments } from "@/services/appointment.services";
@@ -97,10 +98,10 @@ function EmptyState({
 
 /* ─── Format helpers ─── */
 function formatDate(dateStr: string): string {
-  const d = /^\d{4}-\d{2}-\d{2}$/.test(dateStr)
-    ? new Date(`${dateStr}T00:00:00`)
-    : new Date(dateStr);
-  if (isNaN(d.getTime())) return dateStr;
+  // parseDateOnly keeps the calendar day stable across timezones for the
+  // DATE columns (appointment / donation / eligibility dates).
+  const d = parseDateOnly(dateStr);
+  if (!d) return dateStr;
   return d.toLocaleDateString("en-US", {
     weekday: "short",
     day: "numeric",
