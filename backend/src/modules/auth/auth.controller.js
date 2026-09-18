@@ -62,13 +62,15 @@ export const registerUser = asyncHandler(async (req, res, next) => {
 
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
-    sameSite: "strict",
+    secure: true,
+    sameSite: "none",
     maxAge: 15 * 60 * 1000,
   });
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    sameSite: "strict",
+    secure: true,
+    sameSite: "none",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
@@ -112,13 +114,15 @@ export const loginUser = asyncHandler(async (req, res, next) => {
 
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
-    sameSite: "strict",
+    secure: true,
+    sameSite: "none",
     maxAge: 15 * 60 * 1000, // 15 min
   });
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    sameSite: "strict",
+    secure: true,
+    sameSite: "none",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
@@ -139,12 +143,14 @@ export const loginUser = asyncHandler(async (req, res, next) => {
 export const logoutUser = asyncHandler(async (req, res, next) => {
   res.clearCookie("accessToken", {
     httpOnly: true,
-    sameSite: "strict",
+    secure: true,
+    sameSite: "none",
   });
 
   res.clearCookie("refreshToken", {
     httpOnly: true,
-    sameSite: "strict",
+    secure: true,
+    sameSite: "none",
   });
   return res.status(200).json({
     status: "success",
@@ -175,7 +181,8 @@ export const refreshAccessToken = asyncHandler(async (req, res, next) => {
 
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
-    sameSite: "strict",
+    secure: true,
+    sameSite: "none",
     maxAge: 15 * 60 * 1000,
   });
 
@@ -327,13 +334,15 @@ export const registerHospital = asyncHandler(async (req, res, next) => {
   // 5. Set secure httpOnly cookies
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
-    sameSite: "strict",
+    secure: true,
+    sameSite: "none",
     maxAge: 15 * 60 * 1000,
   });
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    sameSite: "strict",
+    secure: true,
+    sameSite: "none",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
@@ -382,13 +391,15 @@ export const loginHospital = asyncHandler(async (req, res, next) => {
 
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
-    sameSite: "strict",
+    secure: true,
+    sameSite: "none",
     maxAge: 15 * 60 * 1000,
   });
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    sameSite: "strict",
+    secure: true,
+    sameSite: "none",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
@@ -432,12 +443,14 @@ export const getCurrentHospital = asyncHandler(async (req, res, next) => {
 export const logoutHospital = asyncHandler(async (req, res, next) => {
   res.clearCookie("accessToken", {
     httpOnly: true,
-    sameSite: "strict",
+    secure: true,
+    sameSite: "none",
   });
 
   res.clearCookie("refreshToken", {
     httpOnly: true,
-    sameSite: "strict",
+    secure: true,
+    sameSite: "none",
   });
   return res.status(200).json({
     status: "success",
